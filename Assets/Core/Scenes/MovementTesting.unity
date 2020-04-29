@@ -1690,10 +1690,14 @@ MonoBehaviour:
   fallingAnimatorName: Falling
   jumpAnimatorName: Jump
   landAnimationName: Land
+  peakHeightAnimationName: PeakHeight
   maxJumpLength: 3
-  maxJumpInputTime: 0.5
-  jumpDuration: 0.5
+  minJumpLength: 0.5
+  maxJumpInputTime: 0.2
+  jumpDuration: 0.25
   jump: 0
+  appliedJumpForce: 0
+  peakHeight: 0
   isGrounded: 0
   isFalling: 0
 --- !u!114 &8914638641836191745

@@ -18,11 +18,11 @@ public class ParkourController : MonoBehaviour
     [Space(10), Tooltip("The highest the character can jump (in meters)")]
     public float maxJumpLength = 3;
     [Tooltip("The lowest the character can jump (in meters)")]
-    public float minJumpLength = 1.5f;
+    public float minJumpLength = 0.5f;
     [Tooltip("How long jump input needs to be true in order for character to achieve peak height (in seconds)")]
-    public float maxJumpInputTime = 0.5f;
-    [Tooltip("How long it takes for character to reach peak height (in seconds)")]
-    public float jumpDuration = 0.5f;
+    public float maxJumpInputTime = 0.2f;
+    [Tooltip("How long it takes for character to reach peak height, if set to too large a number then character might not reach peak height (in seconds)")]
+    public float jumpDuration = 0.25f;
     public bool jump;
     private bool prevJump;
     public bool appliedJumpForce;
@@ -71,6 +71,8 @@ public class ParkourController : MonoBehaviour
 
         if (!isGrounded)
             characterAnimator.SetFloat(jumpAnimatorName, 0);
+
+        Debug.DrawLine(characterBody.position, hitInfo.point, isGrounded ? Color.green : Color.red);
     }
 
     private void ListenForJumpInput()
@@ -87,16 +89,13 @@ public class ParkourController : MonoBehaviour
 
     public void Jump(float amount)
     {
-        if (isGrounded)
+        if (isGrounded && !appliedJumpForce)
         {
-            if (!appliedJumpForce)
-            {
-                characterAnimator.SetFloat(jumpAnimatorName, amount);
+            characterAnimator.SetFloat(jumpAnimatorName, amount);
 
-                SendTo(characterBody.transform.up * amount, jumpDuration);
+            SendTo(characterBody.transform.up * amount, jumpDuration);
 
-                appliedJumpForce = true;
-            }
+            appliedJumpForce = true;
         }
     }
 
