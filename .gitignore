@@ -65,5 +65,8 @@ Assets/Imported/PolygonSanta/*
 Assets/Imported/HeroicTraversal/*
 !Assets/Imported/HeroicTraversal/.gitkeep
 
-Assets/Imported/Rewired/*
-!Assets/Imported/Rewired/.gitkeep
+Assets/Rewired/*
+!Assets/Rewired/.gitkeep
+
+Assets/TextMesh Pro/*
+!Assets/TextMesh Pro/.gitkeep

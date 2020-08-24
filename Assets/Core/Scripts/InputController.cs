@@ -6,12 +6,10 @@ public class InputController : MonoBehaviour
 {
     public ParkourController parkourMan;
 
-    void Start()
-    {
-        
-    }
     void Update()
     {
         parkourMan.jump = Input.GetButton("Jump");
+        parkourMan.vertical = Input.GetAxis("Vertical");
+        parkourMan.horizontal = Input.GetAxis("Horizontal");
     }
 }
