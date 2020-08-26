@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Land
+  m_Name: AirFall
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -20,11 +20,11 @@ AnimationClip:
   m_PPtrCurves:
   - curve:
     - time: 0
-      value: {fileID: 21300000, guid: d40fd05e20daa21d29a9cfdfdbf0f8af, type: 3}
+      value: {fileID: 21300000, guid: 4a57f1bb2c546972dab6b2864c0b954d, type: 3}
     - time: 0.1
-      value: {fileID: 21300000, guid: bb37f5417225f262a87e664da3ab6623, type: 3}
+      value: {fileID: 21300000, guid: ebd4ba49cb2b68102a7c3c23e2e850b2, type: 3}
     - time: 0.2
-      value: {fileID: 21300000, guid: a690a305671d9cc72aa1c629d194ea49, type: 3}
+      value: {fileID: 21300000, guid: d40fd05e20daa21d29a9cfdfdbf0f8af, type: 3}
     attribute: m_Sprite
     path: 
     classID: 212
@@ -44,9 +44,9 @@ AnimationClip:
       customType: 23
       isPPtrCurve: 1
     pptrCurveMapping:
+    - {fileID: 21300000, guid: 4a57f1bb2c546972dab6b2864c0b954d, type: 3}
+    - {fileID: 21300000, guid: ebd4ba49cb2b68102a7c3c23e2e850b2, type: 3}
     - {fileID: 21300000, guid: d40fd05e20daa21d29a9cfdfdbf0f8af, type: 3}
-    - {fileID: 21300000, guid: bb37f5417225f262a87e664da3ab6623, type: 3}
-    - {fileID: 21300000, guid: a690a305671d9cc72aa1c629d194ea49, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}
@@ -57,7 +57,7 @@ AnimationClip:
     m_Level: 0
     m_CycleOffset: 0
     m_HasAdditiveReferencePose: 0
-    m_LoopTime: 0
+    m_LoopTime: 1
     m_LoopBlend: 0
     m_LoopBlendOrientation: 0
     m_LoopBlendPositionY: 0

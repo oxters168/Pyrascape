@@ -1,6 +1,18 @@
 ﻿using UnityEngine;
 using UnityHelpers;
 
+public struct InputData
+{
+    public float horizontal;
+    public float vertical;
+    public bool buttonA;
+}
+public struct PhysicalData
+{
+    public Vector2 velocity;
+    public bool leftWall, rightWall, topWall, botWall;
+}
+
 public class MovementController2D : MonoBehaviour, IValueManager
 {
     public float speed = 4;
@@ -9,60 +21,392 @@ public class MovementController2D : MonoBehaviour, IValueManager
     public float wallDetectionDistance = 0.01f;
     public LayerMask wallMask = ~0;
 
+    public enum SpecificState { IdleLeft, IdleRight, RunLeft, RunRight, JumpFaceLeft, JumpFaceRight, JumpMoveLeft, JumpMoveRight, FallFaceLeft, FallFaceRight, FallMoveLeft, FallMoveRight, ClimbLeftIdle, ClimbLeftUp, ClimbLeftDown, ClimbRightIdle, ClimbRightUp, ClimbRightDown, ClimbTopIdleLeft, ClimbTopIdleRight, ClimbTopMoveLeft, ClimbTopMoveRight }
+    public enum AnimeState { Idle, Run, Jump, AirFall, Land, TopClimb, TopClimbIdle, SideClimb, SideClimbIdle }
+
     [Space(10)]
     public ValuesVault controlValues;
     private SpriteRenderer Sprite7Up { get { if (_sprite7Up == null) _sprite7Up = GetComponent<SpriteRenderer>(); return _sprite7Up; } }
     private SpriteRenderer _sprite7Up;
     private Rigidbody2D AffectedBody { get { if (_affectedBody == null) _affectedBody = GetComponent<Rigidbody2D>(); return _affectedBody; } }
     private Rigidbody2D _affectedBody;
+    private Animator SpriteAnim { get { if (_animator == null) _animator = GetComponent<Animator>(); return _animator; } }
+    private Animator _animator;
 
-    private float horizontal;
-    private float vertical;
-    private bool buttonA;
+    private SpecificState prevState;
+    private SpecificState currentState;
+    private InputData currentInput;
+    private PhysicalData currentPhysicals;
 
-    private bool isFacingRight;
     [Space(10)]
     public bool debugWallRays = true;
-    private bool leftWall, rightWall, topWall, botWall;
     private Bounds colliderBounds;
 
     void Update()
     {
         ReadInput();
-        CheckDirection();
-
-        Sprite7Up.flipX = isFacingRight;
+        //CheckDirection();
+        DetectWall();
+        currentPhysicals.velocity = AffectedBody.velocity;
+        TickState();
+        //SetAnimationState();
+        ApplyAnimation();
     }
     void FixedUpdate()
     {
-        DetectWall();
-
-        if ((leftWall && horizontal < -float.Epsilon) || (rightWall && horizontal > float.Epsilon))
-        {
-            var verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, vertical * climbSpeed, Time.fixedDeltaTime, true);
-            AffectedBody.AddForce(Vector2.up * verticalForce);
-        }
-        else if (topWall && vertical > float.Epsilon)
-        {
-            var horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, horizontal * climbSpeed);
-            var verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, 0, Time.fixedDeltaTime, true);
-            AffectedBody.AddForce(Vector2.right * horizontalForce + Vector2.up * verticalForce);
-        }
-        else
-        {
-            float verticalForce = 0;
-            if (buttonA && botWall && AffectedBody.velocity.y > -float.Epsilon && AffectedBody.velocity.y < float.Epsilon)
-                verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, jumpSpeed, Time.fixedDeltaTime, true);
-                
-            var horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, horizontal * speed);
-            AffectedBody.AddForce(Vector2.right * horizontalForce + Vector2.up * verticalForce);
-        }
+        //DetectWall();
+        //MoveCharacter();
+        MoveCharacter();
     }
     void OnDrawGizmos()
     {
         Gizmos.matrix = transform.localToWorldMatrix;
         Gizmos.color = Color.green;
         Gizmos.DrawWireCube(colliderBounds.center, colliderBounds.size);
+    }
+
+    private void ApplyAnimation()
+    {
+        Sprite7Up.flipX = IsFacingRight(currentState);
+        var prevAnimeState = GetAnimeFromState(prevState);
+        var currentAnimeState = GetAnimeFromState(currentState);
+        if (prevAnimeState != currentAnimeState)
+            SpriteAnim.SetTrigger(currentAnimeState.ToString());
+    }
+    private void MoveCharacter()
+    {
+        float horizontalForce = 0;
+        float verticalForce = 0;
+
+        var prevAnimeState = GetAnimeFromState(prevState);
+        var currentAnimeState = GetAnimeFromState(currentState);
+        var isFacingRight = IsFacingRight(currentState);
+        
+        float horizontalVelocity = 0;
+        if (currentAnimeState == AnimeState.Idle || currentAnimeState == AnimeState.Run || currentAnimeState == AnimeState.SideClimb || currentAnimeState == AnimeState.SideClimbIdle || currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle || currentState == SpecificState.FallMoveLeft || currentState == SpecificState.FallMoveRight || currentState == SpecificState.JumpMoveLeft || currentState == SpecificState.JumpMoveRight)
+        {
+            if (currentAnimeState == AnimeState.TopClimb)
+                horizontalVelocity = (isFacingRight ? 1 : -1) * climbSpeed;
+            else if (currentAnimeState != AnimeState.Idle && currentAnimeState != AnimeState.TopClimbIdle && currentAnimeState != AnimeState.SideClimb && currentAnimeState != AnimeState.SideClimbIdle)
+                horizontalVelocity = (isFacingRight ? 1 : -1) * speed;
+        }
+        horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, horizontalVelocity, Time.fixedDeltaTime);
+
+        if (currentAnimeState == AnimeState.SideClimb || currentAnimeState == AnimeState.SideClimbIdle || currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle || (currentAnimeState == AnimeState.Jump && prevAnimeState != AnimeState.Jump))
+        {
+            float verticalSpeed = 0;
+            if (currentState == SpecificState.ClimbRightUp || currentState == SpecificState.ClimbLeftUp)
+                verticalSpeed = climbSpeed;
+            else if (currentState == SpecificState.ClimbLeftDown || currentState == SpecificState.ClimbRightDown)
+                verticalSpeed = -climbSpeed;
+            else if (currentAnimeState != AnimeState.SideClimbIdle && currentAnimeState != AnimeState.TopClimb && currentAnimeState != AnimeState.TopClimbIdle)
+                verticalSpeed = jumpSpeed;
+
+            verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, verticalSpeed, Time.fixedDeltaTime, true);
+        }
+        
+        AffectedBody.AddForce(Vector2.right * horizontalForce + Vector2.up * verticalForce);
+    }
+
+    private void TickState()
+    {
+        prevState = currentState;
+        currentState = GetNextState(currentState, currentInput, currentPhysicals);
+    }
+    private static SpecificState GetNextState(SpecificState currentState, InputData currentInput, PhysicalData currentPhysicals)
+    {
+        var nextState = currentState;
+
+        switch (currentState)
+        {
+            case SpecificState.IdleLeft:
+                if (currentInput.horizontal > float.Epsilon)
+                    nextState = SpecificState.IdleRight;
+                else if (currentInput.horizontal < -float.Epsilon)
+                    nextState = SpecificState.RunLeft;
+                else if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentInput.buttonA)
+                    nextState = SpecificState.JumpFaceLeft;
+                break;
+            case SpecificState.IdleRight:
+                if (currentInput.horizontal > float.Epsilon)
+                    nextState = SpecificState.RunRight;
+                else if (currentInput.horizontal < -float.Epsilon)
+                    nextState = SpecificState.IdleLeft;
+                else if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentInput.buttonA)
+                    nextState = SpecificState.JumpFaceRight;
+                break;
+            case SpecificState.RunLeft:
+                if (currentInput.horizontal > -float.Epsilon)
+                    nextState = SpecificState.IdleLeft;
+                else if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentInput.buttonA)
+                    nextState = SpecificState.JumpMoveLeft;
+                else if (currentPhysicals.leftWall)
+                    nextState = SpecificState.ClimbLeftIdle;
+                break;
+            case SpecificState.RunRight:
+                if (currentInput.horizontal < float.Epsilon)
+                    nextState = SpecificState.IdleRight;
+                else if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentInput.buttonA)
+                    nextState = SpecificState.JumpMoveRight;
+                else if (currentPhysicals.rightWall)
+                    nextState = SpecificState.ClimbRightIdle;
+                break;
+            case SpecificState.JumpFaceLeft:
+                if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentInput.horizontal < -float.Epsilon)
+                    nextState = SpecificState.JumpMoveLeft;
+                else if (currentInput.horizontal > float.Epsilon)
+                    nextState = SpecificState.JumpFaceRight;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleLeft;
+                else if (currentPhysicals.topWall && currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleLeft;
+                break;
+            case SpecificState.JumpFaceRight:
+                if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallFaceRight;
+                else if (currentInput.horizontal > float.Epsilon)
+                    nextState = SpecificState.JumpMoveRight;
+                else if (currentInput.horizontal < -float.Epsilon)
+                    nextState = SpecificState.JumpFaceLeft;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleRight;
+                else if (currentPhysicals.topWall && currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleRight;
+                break;
+            case SpecificState.JumpMoveLeft:
+                if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentInput.horizontal > -float.Epsilon)
+                    nextState = SpecificState.JumpFaceLeft;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.RunLeft;
+                else if (currentPhysicals.leftWall)
+                    nextState = SpecificState.ClimbLeftIdle;
+                else if (currentPhysicals.topWall && currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbTopMoveLeft;
+                break;
+            case SpecificState.JumpMoveRight:
+                if (currentPhysicals.velocity.y < -float.Epsilon)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentInput.horizontal < float.Epsilon)
+                    nextState = SpecificState.JumpFaceRight;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.RunRight;
+                else if (currentPhysicals.rightWall)
+                    nextState = SpecificState.ClimbRightIdle;
+                else if (currentPhysicals.topWall && currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbTopMoveRight;
+                break;
+            case SpecificState.FallFaceLeft:
+                if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleLeft;
+                else if (currentInput.horizontal < -float.Epsilon)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentInput.horizontal > float.Epsilon)
+                    nextState = SpecificState.FallFaceRight;
+                break;
+            case SpecificState.FallFaceRight:
+                if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleRight;
+                else if (currentInput.horizontal > float.Epsilon)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentInput.horizontal < -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                break;
+            case SpecificState.FallMoveLeft:
+                if (currentPhysicals.botWall)
+                    nextState = SpecificState.RunLeft;
+                else if (currentInput.horizontal > -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentPhysicals.leftWall)
+                    nextState = SpecificState.ClimbLeftIdle;
+                break;
+            case SpecificState.FallMoveRight:
+                if (currentPhysicals.botWall)
+                    nextState = SpecificState.RunRight;
+                else if (currentInput.horizontal < float.Epsilon)
+                    nextState = SpecificState.FallFaceRight;
+                else if (currentPhysicals.rightWall)
+                    nextState = SpecificState.ClimbRightIdle;
+                break;
+            case SpecificState.ClimbLeftIdle:
+                if (currentInput.horizontal > -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbLeftUp;
+                else if (currentInput.vertical < -float.Epsilon && !currentPhysicals.botWall)
+                    nextState = SpecificState.ClimbLeftDown;
+                break;
+            case SpecificState.ClimbRightIdle:
+                if (currentInput.horizontal < float.Epsilon)
+                    nextState = SpecificState.FallFaceRight;
+                else if (currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbRightUp;
+                else if (currentInput.vertical < -float.Epsilon && !currentPhysicals.botWall)
+                    nextState = SpecificState.ClimbRightDown;
+                break;
+            case SpecificState.ClimbLeftUp:
+                if (currentInput.horizontal > -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentInput.vertical < float.Epsilon)
+                    nextState = SpecificState.ClimbLeftIdle;
+                else if (!currentPhysicals.leftWall)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentPhysicals.topWall && currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleLeft;
+                break;
+            case SpecificState.ClimbRightUp:
+                if (currentInput.horizontal < float.Epsilon)
+                    nextState = SpecificState.FallFaceRight;
+                else if (currentInput.vertical < float.Epsilon)
+                    nextState = SpecificState.ClimbRightIdle;
+                else if (!currentPhysicals.rightWall)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentPhysicals.topWall && currentInput.vertical > float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleRight;
+                break;
+            case SpecificState.ClimbLeftDown:
+                if (currentInput.horizontal > -float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentInput.vertical > -float.Epsilon)
+                    nextState = SpecificState.ClimbLeftIdle;
+                else if (!currentPhysicals.leftWall)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.ClimbLeftIdle;
+                break;
+            case SpecificState.ClimbRightDown:
+                if (currentInput.horizontal < float.Epsilon)
+                    nextState = SpecificState.FallFaceRight;
+                else if (currentInput.vertical > -float.Epsilon)
+                    nextState = SpecificState.ClimbRightIdle;
+                else if (!currentPhysicals.rightWall)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.ClimbRightIdle;
+                break;
+            case SpecificState.ClimbTopIdleLeft:
+                if (currentInput.vertical < float.Epsilon)
+                    nextState = SpecificState.FallFaceLeft;
+                else if (currentInput.horizontal < -float.Epsilon && !currentPhysicals.leftWall)
+                    nextState = SpecificState.ClimbTopMoveLeft;
+                else if (currentInput.horizontal > float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleRight;
+                break;
+            case SpecificState.ClimbTopIdleRight:
+                if (currentInput.vertical < float.Epsilon)
+                    nextState = SpecificState.FallFaceRight;
+                else if (currentInput.horizontal > float.Epsilon && !currentPhysicals.rightWall)
+                    nextState = SpecificState.ClimbTopMoveRight;
+                else if (currentInput.horizontal < -float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleLeft;
+                break;
+            case SpecificState.ClimbTopMoveLeft:
+                if (currentInput.vertical < float.Epsilon)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentInput.horizontal > -float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleLeft;
+                else if (!currentPhysicals.topWall)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentPhysicals.leftWall)
+                    nextState = SpecificState.ClimbTopIdleLeft;
+                break;
+            case SpecificState.ClimbTopMoveRight:
+                if (currentInput.vertical < float.Epsilon)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentInput.horizontal < float.Epsilon)
+                    nextState = SpecificState.ClimbTopIdleRight;
+                else if (!currentPhysicals.topWall)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentPhysicals.rightWall)
+                    nextState = SpecificState.ClimbTopIdleRight;
+                break;
+        }
+        return nextState;
+    }
+    private static bool IsFacingRight(SpecificState state)
+    {
+        bool isFacingRight;
+
+        switch (state)
+        {
+            case SpecificState.IdleRight:
+            case SpecificState.RunRight:
+            case SpecificState.JumpFaceRight:
+            case SpecificState.JumpMoveRight:
+            case SpecificState.FallFaceRight:
+            case SpecificState.FallMoveRight:
+            case SpecificState.ClimbRightIdle:
+            case SpecificState.ClimbRightUp:
+            case SpecificState.ClimbRightDown:
+            case SpecificState.ClimbTopIdleRight:
+            case SpecificState.ClimbTopMoveRight:
+                isFacingRight = true;
+                break;
+            default:
+                isFacingRight = false;
+                break;
+        }
+
+        return isFacingRight;
+    }
+    private static AnimeState GetAnimeFromState(SpecificState state)
+    {
+        var animeState = AnimeState.Idle;
+
+        switch (state)
+        {
+            case SpecificState.IdleLeft:
+            case SpecificState.IdleRight:
+                animeState = AnimeState.Idle;
+                break;
+            case SpecificState.RunLeft:
+            case SpecificState.RunRight:
+                animeState = AnimeState.Run;
+                break;
+            case SpecificState.JumpFaceLeft:
+            case SpecificState.JumpFaceRight:
+            case SpecificState.JumpMoveLeft:
+            case SpecificState.JumpMoveRight:
+                animeState = AnimeState.Jump;
+                break;
+            case SpecificState.FallFaceLeft:
+            case SpecificState.FallFaceRight:
+            case SpecificState.FallMoveLeft:
+            case SpecificState.FallMoveRight:
+                animeState = AnimeState.AirFall;
+                break;
+            case SpecificState.ClimbLeftIdle:
+            case SpecificState.ClimbRightIdle:
+                animeState = AnimeState.SideClimbIdle;
+                break;
+            case SpecificState.ClimbLeftUp:
+            case SpecificState.ClimbLeftDown:
+            case SpecificState.ClimbRightUp:
+            case SpecificState.ClimbRightDown:
+                animeState = AnimeState.SideClimb;
+                break;
+            case SpecificState.ClimbTopIdleLeft:
+            case SpecificState.ClimbTopIdleRight:
+                animeState = AnimeState.TopClimbIdle;
+                break;
+            case SpecificState.ClimbTopMoveLeft:
+            case SpecificState.ClimbTopMoveRight:
+                animeState = AnimeState.TopClimb;
+                break;
+        }
+
+        return animeState;
     }
 
     private bool WallCast(bool debug, params Ray2D[] rays)
@@ -89,29 +433,22 @@ public class MovementController2D : MonoBehaviour, IValueManager
         var leftRayBot = new Ray2D(transform.position + -transform.right * colliderBounds.size.x / 2, -transform.right);
         var leftRayTop = new Ray2D(transform.position + transform.up * colliderBounds.size.y + -transform.right * colliderBounds.size.x / 2, -transform.right);
         
-        rightWall = WallCast(debugWallRays, rightRayTop, rightRayBot);
-        leftWall = WallCast(debugWallRays, leftRayTop, leftRayBot);
+        currentPhysicals.rightWall = WallCast(debugWallRays, rightRayTop, rightRayBot);
+        currentPhysicals.leftWall = WallCast(debugWallRays, leftRayTop, leftRayBot);
 
         var topRightRay = new Ray2D(transform.position + transform.up * colliderBounds.size.y + transform.right * colliderBounds.size.x / 2, transform.up);
         var topLeftRay = new Ray2D(transform.position + transform.up * colliderBounds.size.y + -transform.right * colliderBounds.size.x / 2, transform.up);
-        topWall = WallCast(debugWallRays, topLeftRay, topRightRay);
+        currentPhysicals.topWall = WallCast(debugWallRays, topLeftRay, topRightRay);
 
         var botRightRay = new Ray2D(transform.position + transform.right * colliderBounds.size.x / 2, -transform.up);
         var botLeftRay = new Ray2D(transform.position + -transform.right * colliderBounds.size.x / 2, -transform.up);
-        botWall = WallCast(debugWallRays, botLeftRay, botRightRay);
+        currentPhysicals.botWall = WallCast(debugWallRays, botLeftRay, botRightRay);
     }
     private void ReadInput()
     {
-        horizontal = Mathf.Clamp(GetAxis("Horizontal"), -1, 1);
-        vertical = Mathf.Clamp(GetAxis("Vertical"), -1, 1);
-        buttonA = GetToggle("ButtonA");
-    }
-    private void CheckDirection()
-    {
-        if (AffectedBody.velocity.x < -float.Epsilon)
-            isFacingRight = false;
-        else if (AffectedBody.velocity.x > float.Epsilon)
-            isFacingRight = true;
+        currentInput.horizontal = Mathf.Clamp(GetAxis("Horizontal"), -1, 1);
+        currentInput.vertical = Mathf.Clamp(GetAxis("Vertical"), -1, 1);
+        currentInput.buttonA = GetToggle("ButtonA");
     }
 
     public void SetAxis(string name, float value)
