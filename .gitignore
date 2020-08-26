@@ -59,12 +59,6 @@ sysinfo.txt
 crashlytics-build.properties
 
 # Imported
-Assets/Imported/PolygonSanta/*
-!Assets/Imported/PolygonSanta/.gitkeep
-
-Assets/Imported/HeroicTraversal/*
-!Assets/Imported/HeroicTraversal/.gitkeep
-
 Assets/Rewired/*
 !Assets/Rewired/.gitkeep
 
