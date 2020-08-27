@@ -134,7 +134,7 @@ GameObject:
   - component: {fileID: 48772624}
   - component: {fileID: 48772623}
   m_Layer: 5
-  m_Name: Text (TMP)
+  m_Name: FPSCounter
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -1275,6 +1275,7 @@ MonoBehaviour:
   wallMask:
     serializedVersion: 2
     m_Bits: 4294967295
+  deadzone: 0.1
   controlValues:
     inputValues:
     - name: Horizontal
