@@ -46,17 +46,20 @@ public class MovementController2D : MonoBehaviour, IValueManager
     void Update()
     {
         ReadInput();
-        //CheckDirection();
-        DetectWall();
-        currentPhysicals.velocity = AffectedBody.velocity;
-        TickState();
-        //SetAnimationState();
-        ApplyAnimation();
+        // DetectWall();
+        // currentPhysicals.velocity = AffectedBody.velocity;
+        // TickState();
+        // ApplyAnimation();
     }
     void FixedUpdate()
     {
-        //DetectWall();
-        //MoveCharacter();
+        // ReadInput();
+        DetectWall();
+        currentPhysicals.velocity = AffectedBody.velocity;
+        TickState();
+        ApplyAnimation();
+
+
         MoveCharacter();
     }
     void OnDrawGizmos()
