@@ -40,26 +40,26 @@ public class MovementController2D : MonoBehaviour, IValueManager
     private PhysicalData currentPhysicals;
 
     [Space(10)]
+    public float leftDetectOffset;
+    public float rightDetectOffset;
+    public float topDetectOffset;
+    public float bottomDetectOffset;
+    public float sideDetectVerticalOffset;
+
+    [Space(10)]
     public bool debugWallRays = true;
     private Bounds colliderBounds;
 
     void Update()
     {
         ReadInput();
-        // DetectWall();
-        // currentPhysicals.velocity = AffectedBody.velocity;
-        // TickState();
-        // ApplyAnimation();
-    }
-    void FixedUpdate()
-    {
-        // ReadInput();
         DetectWall();
         currentPhysicals.velocity = AffectedBody.velocity;
         TickState();
         ApplyAnimation();
-
-
+    }
+    void FixedUpdate()
+    {
         MoveCharacter();
     }
     void OnDrawGizmos()
@@ -432,20 +432,20 @@ public class MovementController2D : MonoBehaviour, IValueManager
     private void DetectWall()
     {
         colliderBounds = transform.GetTotalBounds(Space.Self, true);
-        var rightRayBot = new Ray2D(transform.position + transform.right * colliderBounds.size.x / 2, transform.right);
-        var rightRayTop = new Ray2D(transform.position + transform.up * colliderBounds.size.y + transform.right * colliderBounds.size.x / 2, transform.right);
-        var leftRayBot = new Ray2D(transform.position + -transform.right * colliderBounds.size.x / 2, -transform.right);
-        var leftRayTop = new Ray2D(transform.position + transform.up * colliderBounds.size.y + -transform.right * colliderBounds.size.x / 2, -transform.right);
+        var rightRayBot = new Ray2D(transform.position + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset) + -transform.up * (bottomDetectOffset  + sideDetectVerticalOffset), transform.right);
+        var rightRayTop = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset + sideDetectVerticalOffset) + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset), transform.right);
+        var leftRayBot = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset) + -transform.up * (bottomDetectOffset + sideDetectVerticalOffset), -transform.right);
+        var leftRayTop = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset + sideDetectVerticalOffset) + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset), -transform.right);
         
         currentPhysicals.rightWall = WallCast(debugWallRays, rightRayTop, rightRayBot);
         currentPhysicals.leftWall = WallCast(debugWallRays, leftRayTop, leftRayBot);
 
-        var topRightRay = new Ray2D(transform.position + transform.up * colliderBounds.size.y + transform.right * colliderBounds.size.x / 2, transform.up);
-        var topLeftRay = new Ray2D(transform.position + transform.up * colliderBounds.size.y + -transform.right * colliderBounds.size.x / 2, transform.up);
+        var topRightRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset), transform.up);
+        var topLeftRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset), transform.up);
         currentPhysicals.topWall = WallCast(debugWallRays, topLeftRay, topRightRay);
 
-        var botRightRay = new Ray2D(transform.position + transform.right * colliderBounds.size.x / 2, -transform.up);
-        var botLeftRay = new Ray2D(transform.position + -transform.right * colliderBounds.size.x / 2, -transform.up);
+        var botRightRay = new Ray2D(transform.position + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset) + -transform.up * (bottomDetectOffset), -transform.up);
+        var botLeftRay = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset) + -transform.up * (bottomDetectOffset), -transform.up);
         currentPhysicals.botWall = WallCast(debugWallRays, botLeftRay, botRightRay);
     }
     private void ReadInput()

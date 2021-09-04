@@ -1331,6 +1331,11 @@ MonoBehaviour:
       direction: {x: 0, y: 0, z: 0}
       point: {x: 0, y: 0, z: 0}
       orientation: {x: 0, y: 0, z: 0, w: 0}
+  leftDetectOffset: 0
+  rightDetectOffset: 0
+  topDetectOffset: 0
+  bottomDetectOffset: 0
+  sideDetectVerticalOffset: -0.1
   debugWallRays: 1
 --- !u!1 &1756980149
 GameObject:
