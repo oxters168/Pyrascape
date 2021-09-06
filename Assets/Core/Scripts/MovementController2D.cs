@@ -18,6 +18,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
     public float speed = 4;
     public float climbSpeed = 2;
     public float jumpSpeed = 5;
+    public float addedFallAcceleration = 9.8f;
     public float wallDetectionDistance = 0.01f;
     public LayerMask wallMask = ~0;
     public float deadzone = 0.1f;
@@ -37,6 +38,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
     private SpecificState prevState;
     private SpecificState currentState;
     private InputData currentInput;
+    private InputData prevInput;
     private PhysicalData currentPhysicals;
 
     [Space(10)]
@@ -61,6 +63,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
     void FixedUpdate()
     {
         MoveCharacter();
+        prevInput = currentInput;
     }
     void OnDrawGizmos()
     {
@@ -108,6 +111,14 @@ public class MovementController2D : MonoBehaviour, IValueManager
 
             verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, verticalSpeed, Time.fixedDeltaTime, true);
         }
+
+        //Added weight when falling for better feel
+        if (currentAnimeState == AnimeState.AirFall && currentPhysicals.velocity.y < -float.Epsilon)
+            verticalForce -= AffectedBody.mass * addedFallAcceleration;
+
+        //When the jump button stops being held then stop ascending
+        if (currentAnimeState == AnimeState.Jump && currentPhysicals.velocity.y > 0 && prevInput.buttonA && !currentInput.buttonA)
+            verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, 0, Time.fixedDeltaTime);
         
         AffectedBody.AddForce(Vector2.right * horizontalForce + Vector2.up * verticalForce);
     }
