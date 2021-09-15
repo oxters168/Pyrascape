@@ -1,11 +1,14 @@
 ﻿using UnityEngine;
 using UnityHelpers;
 
+[System.Serializable]
 public struct InputData
 {
+    [Range(-1, 1)]
     public float horizontal;
+    [Range(-1, 1)]
     public float vertical;
-    public bool buttonA;
+    public bool jump;
 }
 public struct PhysicalData
 {
@@ -13,8 +16,12 @@ public struct PhysicalData
     public bool leftWall, rightWall, topWall, botWall;
 }
 
-public class MovementController2D : MonoBehaviour, IValueManager
+public class MovementController2D : MonoBehaviour//, IValueManager
 {
+    public InputData currentInput;
+    private InputData prevInput;
+
+    [Space(10)]
     public float speed = 4;
     public float climbSpeed = 2;
     public float jumpSpeed = 5;
@@ -29,8 +36,8 @@ public class MovementController2D : MonoBehaviour, IValueManager
     public enum SpecificState { IdleLeft, IdleRight, RunLeft, RunRight, JumpFaceLeft, JumpFaceRight, JumpMoveLeft, JumpMoveRight, FallFaceLeft, FallFaceRight, FallMoveLeft, FallMoveRight, ClimbLeftIdle, ClimbLeftUp, ClimbLeftDown, ClimbRightIdle, ClimbRightUp, ClimbRightDown, ClimbTopIdleLeft, ClimbTopIdleRight, ClimbTopMoveLeft, ClimbTopMoveRight }
     public enum AnimeState { Idle, Run, Jump, AirFall, Land, TopClimb, TopClimbIdle, SideClimb, SideClimbIdle }
 
-    [Space(10)]
-    public ValuesVault controlValues;
+    // [Space(10)]
+    // public ValuesVault controlValues;
     private SpriteRenderer Sprite7Up { get { if (_sprite7Up == null) _sprite7Up = GetComponent<SpriteRenderer>(); return _sprite7Up; } }
     private SpriteRenderer _sprite7Up;
     private Rigidbody2D AffectedBody { get { if (_affectedBody == null) _affectedBody = GetComponent<Rigidbody2D>(); return _affectedBody; } }
@@ -40,8 +47,6 @@ public class MovementController2D : MonoBehaviour, IValueManager
 
     private SpecificState prevState;
     private SpecificState currentState;
-    private InputData currentInput;
-    private InputData prevInput;
     private PhysicalData currentPhysicals;
 
     [Space(10)]
@@ -58,7 +63,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
 
     void Update()
     {
-        ReadInput();
+        // ReadInput();
         DetectWall();
         currentPhysicals.velocity = AffectedBody.velocity;
         TickState();
@@ -121,7 +126,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
             verticalForce -= AffectedBody.mass * addedFallAcceleration;
 
         //When the jump button stops being held then stop ascending
-        if (currentAnimeState == AnimeState.Jump && currentPhysicals.velocity.y > 0 && prevInput.buttonA && !currentInput.buttonA)
+        if (currentAnimeState == AnimeState.Jump && currentPhysicals.velocity.y > 0 && prevInput.jump && !currentInput.jump)
             verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, 0, Time.fixedDeltaTime);
         
         if (Mathf.Abs(horizontalVelocity) > float.Epsilon || (Mathf.Abs(currentInput.horizontal) < float.Epsilon && Mathf.Abs(prevInput.horizontal) > float.Epsilon) || Mathf.Abs(verticalForce) > float.Epsilon)
@@ -146,7 +151,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
                     nextState = SpecificState.RunLeft;
                 else if (currentPhysicals.velocity.y < -deadzone)
                     nextState = SpecificState.FallFaceLeft;
-                else if (currentInput.buttonA)
+                else if (currentInput.jump)
                     nextState = SpecificState.JumpFaceLeft;
                 break;
             case SpecificState.IdleRight:
@@ -156,7 +161,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
                     nextState = SpecificState.IdleLeft;
                 else if (currentPhysicals.velocity.y < -deadzone)
                     nextState = SpecificState.FallFaceLeft;
-                else if (currentInput.buttonA)
+                else if (currentInput.jump)
                     nextState = SpecificState.JumpFaceRight;
                 break;
             case SpecificState.RunLeft:
@@ -164,7 +169,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
                     nextState = SpecificState.IdleLeft;
                 else if (currentPhysicals.velocity.y < -deadzone)
                     nextState = SpecificState.FallMoveLeft;
-                else if (currentInput.buttonA)
+                else if (currentInput.jump)
                     nextState = SpecificState.JumpMoveLeft;
                 else if (currentPhysicals.leftWall)
                     nextState = SpecificState.ClimbLeftIdle;
@@ -174,7 +179,7 @@ public class MovementController2D : MonoBehaviour, IValueManager
                     nextState = SpecificState.IdleRight;
                 else if (currentPhysicals.velocity.y < -deadzone)
                     nextState = SpecificState.FallMoveRight;
-                else if (currentInput.buttonA)
+                else if (currentInput.jump)
                     nextState = SpecificState.JumpMoveRight;
                 else if (currentPhysicals.rightWall)
                     nextState = SpecificState.ClimbRightIdle;
@@ -464,51 +469,51 @@ public class MovementController2D : MonoBehaviour, IValueManager
         var botLeftRay = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
         currentPhysicals.botWall = WallCast(debugWallRays, groundMask, botLeftRay, botRightRay);
     }
-    private void ReadInput()
-    {
-        currentInput.horizontal = Mathf.Clamp(GetAxis("Horizontal"), -1, 1);
-        currentInput.vertical = Mathf.Clamp(GetAxis("Vertical"), -1, 1);
-        currentInput.buttonA = GetToggle("ButtonA");
-    }
+    // private void ReadInput()
+    // {
+    //     currentInput.horizontal = Mathf.Clamp(GetAxis("Horizontal"), -1, 1);
+    //     currentInput.vertical = Mathf.Clamp(GetAxis("Vertical"), -1, 1);
+    //     currentInput.jump = GetToggle("ButtonA");
+    // }
 
-    public void SetAxis(string name, float value)
-    {
-        controlValues.GetValue(name).SetAxis(value);
-    }
-    public float GetAxis(string name)
-    {
-        return controlValues.GetValue(name).GetAxis();
-    }
-    public void SetToggle(string name, bool value)
-    {
-        controlValues.GetValue(name).SetToggle(value);
-    }
-    public bool GetToggle(string name)
-    {
-        return controlValues.GetValue(name).GetToggle();
-    }
-    public void SetDirection(string name, Vector3 value)
-    {
-        controlValues.GetValue(name).SetDirection(value);
-    }
-    public Vector3 GetDirection(string name)
-    {
-        return controlValues.GetValue(name).GetDirection();
-    }
-    public void SetPoint(string name, Vector3 value)
-    {
-        controlValues.GetValue(name).SetPoint(value);
-    }
-    public Vector3 GetPoint(string name)
-    {
-        return controlValues.GetValue(name).GetPoint();
-    }
-    public void SetOrientation(string name, Quaternion value)
-    {
-        controlValues.GetValue(name).SetOrientation(value);
-    }
-    public Quaternion GetOrientation(string name)
-    {
-        return controlValues.GetValue(name).GetOrientation();
-    }
+    // public void SetAxis(string name, float value)
+    // {
+    //     controlValues.GetValue(name).SetAxis(value);
+    // }
+    // public float GetAxis(string name)
+    // {
+    //     return controlValues.GetValue(name).GetAxis();
+    // }
+    // public void SetToggle(string name, bool value)
+    // {
+    //     controlValues.GetValue(name).SetToggle(value);
+    // }
+    // public bool GetToggle(string name)
+    // {
+    //     return controlValues.GetValue(name).GetToggle();
+    // }
+    // public void SetDirection(string name, Vector3 value)
+    // {
+    //     controlValues.GetValue(name).SetDirection(value);
+    // }
+    // public Vector3 GetDirection(string name)
+    // {
+    //     return controlValues.GetValue(name).GetDirection();
+    // }
+    // public void SetPoint(string name, Vector3 value)
+    // {
+    //     controlValues.GetValue(name).SetPoint(value);
+    // }
+    // public Vector3 GetPoint(string name)
+    // {
+    //     return controlValues.GetValue(name).GetPoint();
+    // }
+    // public void SetOrientation(string name, Quaternion value)
+    // {
+    //     controlValues.GetValue(name).SetOrientation(value);
+    // }
+    // public Quaternion GetOrientation(string name)
+    // {
+    //     return controlValues.GetValue(name).GetOrientation();
+    // }
 }
