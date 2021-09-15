@@ -8,7 +8,8 @@ public class UserToValueManager : MonoBehaviour
 
     [RequireInterface(typeof(IValueManager))]
     public GameObject _controlledObject;
-    private IValueManager InputDevice { get { if (_inputDevice == null) _inputDevice = _controlledObject.GetComponent<IValueManager>(); return _inputDevice; } }
+    private GameObject _prevControlledObject;
+    private IValueManager InputDevice { get { if (_controlledObject != _prevControlledObject) { _inputDevice = _controlledObject.GetComponent<IValueManager>(); _prevControlledObject = _controlledObject; } return _inputDevice; } }
     private IValueManager _inputDevice;
     
     void Update()

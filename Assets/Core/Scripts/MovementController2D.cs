@@ -20,7 +20,10 @@ public class MovementController2D : MonoBehaviour, IValueManager
     public float jumpSpeed = 5;
     public float addedFallAcceleration = 9.8f;
     public float wallDetectionDistance = 0.01f;
+    public LayerMask groundMask = ~0;
     public LayerMask wallMask = ~0;
+    public LayerMask ceilingMask = ~0;
+
     public float deadzone = 0.1f;
 
     public enum SpecificState { IdleLeft, IdleRight, RunLeft, RunRight, JumpFaceLeft, JumpFaceRight, JumpMoveLeft, JumpMoveRight, FallFaceLeft, FallFaceRight, FallMoveLeft, FallMoveRight, ClimbLeftIdle, ClimbLeftUp, ClimbLeftDown, ClimbRightIdle, ClimbRightUp, ClimbRightDown, ClimbTopIdleLeft, ClimbTopIdleRight, ClimbTopMoveLeft, ClimbTopMoveRight }
@@ -121,7 +124,8 @@ public class MovementController2D : MonoBehaviour, IValueManager
         if (currentAnimeState == AnimeState.Jump && currentPhysicals.velocity.y > 0 && prevInput.buttonA && !currentInput.buttonA)
             verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, 0, Time.fixedDeltaTime);
         
-        AffectedBody.AddForce(Vector2.right * horizontalForce + Vector2.up * verticalForce);
+        if (Mathf.Abs(horizontalVelocity) > float.Epsilon || (Mathf.Abs(currentInput.horizontal) < float.Epsilon && Mathf.Abs(prevInput.horizontal) > float.Epsilon) || Mathf.Abs(verticalForce) > float.Epsilon)
+            AffectedBody.AddForce(Vector2.right * horizontalForce + Vector2.up * verticalForce);
     }
 
     private void TickState()
@@ -425,12 +429,12 @@ public class MovementController2D : MonoBehaviour, IValueManager
         return animeState;
     }
 
-    private bool WallCast(bool debug, params Ray2D[] rays)
+    private bool WallCast(bool debug, LayerMask mask, params Ray2D[] rays)
     {
         bool wallHit = false;
         foreach (var rightRay in rays)
         {
-            var rightHitInfo = Physics2D.Raycast(rightRay.origin, rightRay.direction, wallDetectionDistance, wallMask);
+            var rightHitInfo = Physics2D.Raycast(rightRay.origin, rightRay.direction, wallDetectionDistance, mask);
             if (debug)
                 Debug.DrawRay(rightRay.origin, rightRay.direction * wallDetectionDistance, rightHitInfo.transform != null ? Color.green : Color.red);
             if (rightHitInfo.transform != null)
@@ -449,16 +453,16 @@ public class MovementController2D : MonoBehaviour, IValueManager
         var leftRayBot = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset) + -transform.up * (bottomDetectOffset + sideDetectVerticalOffset), -transform.right);
         var leftRayTop = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset + sideDetectVerticalOffset) + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset), -transform.right);
         
-        currentPhysicals.rightWall = WallCast(debugWallRays, rightRayTop, rightRayBot);
-        currentPhysicals.leftWall = WallCast(debugWallRays, leftRayTop, leftRayBot);
+        currentPhysicals.rightWall = WallCast(debugWallRays, wallMask, rightRayTop, rightRayBot);
+        currentPhysicals.leftWall = WallCast(debugWallRays, wallMask, leftRayTop, leftRayBot);
 
         var topRightRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset + verticalDetectSideOffset), transform.up);
         var topLeftRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset + verticalDetectSideOffset), transform.up);
-        currentPhysicals.topWall = WallCast(debugWallRays, topLeftRay, topRightRay);
+        currentPhysicals.topWall = WallCast(debugWallRays, ceilingMask, topLeftRay, topRightRay);
 
         var botRightRay = new Ray2D(transform.position + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
         var botLeftRay = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
-        currentPhysicals.botWall = WallCast(debugWallRays, botLeftRay, botRightRay);
+        currentPhysicals.botWall = WallCast(debugWallRays, groundMask, botLeftRay, botRightRay);
     }
     private void ReadInput()
     {
