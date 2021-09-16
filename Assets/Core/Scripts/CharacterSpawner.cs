@@ -17,6 +17,9 @@ public class CharacterSpawner : MonoBehaviour
     public MovementController2D characterPrefab;
     private MovementController2D spawnedCharacter;
     private OrbitCameraController spawnedCamera;
+
+    [Space(10)]
+    public float exitVelocityUpwards = 0;
     
     void Start()
     {
@@ -33,7 +36,7 @@ public class CharacterSpawner : MonoBehaviour
             if (!inVehicle)
             {
                 var vehicleDetector = spawnedCharacter.GetComponentInChildren<VehicleDetector>();
-                if (vehicleDetector != null)
+                if (vehicleDetector != null && vehicleDetector.vehicle != null)
                     nearbyVehicle = vehicleDetector.vehicle.gameObject;
             }
 
@@ -45,9 +48,23 @@ public class CharacterSpawner : MonoBehaviour
             }
             else
             {
+                // var sprite7Up = controlledObject.GetComponentInChildren<SpriteRenderer>();
+                // bool onLeft = false;
+                // if (sprite7Up != null)
+                //     onLeft = sprite7Up.flipX;
+
+                var vehiclePhysics = controlledObject.GetComponentInChildren<Rigidbody2D>();
+                var characterPhysics = spawnedCharacter.GetComponentInChildren<Rigidbody2D>();
+
+                var vehicleBounds = controlledObject.transform.GetTotalBounds(Space.World);
+                // spawnedCharacter.transform.position = vehicleBounds.center + (onLeft ? 1 : -1) * Vector3.right * vehicleBounds.extents.x * 1.5f;
+                spawnedCharacter.transform.position = vehicleBounds.center + Vector3.up * vehicleBounds.extents.y;
                 controlledObject = spawnedCharacter.gameObject;
                 spawnedCharacter.gameObject.SetActive(true);
                 spawnedCamera.target = spawnedCharacter.transform;
+
+                if (characterPhysics != null && vehiclePhysics != null)
+                    characterPhysics.velocity = vehiclePhysics.velocity + Vector2.up * exitVelocityUpwards;
             }
         }
 

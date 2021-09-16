@@ -16,7 +16,7 @@ GameObject:
   - component: {fileID: 7924335594981259064}
   - component: {fileID: 7924335594981259069}
   - component: {fileID: 7924335594981259065}
-  m_Layer: 0
+  m_Layer: 6
   m_Name: Hooman
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -167,10 +167,10 @@ MonoBehaviour:
     m_Bits: 9
   wallMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 9
   ceilingMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 9
   deadzone: 0.1
   leftDetectOffset: 0
   rightDetectOffset: 0

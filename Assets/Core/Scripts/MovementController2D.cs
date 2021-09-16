@@ -13,7 +13,7 @@ public struct InputData
 public struct PhysicalData
 {
     public Vector2 velocity;
-    public bool leftWall, rightWall, topWall, botWall;
+    public Collider2D leftWall, rightWall, topWall, botWall;
 }
 
 public class MovementController2D : MonoBehaviour//, IValueManager
@@ -61,6 +61,9 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     public bool debugWallRays = true;
     private Bounds colliderBounds;
 
+    private float otherObjectHorizontalVelocity;
+    private float otherObjectVerticalVelocity;
+
     void Update()
     {
         // ReadInput();
@@ -106,7 +109,33 @@ public class MovementController2D : MonoBehaviour//, IValueManager
             else if (currentAnimeState != AnimeState.Idle && currentAnimeState != AnimeState.TopClimbIdle && currentAnimeState != AnimeState.SideClimb && currentAnimeState != AnimeState.SideClimbIdle)
                 horizontalVelocity = (isFacingRight ? 1 : -1) * speed;
         }
-        horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, horizontalVelocity, Time.fixedDeltaTime);
+        //Match horizontal velocity of other object
+        if (currentPhysicals.rightWall != null && (currentState == SpecificState.ClimbRightIdle || currentState == SpecificState.ClimbRightUp || currentState == SpecificState.ClimbRightDown))
+        {
+            var rightWallPhysics = currentPhysicals.rightWall.GetComponentInChildren<Rigidbody2D>();
+            if (rightWallPhysics != null)
+                otherObjectHorizontalVelocity = rightWallPhysics.velocity.x;
+        }
+        else if (currentPhysicals.leftWall != null && (currentState == SpecificState.ClimbLeftIdle || currentState == SpecificState.ClimbLeftUp || currentState == SpecificState.ClimbLeftDown))
+        {
+            var leftWallPhysics = currentPhysicals.leftWall.GetComponentInChildren<Rigidbody2D>();
+            if (leftWallPhysics != null)
+                otherObjectHorizontalVelocity = leftWallPhysics.velocity.x;
+        }
+        else if (currentPhysicals.topWall != null && (currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle))
+        {
+            var topWallPhysics = currentPhysicals.topWall.GetComponentInChildren<Rigidbody2D>();
+            if (topWallPhysics != null)
+                otherObjectHorizontalVelocity = topWallPhysics.velocity.x;
+        }
+        else if (currentPhysicals.botWall != null)
+        {
+            var botWallPhysics = currentPhysicals.botWall.GetComponentInChildren<Rigidbody2D>();
+            if (botWallPhysics != null)
+                otherObjectHorizontalVelocity = botWallPhysics.velocity.x;
+        }
+        // horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, horizontalVelocity, Time.fixedDeltaTime);
+        horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, otherObjectHorizontalVelocity + horizontalVelocity, Time.fixedDeltaTime);
 
         if (currentAnimeState == AnimeState.SideClimb || currentAnimeState == AnimeState.SideClimbIdle || currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle || (currentAnimeState == AnimeState.Jump && prevAnimeState != AnimeState.Jump))
         {
@@ -118,7 +147,27 @@ public class MovementController2D : MonoBehaviour//, IValueManager
             else if (currentAnimeState != AnimeState.SideClimbIdle && currentAnimeState != AnimeState.TopClimb && currentAnimeState != AnimeState.TopClimbIdle)
                 verticalSpeed = jumpSpeed;
 
-            verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, verticalSpeed, Time.fixedDeltaTime, true);
+            //Match vertical velocity of other object
+            if (currentPhysicals.rightWall != null && (currentState == SpecificState.ClimbRightIdle || currentState == SpecificState.ClimbRightUp || currentState == SpecificState.ClimbRightDown))
+            {
+                var rightWallPhysics = currentPhysicals.rightWall.GetComponentInChildren<Rigidbody2D>();
+                if (rightWallPhysics != null)
+                    otherObjectVerticalVelocity = rightWallPhysics.velocity.y;
+            }
+            else if (currentPhysicals.leftWall != null && (currentState == SpecificState.ClimbLeftIdle || currentState == SpecificState.ClimbLeftUp || currentState == SpecificState.ClimbLeftDown))
+            {
+                var leftWallPhysics = currentPhysicals.leftWall.GetComponentInChildren<Rigidbody2D>();
+                if (leftWallPhysics != null)
+                    otherObjectVerticalVelocity = leftWallPhysics.velocity.y;
+            }
+            else if (currentPhysicals.topWall != null && (currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle))
+            {
+                var topWallPhysics = currentPhysicals.topWall.GetComponentInChildren<Rigidbody2D>();
+                if (topWallPhysics != null)
+                    otherObjectVerticalVelocity = topWallPhysics.velocity.y;
+            }
+
+            verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, otherObjectVerticalVelocity + verticalSpeed, Time.fixedDeltaTime, true);
         }
 
         //Added weight when falling for better feel
@@ -129,8 +178,11 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         if (currentAnimeState == AnimeState.Jump && currentPhysicals.velocity.y > 0 && prevInput.jump && !currentInput.jump)
             verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, 0, Time.fixedDeltaTime);
         
-        if (Mathf.Abs(horizontalVelocity) > float.Epsilon || (Mathf.Abs(currentInput.horizontal) < float.Epsilon && Mathf.Abs(prevInput.horizontal) > float.Epsilon) || Mathf.Abs(verticalForce) > float.Epsilon)
-            AffectedBody.AddForce(Vector2.right * horizontalForce + Vector2.up * verticalForce);
+        // if (Mathf.Abs(currentInput.horizontal) > float.Epsilon || (Mathf.Abs(currentInput.horizontal) < float.Epsilon && Mathf.Abs(prevInput.horizontal) > float.Epsilon))
+        if (Mathf.Abs(horizontalForce) > float.Epsilon)
+            AffectedBody.AddForce(Vector2.right * horizontalForce);
+        if (Mathf.Abs(verticalForce) > float.Epsilon)
+            AffectedBody.AddForce(Vector2.up * verticalForce);
     }
 
     private void TickState()
@@ -434,17 +486,17 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         return animeState;
     }
 
-    private bool WallCast(bool debug, LayerMask mask, params Ray2D[] rays)
+    private Collider2D WallCast(bool debug, LayerMask mask, params Ray2D[] rays)
     {
-        bool wallHit = false;
+        Collider2D wallHit = null;
         foreach (var rightRay in rays)
         {
             var rightHitInfo = Physics2D.Raycast(rightRay.origin, rightRay.direction, wallDetectionDistance, mask);
             if (debug)
                 Debug.DrawRay(rightRay.origin, rightRay.direction * wallDetectionDistance, rightHitInfo.transform != null ? Color.green : Color.red);
-            if (rightHitInfo.transform != null)
+            if (rightHitInfo)
             {
-                wallHit = true;
+                wallHit = rightHitInfo.collider;
                 break;
             }
         }
@@ -469,51 +521,4 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         var botLeftRay = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
         currentPhysicals.botWall = WallCast(debugWallRays, groundMask, botLeftRay, botRightRay);
     }
-    // private void ReadInput()
-    // {
-    //     currentInput.horizontal = Mathf.Clamp(GetAxis("Horizontal"), -1, 1);
-    //     currentInput.vertical = Mathf.Clamp(GetAxis("Vertical"), -1, 1);
-    //     currentInput.jump = GetToggle("ButtonA");
-    // }
-
-    // public void SetAxis(string name, float value)
-    // {
-    //     controlValues.GetValue(name).SetAxis(value);
-    // }
-    // public float GetAxis(string name)
-    // {
-    //     return controlValues.GetValue(name).GetAxis();
-    // }
-    // public void SetToggle(string name, bool value)
-    // {
-    //     controlValues.GetValue(name).SetToggle(value);
-    // }
-    // public bool GetToggle(string name)
-    // {
-    //     return controlValues.GetValue(name).GetToggle();
-    // }
-    // public void SetDirection(string name, Vector3 value)
-    // {
-    //     controlValues.GetValue(name).SetDirection(value);
-    // }
-    // public Vector3 GetDirection(string name)
-    // {
-    //     return controlValues.GetValue(name).GetDirection();
-    // }
-    // public void SetPoint(string name, Vector3 value)
-    // {
-    //     controlValues.GetValue(name).SetPoint(value);
-    // }
-    // public Vector3 GetPoint(string name)
-    // {
-    //     return controlValues.GetValue(name).GetPoint();
-    // }
-    // public void SetOrientation(string name, Quaternion value)
-    // {
-    //     controlValues.GetValue(name).SetOrientation(value);
-    // }
-    // public Quaternion GetOrientation(string name)
-    // {
-    //     return controlValues.GetValue(name).GetOrientation();
-    // }
 }
