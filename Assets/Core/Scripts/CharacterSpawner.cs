@@ -46,7 +46,7 @@ public class CharacterSpawner : MonoBehaviour
                 controlledObject = nearbyVehicle;
                 spawnedCamera.target = nearbyVehicle.transform;
             }
-            else
+            else if (inVehicle)
             {
                 // var sprite7Up = controlledObject.GetComponentInChildren<SpriteRenderer>();
                 // bool onLeft = false;

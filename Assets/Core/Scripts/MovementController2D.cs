@@ -61,19 +61,22 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     public bool debugWallRays = true;
     private Bounds colliderBounds;
 
-    private float otherObjectHorizontalVelocity;
-    private float otherObjectVerticalVelocity;
+    // private float otherObjectHorizontalVelocity;
+    // private float otherObjectVerticalVelocity;
+    private Vector2 otherObjectVelocity;
+    private Vector2 otherObjectPrevVelocity;
 
     void Update()
     {
-        // ReadInput();
-        DetectWall();
         currentPhysicals.velocity = AffectedBody.velocity;
+        DetectWall();
         TickState();
         ApplyAnimation();
+        // Debug.Log(currentState);
     }
     void FixedUpdate()
     {
+        RetrieveSurroundingVelocity();
         MoveCharacter();
         prevInput = currentInput;
     }
@@ -84,6 +87,44 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         Gizmos.DrawWireCube(colliderBounds.center, colliderBounds.size);
     }
 
+    private void RetrieveSurroundingVelocity()
+    {
+        otherObjectPrevVelocity = otherObjectVelocity;
+        //Get other object's velocity if climbing or standing on it to keep up with it
+        if (currentPhysicals.rightWall != null && (currentState == SpecificState.ClimbRightIdle || currentState == SpecificState.ClimbRightUp || currentState == SpecificState.ClimbRightDown))
+        {
+            var rightWallPhysics = currentPhysicals.rightWall.GetComponentInChildren<Rigidbody2D>();
+            if (rightWallPhysics != null)
+            {
+                otherObjectVelocity = rightWallPhysics.velocity;
+            }
+            
+        }
+        else if (currentPhysicals.leftWall != null && (currentState == SpecificState.ClimbLeftIdle || currentState == SpecificState.ClimbLeftUp || currentState == SpecificState.ClimbLeftDown))
+        {
+            var leftWallPhysics = currentPhysicals.leftWall.GetComponentInChildren<Rigidbody2D>();
+            if (leftWallPhysics != null)
+            {
+                otherObjectVelocity = leftWallPhysics.velocity;
+            }
+        }
+        else if (currentPhysicals.topWall != null && (currentState == SpecificState.ClimbTopIdleLeft || currentState == SpecificState.ClimbTopIdleRight || currentState == SpecificState.ClimbTopMoveLeft || currentState == SpecificState.ClimbTopMoveRight))
+        {
+            var topWallPhysics = currentPhysicals.topWall.GetComponentInChildren<Rigidbody2D>();
+            if (topWallPhysics != null)
+            {
+                otherObjectVelocity = topWallPhysics.velocity;
+            }
+        }
+        else if (currentPhysicals.botWall != null)
+        {
+            var botWallPhysics = currentPhysicals.botWall.GetComponentInChildren<Rigidbody2D>();
+            if (botWallPhysics != null)
+            {
+                otherObjectVelocity = botWallPhysics.velocity; //Might want to remove y value because object is below us and we are only standing on it, not grabbing on to it
+            }
+        }
+    }
     private void ApplyAnimation()
     {
         Sprite7Up.flipX = IsFacingRight(currentState);
@@ -100,6 +141,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         var prevAnimeState = GetAnimeFromState(prevState);
         var currentAnimeState = GetAnimeFromState(currentState);
         var isFacingRight = IsFacingRight(currentState);
+
+        Vector2 otherObjectPredictedVelocity = (otherObjectVelocity - otherObjectPrevVelocity);
         
         float horizontalVelocity = 0;
         if (currentAnimeState == AnimeState.Idle || currentAnimeState == AnimeState.Run || currentAnimeState == AnimeState.SideClimb || currentAnimeState == AnimeState.SideClimbIdle || currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle || currentState == SpecificState.FallMoveLeft || currentState == SpecificState.FallMoveRight || currentState == SpecificState.JumpMoveLeft || currentState == SpecificState.JumpMoveRight)
@@ -109,34 +152,10 @@ public class MovementController2D : MonoBehaviour//, IValueManager
             else if (currentAnimeState != AnimeState.Idle && currentAnimeState != AnimeState.TopClimbIdle && currentAnimeState != AnimeState.SideClimb && currentAnimeState != AnimeState.SideClimbIdle)
                 horizontalVelocity = (isFacingRight ? 1 : -1) * speed;
         }
-        //Match horizontal velocity of other object
-        if (currentPhysicals.rightWall != null && (currentState == SpecificState.ClimbRightIdle || currentState == SpecificState.ClimbRightUp || currentState == SpecificState.ClimbRightDown))
-        {
-            var rightWallPhysics = currentPhysicals.rightWall.GetComponentInChildren<Rigidbody2D>();
-            if (rightWallPhysics != null)
-                otherObjectHorizontalVelocity = rightWallPhysics.velocity.x;
-        }
-        else if (currentPhysicals.leftWall != null && (currentState == SpecificState.ClimbLeftIdle || currentState == SpecificState.ClimbLeftUp || currentState == SpecificState.ClimbLeftDown))
-        {
-            var leftWallPhysics = currentPhysicals.leftWall.GetComponentInChildren<Rigidbody2D>();
-            if (leftWallPhysics != null)
-                otherObjectHorizontalVelocity = leftWallPhysics.velocity.x;
-        }
-        else if (currentPhysicals.topWall != null && (currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle))
-        {
-            var topWallPhysics = currentPhysicals.topWall.GetComponentInChildren<Rigidbody2D>();
-            if (topWallPhysics != null)
-                otherObjectHorizontalVelocity = topWallPhysics.velocity.x;
-        }
-        else if (currentPhysicals.botWall != null)
-        {
-            var botWallPhysics = currentPhysicals.botWall.GetComponentInChildren<Rigidbody2D>();
-            if (botWallPhysics != null)
-                otherObjectHorizontalVelocity = botWallPhysics.velocity.x;
-        }
         // horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, horizontalVelocity, Time.fixedDeltaTime);
-        horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, otherObjectHorizontalVelocity + horizontalVelocity, Time.fixedDeltaTime);
+        horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, (otherObjectVelocity.x + otherObjectPredictedVelocity.x) + horizontalVelocity, Time.fixedDeltaTime);
 
+        // Debug.Log(currentState + " from " + prevState);
         if (currentAnimeState == AnimeState.SideClimb || currentAnimeState == AnimeState.SideClimbIdle || currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle || (currentAnimeState == AnimeState.Jump && prevAnimeState != AnimeState.Jump))
         {
             float verticalSpeed = 0;
@@ -147,27 +166,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
             else if (currentAnimeState != AnimeState.SideClimbIdle && currentAnimeState != AnimeState.TopClimb && currentAnimeState != AnimeState.TopClimbIdle)
                 verticalSpeed = jumpSpeed;
 
-            //Match vertical velocity of other object
-            if (currentPhysicals.rightWall != null && (currentState == SpecificState.ClimbRightIdle || currentState == SpecificState.ClimbRightUp || currentState == SpecificState.ClimbRightDown))
-            {
-                var rightWallPhysics = currentPhysicals.rightWall.GetComponentInChildren<Rigidbody2D>();
-                if (rightWallPhysics != null)
-                    otherObjectVerticalVelocity = rightWallPhysics.velocity.y;
-            }
-            else if (currentPhysicals.leftWall != null && (currentState == SpecificState.ClimbLeftIdle || currentState == SpecificState.ClimbLeftUp || currentState == SpecificState.ClimbLeftDown))
-            {
-                var leftWallPhysics = currentPhysicals.leftWall.GetComponentInChildren<Rigidbody2D>();
-                if (leftWallPhysics != null)
-                    otherObjectVerticalVelocity = leftWallPhysics.velocity.y;
-            }
-            else if (currentPhysicals.topWall != null && (currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle))
-            {
-                var topWallPhysics = currentPhysicals.topWall.GetComponentInChildren<Rigidbody2D>();
-                if (topWallPhysics != null)
-                    otherObjectVerticalVelocity = topWallPhysics.velocity.y;
-            }
-
-            verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, otherObjectVerticalVelocity + verticalSpeed, Time.fixedDeltaTime, true);
+            // verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, verticalSpeed, Time.fixedDeltaTime, true);
+            verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, (otherObjectVelocity.y + otherObjectPredictedVelocity.y) + verticalSpeed, Time.fixedDeltaTime, true);
         }
 
         //Added weight when falling for better feel
@@ -187,10 +187,11 @@ public class MovementController2D : MonoBehaviour//, IValueManager
 
     private void TickState()
     {
+        var nextState = GetNextState(currentState, prevState, currentInput, currentPhysicals, deadzone);
         prevState = currentState;
-        currentState = GetNextState(currentState, currentInput, currentPhysicals, deadzone);
+        currentState = nextState;
     }
-    private static SpecificState GetNextState(SpecificState currentState, InputData currentInput, PhysicalData currentPhysicals, float deadzone = float.Epsilon)
+    private static SpecificState GetNextState(SpecificState currentState, SpecificState prevState, InputData currentInput, PhysicalData currentPhysicals, float deadzone = float.Epsilon)
     {
         var nextState = currentState;
 
@@ -323,6 +324,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.ClimbLeftUp;
                 else if (currentInput.vertical < -deadzone && !currentPhysicals.botWall)
                     nextState = SpecificState.ClimbLeftDown;
+                else if (!currentPhysicals.leftWall)
+                    nextState = SpecificState.FallFaceLeft;
                 break;
             case SpecificState.ClimbRightIdle:
                 if (currentInput.horizontal < deadzone)
@@ -331,6 +334,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.ClimbRightUp;
                 else if (currentInput.vertical < -deadzone && !currentPhysicals.botWall)
                     nextState = SpecificState.ClimbRightDown;
+                else if (!currentPhysicals.rightWall)
+                    nextState = SpecificState.FallFaceRight;
                 break;
             case SpecificState.ClimbLeftUp:
                 if (currentInput.horizontal > -deadzone)
@@ -341,6 +346,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveLeft;
                 else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
                     nextState = SpecificState.ClimbTopIdleLeft;
+                else if (!currentPhysicals.leftWall)
+                    nextState = SpecificState.FallFaceLeft;
                 break;
             case SpecificState.ClimbRightUp:
                 if (currentInput.horizontal < deadzone)
@@ -351,6 +358,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveRight;
                 else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
                     nextState = SpecificState.ClimbTopIdleRight;
+                else if (!currentPhysicals.rightWall)
+                    nextState = SpecificState.FallFaceRight;
                 break;
             case SpecificState.ClimbLeftDown:
                 if (currentInput.horizontal > -deadzone)
@@ -361,6 +370,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveLeft;
                 else if (currentPhysicals.botWall)
                     nextState = SpecificState.ClimbLeftIdle;
+                else if (!currentPhysicals.leftWall)
+                    nextState = SpecificState.FallFaceLeft;
                 break;
             case SpecificState.ClimbRightDown:
                 if (currentInput.horizontal < deadzone)
@@ -371,6 +382,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveRight;
                 else if (currentPhysicals.botWall)
                     nextState = SpecificState.ClimbRightIdle;
+                else if (!currentPhysicals.rightWall)
+                    nextState = SpecificState.FallFaceRight;
                 break;
             case SpecificState.ClimbTopIdleLeft:
                 if (currentInput.vertical < deadzone)
@@ -379,6 +392,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.ClimbTopMoveLeft;
                 else if (currentInput.horizontal > deadzone)
                     nextState = SpecificState.ClimbTopIdleRight;
+                else if (!currentPhysicals.topWall)
+                    nextState = SpecificState.FallFaceLeft;
                 break;
             case SpecificState.ClimbTopIdleRight:
                 if (currentInput.vertical < deadzone)
@@ -387,6 +402,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.ClimbTopMoveRight;
                 else if (currentInput.horizontal < -deadzone)
                     nextState = SpecificState.ClimbTopIdleLeft;
+                else if (!currentPhysicals.topWall)
+                    nextState = SpecificState.FallFaceRight;
                 break;
             case SpecificState.ClimbTopMoveLeft:
                 if (currentInput.vertical < deadzone)
@@ -397,6 +414,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveLeft;
                 else if (currentPhysicals.leftWall)
                     nextState = SpecificState.ClimbTopIdleLeft;
+                else if (!currentPhysicals.topWall)
+                    nextState = SpecificState.FallFaceLeft;
                 break;
             case SpecificState.ClimbTopMoveRight:
                 if (currentInput.vertical < deadzone)
@@ -407,6 +426,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveRight;
                 else if (currentPhysicals.rightWall)
                     nextState = SpecificState.ClimbTopIdleRight;
+                else if (!currentPhysicals.topWall)
+                    nextState = SpecificState.FallFaceRight;
                 break;
         }
         return nextState;
@@ -505,20 +526,25 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     private void DetectWall()
     {
         colliderBounds = transform.GetTotalBounds(Space.Self, true);
+
         var rightRayBot = new Ray2D(transform.position + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset) + -transform.up * (bottomDetectOffset  + sideDetectVerticalOffset), transform.right);
+        var rightRayCenter = new Ray2D(transform.position + transform.up * (colliderBounds.extents.y) + transform.right * (colliderBounds.extents.x + rightDetectOffset), transform.right);
         var rightRayTop = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset + sideDetectVerticalOffset) + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset), transform.right);
+        currentPhysicals.rightWall = WallCast(debugWallRays, wallMask, rightRayTop, rightRayCenter, rightRayBot);
+
         var leftRayBot = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset) + -transform.up * (bottomDetectOffset + sideDetectVerticalOffset), -transform.right);
+        var leftRayCenter = new Ray2D(transform.position + transform.up * (colliderBounds.extents.y) + -transform.right * (colliderBounds.extents.x + leftDetectOffset), -transform.right);
         var leftRayTop = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset + sideDetectVerticalOffset) + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset), -transform.right);
-        
-        currentPhysicals.rightWall = WallCast(debugWallRays, wallMask, rightRayTop, rightRayBot);
-        currentPhysicals.leftWall = WallCast(debugWallRays, wallMask, leftRayTop, leftRayBot);
+        currentPhysicals.leftWall = WallCast(debugWallRays, wallMask, leftRayTop, leftRayCenter, leftRayBot);
 
-        var topRightRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset + verticalDetectSideOffset), transform.up);
-        var topLeftRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset + verticalDetectSideOffset), transform.up);
-        currentPhysicals.topWall = WallCast(debugWallRays, ceilingMask, topLeftRay, topRightRay);
+        var topRightRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + transform.right * (colliderBounds.extents.x + rightDetectOffset + verticalDetectSideOffset), transform.up);
+        var topCenterRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset), transform.up);
+        var topLeftRay = new Ray2D(transform.position + transform.up * (colliderBounds.size.y + topDetectOffset) + -transform.right * (colliderBounds.extents.x + leftDetectOffset + verticalDetectSideOffset), transform.up);
+        currentPhysicals.topWall = WallCast(debugWallRays, ceilingMask, topLeftRay, topCenterRay, topRightRay);
 
-        var botRightRay = new Ray2D(transform.position + transform.right * (colliderBounds.size.x / 2 + rightDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
-        var botLeftRay = new Ray2D(transform.position + -transform.right * (colliderBounds.size.x / 2 + leftDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
-        currentPhysicals.botWall = WallCast(debugWallRays, groundMask, botLeftRay, botRightRay);
+        var botRightRay = new Ray2D(transform.position + transform.right * (colliderBounds.extents.x + rightDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
+        var botCenterRay = new Ray2D(transform.position + -transform.up * (bottomDetectOffset), -transform.up);
+        var botLeftRay = new Ray2D(transform.position + -transform.right * (colliderBounds.extents.x + leftDetectOffset + verticalDetectSideOffset) + -transform.up * (bottomDetectOffset), -transform.up);
+        currentPhysicals.botWall = WallCast(debugWallRays, groundMask, botLeftRay, botCenterRay, botRightRay);
     }
 }

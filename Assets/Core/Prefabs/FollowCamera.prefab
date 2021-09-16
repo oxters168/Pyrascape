@@ -11,7 +11,6 @@ GameObject:
   - component: {fileID: 365432475856182424}
   - component: {fileID: 365432475856182431}
   - component: {fileID: 365432475856182430}
-  - component: {fileID: 365432475856182429}
   - component: {fileID: 365432475856182428}
   m_Layer: 0
   m_Name: FollowCamera
@@ -97,14 +96,6 @@ MonoBehaviour:
   m_CropFrameX: 1
   m_CropFrameY: 1
   m_StretchFill: 0
---- !u!81 &365432475856182429
-AudioListener:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 365432475856182403}
-  m_Enabled: 1
 --- !u!114 &365432475856182428
 MonoBehaviour:
   m_ObjectHideFlags: 0
