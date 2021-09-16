@@ -206,6 +206,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallFaceLeft;
                 else if (currentInput.jump)
                     nextState = SpecificState.JumpFaceLeft;
+                else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
+                    nextState = SpecificState.ClimbTopIdleLeft;
                 break;
             case SpecificState.IdleRight:
                 if (currentInput.horizontal > deadzone)
@@ -216,6 +218,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallFaceLeft;
                 else if (currentInput.jump)
                     nextState = SpecificState.JumpFaceRight;
+                else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
+                    nextState = SpecificState.ClimbTopIdleRight;
                 break;
             case SpecificState.RunLeft:
                 if (currentInput.horizontal > -deadzone)
@@ -226,6 +230,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.JumpMoveLeft;
                 else if (currentPhysicals.leftWall)
                     nextState = SpecificState.ClimbLeftIdle;
+                else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
+                    nextState = SpecificState.ClimbTopMoveLeft;
                 break;
             case SpecificState.RunRight:
                 if (currentInput.horizontal < deadzone)
@@ -236,6 +242,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.JumpMoveRight;
                 else if (currentPhysicals.rightWall)
                     nextState = SpecificState.ClimbRightIdle;
+                else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
+                    nextState = SpecificState.ClimbTopMoveRight;
                 break;
             case SpecificState.JumpFaceLeft:
                 if (currentPhysicals.velocity.y < -deadzone)
