@@ -44,9 +44,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   playerId: 0
+  surroundingsMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
   controlledObject: {fileID: 0}
   cameraPrefab: {fileID: 365432475856182428, guid: 21e57581d841bbf47ad46d18bc4fbccf,
     type: 3}
   characterPrefab: {fileID: 7924335594981259068, guid: a0d44491ecfd6cf4a878881eb7a22194,
     type: 3}
-  exitVelocityUpwards: 3
+  exitVelocityUpwards: 0

@@ -1,5 +1,3 @@
-using System.Collections;
-using System.Collections.Generic;
 using UnityEngine;
 using UnityHelpers;
 
@@ -20,7 +18,7 @@ public class PodPhysics2D : MonoBehaviour
     public float maxFlySpeed = 3;
 
     private Rigidbody2D _podBody;
-    private Rigidbody2D PodBody { get { if (_podBody == null) _podBody = GetComponentInChildren<Rigidbody2D>(); return _podBody; } }
+    public Rigidbody2D PodBody { get { if (_podBody == null) _podBody = GetComponentInChildren<Rigidbody2D>(); return _podBody; } }
     private SpriteRenderer Sprite7Up { get { if (_sprite7Up == null) _sprite7Up = GetComponentInChildren<SpriteRenderer>(); return _sprite7Up; } }
     private SpriteRenderer _sprite7Up;
 
@@ -58,7 +56,7 @@ public class PodPhysics2D : MonoBehaviour
     /// <summary>
     /// Used in the pd controller of the floatation
     /// </summary>
-    private Vector2 prevErr;
+    private float prevErr;
     private bool facingLeft;
 
     void Update()
@@ -118,14 +116,14 @@ public class PodPhysics2D : MonoBehaviour
     }
     private void ApplyFloatation()
     {
-        Vector3 expectedFloatingForce = CalculateFloatingForce();
+        float expectedFloatingForce = CalculateFloatingForce();
             
         if (Mathf.Abs(fly) > float.Epsilon)
-            expectedFloatingForce = Vector3.zero;
+            expectedFloatingForce = 0;
 
-        PodBody.AddForce(expectedFloatingForce, ForceMode2D.Force);
+        PodBody.AddForce(Vector2.up * expectedFloatingForce, ForceMode2D.Force);
     }
-    private Vector2 CalculateFloatingForce()
+    private float CalculateFloatingForce()
     {
         float vehicleSizeOnUpAxis = Mathf.Abs(Vector2.Dot(vehicleBounds.extents, Vector2.up));
 
@@ -140,17 +138,17 @@ public class PodPhysics2D : MonoBehaviour
         float antigravityMultiplier = 1;
         if (groundOffset < -float.Epsilon)
             antigravityMultiplier = antigravityFalloffCurve.Evaluate(Mathf.Max(antigravityFalloffDistance - Mathf.Abs(groundOffset), 0) / antigravityFalloffDistance);
-        Vector2 antigravityForce = PodBody.CalculateAntiGravityForce() * antigravityMultiplier;
+        float antigravityForce = PodBody.CalculateAntiGravityForce().y * antigravityMultiplier;
 
-        Vector2 floatingForce = Vector2.zero;
+        float floatingForce = 0;
         if (groundDistance < float.MaxValue) //If the ground is within range
         {
             //Thanks to @bmabsout for a much better and more stable floatation method
             //based on pid but just the p and the d
             groundedPosition = hitInfo.point + Vector2.up * minGroundDistance;
-            Vector2 err = Vector2.up * Vector2.Dot(Vector2.up, groundedPosition - PodBody.position);
-            Vector2 proportional = Kp * err;
-            Vector2 derivative = Kd * (err - prevErr);
+            float err = groundedPosition.y - PodBody.position.y;
+            float proportional = Kp * err;
+            float derivative = Kd * (err - prevErr);
             floatingForce = proportional + derivative;
             prevErr = err;
         }
