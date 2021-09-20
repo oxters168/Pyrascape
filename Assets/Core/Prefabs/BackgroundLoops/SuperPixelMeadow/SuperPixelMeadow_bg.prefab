@@ -1,6 +1,6 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
---- !u!1 &5189249297879181194
+--- !u!1 &8128168892755279200
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -8,50 +8,44 @@ GameObject:
   m_PrefabAsset: {fileID: 0}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 5189249297879181188}
-  - component: {fileID: 5189249297879181195}
+  - component: {fileID: 8128168892755279202}
+  - component: {fileID: 8128168892755279203}
   m_Layer: 0
-  m_Name: CharacterSpawner
+  m_Name: SuperPixelMeadow_bg
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &5189249297879181188
+--- !u!4 &8128168892755279202
 Transform:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5189249297879181194}
+  m_GameObject: {fileID: 8128168892755279200}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalPosition: {x: 0, y: 3, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &5189249297879181195
+--- !u!114 &8128168892755279203
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 5189249297879181194}
+  m_GameObject: {fileID: 8128168892755279200}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 161d38475edc1b15bb620f00e2133721, type: 3}
+  m_Script: {fileID: 11500000, guid: c5e7e54d09d38d64d9b35aa4300ba046, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  playerId: 0
-  surroundingsMask:
-    serializedVersion: 2
-    m_Bits: 4294967295
-  controlledObject: {fileID: 0}
-  cameraPrefab: {fileID: 365432475856182428, guid: 21e57581d841bbf47ad46d18bc4fbccf,
-    type: 3}
-  characterPrefab: {fileID: 7924335594981259068, guid: a0d44491ecfd6cf4a878881eb7a22194,
-    type: 3}
-  backgroundPrefab: {fileID: 8128168892755279203, guid: 7d0597713f16e9646967164d6043b0f6,
-    type: 3}
-  exitVelocityUpwards: 0
+  target: {fileID: 0}
+  backgroundLoop:
+  - {fileID: 11400000, guid: af0f85359db31d047a7d6b034d94f169, type: 2}
+  - {fileID: 11400000, guid: 9a304b4b62a81714fb3e35201b09785e, type: 2}
+  - {fileID: 11400000, guid: 2346a9124fb7e5d41956efcfc2a72211, type: 2}
+  - {fileID: 11400000, guid: 4b734ba9e51e70b4aa5aaac953e625a5, type: 2}

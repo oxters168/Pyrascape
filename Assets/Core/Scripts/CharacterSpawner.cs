@@ -18,8 +18,10 @@ public class CharacterSpawner : MonoBehaviour
     [Space(10)]
     public OrbitCameraController cameraPrefab;
     public MovementController2D characterPrefab;
+    public BackgroundLoop backgroundPrefab;
     private MovementController2D spawnedCharacter;
     private OrbitCameraController spawnedCamera;
+    private BackgroundLoop background;
 
     [Space(10)]
     public float exitVelocityUpwards = 0;
@@ -31,6 +33,37 @@ public class CharacterSpawner : MonoBehaviour
     }
     
     void Update()
+    {
+        EnterExitVehicle();
+
+        BridgeInput();
+
+        background.target = controlledObject.transform;
+    }
+
+    private void BridgeInput()
+    {
+        if (InputDevice != null)
+        {
+            InputDevice.SetAxis("Horizontal", player.GetAxis("Horizontal"));
+            InputDevice.SetAxis("Vertical", player.GetAxis("Vertical"));
+            InputDevice.SetToggle("ButtonA", player.GetButton("ButtonA"));
+        }
+    }
+
+    private void Spawn()
+    {
+        spawnedCharacter = GameObject.Instantiate(characterPrefab) as MovementController2D;
+        controlledObject = spawnedCharacter.gameObject;
+
+        spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
+        spawnedCamera.target = spawnedCharacter.transform;
+
+        background = GameObject.Instantiate(backgroundPrefab) as BackgroundLoop;
+        background.target = controlledObject.transform;
+    }
+
+    private void EnterExitVehicle()
     {
         if (player.GetButtonUp("ButtonY"))
         {
@@ -103,26 +136,5 @@ public class CharacterSpawner : MonoBehaviour
                     Debug.Log("Exit blocked");
             }
         }
-
-        BridgeInput();
-    }
-
-    private void BridgeInput()
-    {
-        if (InputDevice != null)
-        {
-            InputDevice.SetAxis("Horizontal", player.GetAxis("Horizontal"));
-            InputDevice.SetAxis("Vertical", player.GetAxis("Vertical"));
-            InputDevice.SetToggle("ButtonA", player.GetButton("ButtonA"));
-        }
-    }
-
-    private void Spawn()
-    {
-        spawnedCharacter = GameObject.Instantiate(characterPrefab) as MovementController2D;
-        controlledObject = spawnedCharacter.gameObject;
-
-        spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
-        spawnedCamera.target = spawnedCharacter.transform;
     }
 }
