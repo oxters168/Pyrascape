@@ -53,17 +53,17 @@ public class Digger : MonoBehaviour
             Debug.DrawRay(leftRay.origin, leftRay.direction * digReach, leftHit ? Color.green : Color.red);
             Debug.DrawRay(rightRay.origin, rightRay.direction * digReach, rightHit ? Color.green : Color.red);
 
-            if (botCell && downHit && Pod.fly < -float.Epsilon)
+            if (botCell && downHit && (Pod.fly < -float.Epsilon && Pod.horizontal > -float.Epsilon && Pod.horizontal < float.Epsilon))
             {
                 StartCoroutine(DigTile(currentCell + Vector3Int.down));
             }
             else if (botCell)
             {
-                if (leftCell && leftHit && Pod.horizontal < -float.Epsilon)
+                if (leftCell && leftHit && (Pod.horizontal < -float.Epsilon && Pod.fly > -float.Epsilon && Pod.fly < float.Epsilon))
                 {
                     StartCoroutine(DigTile(currentCell + Vector3Int.left));
                 }
-                else if (rightCell && rightHit && Pod.horizontal > float.Epsilon)
+                else if (rightCell && rightHit && (Pod.horizontal > float.Epsilon && Pod.fly > -float.Epsilon && Pod.fly < float.Epsilon))
                 {
                     StartCoroutine(DigTile(currentCell + Vector3Int.right));
                 }
@@ -99,6 +99,7 @@ public class Digger : MonoBehaviour
 
         Vector2 targetPosition = physical.GetCellCenterWorld(tilePosition).xy();
         Vector2 startPosition = transform.position;
+        float startRotation = podBody.rotation;
         // Debug.Log(startPosition + " going to " + targetPosition);
         // var removedTile = physical.GetTile(tilePosition);
         // foreground.SetTile(tilePosition, removedTile);
@@ -110,6 +111,7 @@ public class Digger : MonoBehaviour
         //Move towards dug tile within the timeframe based on digspeed
         int totalTimesteps = Mathf.CeilToInt(distance / digSpeed);
         float stepDistance = digSpeed;
+        float rotStep = -startRotation / totalTimesteps;
         for (int i = 0; i < totalTimesteps; i++)
         {
             // Vector2 digForce;
@@ -119,6 +121,7 @@ public class Digger : MonoBehaviour
                 // digForce = podBody.CalculateRequiredForceForSpeed(direction * digSpeed, 0.02f, true);
             // podBody.AddForce(digForce, ForceMode2D.Force);
             podBody.MovePosition(startPosition + direction * stepDistance * i);
+            podBody.MoveRotation(startRotation + rotStep * i);
 
             yield return new WaitForFixedUpdate();
         }
