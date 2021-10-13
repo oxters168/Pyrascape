@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Data", menuName = "Background/LoopInfo", order = 1)]
+[CreateAssetMenu(fileName = "Data", menuName = "Background/LoopInfo", order = 2)]
 public class LoopInfo : ScriptableObject
 {
     [Tooltip("The sprite that will be displayed and looped")]
