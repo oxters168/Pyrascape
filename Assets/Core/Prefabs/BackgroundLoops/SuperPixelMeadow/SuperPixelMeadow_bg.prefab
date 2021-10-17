@@ -44,8 +44,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   target: {fileID: 0}
-  backgroundLoop:
-  - {fileID: 11400000, guid: af0f85359db31d047a7d6b034d94f169, type: 2}
-  - {fileID: 11400000, guid: 9a304b4b62a81714fb3e35201b09785e, type: 2}
-  - {fileID: 11400000, guid: 2346a9124fb7e5d41956efcfc2a72211, type: 2}
-  - {fileID: 11400000, guid: 4b734ba9e51e70b4aa5aaac953e625a5, type: 2}
+  background: {fileID: 11400000, guid: c1ee483f4ec634369bdea0aca828b8f6, type: 2}

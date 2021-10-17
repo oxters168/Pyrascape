@@ -52,6 +52,6 @@ MonoBehaviour:
     type: 3}
   characterPrefab: {fileID: 7924335594981259068, guid: a0d44491ecfd6cf4a878881eb7a22194,
     type: 3}
-  backgroundPrefab: {fileID: 8128168892755279203, guid: 7d0597713f16e9646967164d6043b0f6,
+  terrainPrefab: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
     type: 3}
   exitVelocityUpwards: 0

@@ -1210,7 +1210,7 @@ PrefabInstance:
     - target: {fileID: 5189249297879181194, guid: 48f4487bd89a4524a9b1431ddccb3888,
         type: 3}
       propertyPath: m_IsActive
-      value: 0
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 48f4487bd89a4524a9b1431ddccb3888, type: 3}
@@ -1229,7 +1229,7 @@ GameObject:
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
-  m_IsActive: 1
+  m_IsActive: 0
 --- !u!4 &1747988698
 Transform:
   m_ObjectHideFlags: 0
@@ -1256,17 +1256,16 @@ PrefabInstance:
       propertyPath: m_Enabled
       value: 1
       objectReference: {fileID: 0}
+    - target: {fileID: 4022619882345791891, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
+        type: 3}
+      propertyPath: m_ColliderPaths.Array.size
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
         type: 3}
       propertyPath: target
       value: 
       objectReference: {fileID: 1747988698}
-    - target: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
-        type: 3}
-      propertyPath: currentBiome
-      value: 
-      objectReference: {fileID: 11400000, guid: 91bae9fa6f82b8f89966f3c0c4afdf93,
-        type: 2}
     - target: {fileID: 5944026451479631683, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
         type: 3}
       propertyPath: m_RootOrder
@@ -1326,6 +1325,11 @@ PrefabInstance:
         type: 3}
       propertyPath: m_Name
       value: World
+      objectReference: {fileID: 0}
+    - target: {fileID: 8226819389430784808, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
       objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: 16ff141fd82d3ddcc9775e08655c1a5b, type: 3}

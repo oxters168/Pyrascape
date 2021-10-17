@@ -18,10 +18,10 @@ public class CharacterSpawner : MonoBehaviour
     [Space(10)]
     public OrbitCameraController cameraPrefab;
     public MovementController2D characterPrefab;
-    public BackgroundLoop backgroundPrefab;
+    public TerrainGenerator terrainPrefab;
     private MovementController2D spawnedCharacter;
     private OrbitCameraController spawnedCamera;
-    private BackgroundLoop background;
+    private TerrainGenerator terrain;
 
     [Space(10)]
     public float exitVelocityUpwards = 0;
@@ -38,7 +38,7 @@ public class CharacterSpawner : MonoBehaviour
 
         BridgeInput();
 
-        background.target = controlledObject.transform;
+        terrain.target = controlledObject.transform;
     }
 
     private void BridgeInput()
@@ -59,8 +59,8 @@ public class CharacterSpawner : MonoBehaviour
         spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
         spawnedCamera.target = spawnedCharacter.transform;
 
-        background = GameObject.Instantiate(backgroundPrefab) as BackgroundLoop;
-        background.target = controlledObject.transform;
+        terrain = GameObject.Instantiate(terrainPrefab) as TerrainGenerator;
+        terrain.target = controlledObject.transform;
     }
 
     private void EnterExitVehicle()

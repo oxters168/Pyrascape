@@ -5,24 +5,25 @@ public class BackgroundLoop : MonoBehaviour
 {
     [Tooltip("The target to follow")]
     public Transform target;
-    [Space(10), Tooltip("The background layers")]
-    public LoopInfo[] backgroundLoop;
+    [Space(10)]
+    public BackgroundInfo background;
 
     private Transform[][] backgrounds;
 
     void Start()
     {
-        backgrounds = new Transform[backgroundLoop.Length][];
-        for (int i = 0; i < backgrounds.GetLength(0); i++)
+        transform.position = new Vector3(0, background.height, 0);
+        backgrounds = new Transform[background.layers.Length][];
+        for (int bgIndex = 0; bgIndex < backgrounds.GetLength(0); bgIndex++)
         {
-            Init(i, backgroundLoop[i]);
-            RefreshBackground(i, backgroundLoop[i]);
+            Init(bgIndex, background.layers[bgIndex]);
+            RefreshBackground(bgIndex, background.layers[bgIndex]);
         }
     }
     void Update()
     {
-        for (int i = 0; i < backgrounds.Length; i++)
-            RefreshBackground(i, backgroundLoop[i]);
+        for (int bgIndex = 0; bgIndex < backgrounds.Length; bgIndex++)
+            RefreshBackground(bgIndex, background.layers[bgIndex]);
     }
 
     void Init(int loopIndex, LoopInfo backgroundLoop)
