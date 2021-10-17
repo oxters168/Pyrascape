@@ -22,21 +22,13 @@ public class TerrainGenerator : MonoBehaviour
     private BackgroundLoop currentBackground;
 
     /// <summary>
-    /// The horizontal chunk the target is currently in
+    /// The chunk the target is currently in
     /// </summary>
-    private int chunkX;
+    private Vector2Int chunk;
     /// <summary>
-    /// The vertical chunk the target is currently in
+    /// The chunk the target was in
     /// </summary>
-    private int chunkY;
-    /// <summary>
-    /// The previous horizontal chunk the target was in
-    /// </summary>
-    private int prevChunkX;
-    /// <summary>
-    /// The previous vertical chunk the target was in
-    /// </summary>
-    private int prevChunkY;
+    private Vector2Int prevChunk;
 
     private bool firstDraw = true;
 
@@ -44,10 +36,8 @@ public class TerrainGenerator : MonoBehaviour
     {
         chunkWidth = (chunkWidth / 2) * 2; //Turns the width into an even number (since integer division is floored by default)
         chunkHeight = (chunkHeight / 2) * 2; //Turns the height into an even number (since integer division is floored by default)
-        prevChunkX = chunkX;
-        prevChunkY = chunkY;
-        chunkX = Mathf.FloorToInt((target.position.x - (chunkWidth / 2)) / (chunkWidth / 1)) + 1;
-        chunkY = Mathf.FloorToInt((target.position.y - (chunkHeight / 2)) / (chunkHeight / 1)) + 1;
+        prevChunk = chunk;
+        chunk = WorldData.GetChunkFromPosition(target.position);
 
         if (currentBackground != null)
             currentBackground.target = target;
@@ -74,18 +64,21 @@ public class TerrainGenerator : MonoBehaviour
             var currentTilePos = tilesToBeDrawn[i];
             if (currentTilePos.y == 1)
             {
-                foregroundTiles[i] = currentBiome.ornamentalTile;
+                if (!WorldData.IsDug(currentTilePos + Vector3Int.down))
+                    foregroundTiles[i] = currentBiome.ornamentalTile;
             }
             
             if (currentTilePos.y == 0)
             {
-                physicalTiles[i] = currentBiome.surfaceTile;
+                if (!WorldData.IsDug(currentTilePos))
+                    physicalTiles[i] = currentBiome.surfaceTile;
                 backgroundTiles[i] = currentBiome.backgroundTile;
             }
 
             if (currentTilePos.y < 0)
             {
-                physicalTiles[i] = currentBiome.undergroundTile;
+                if (!WorldData.IsDug(currentTilePos))
+                    physicalTiles[i] = currentBiome.undergroundTile;
                 backgroundTiles[i] = currentBiome.backgroundTile;
             }
         }
@@ -104,16 +97,16 @@ public class TerrainGenerator : MonoBehaviour
 
     private void GenerateTerrain()
     {
-        if (firstDraw || chunkX != prevChunkX || chunkY != prevChunkY)
+        if (firstDraw || chunk != prevChunk)
         {
             // Debug.Log(chunkX + ", " + chunkY);
 
-            var newTilePositions = GetChunkTilePositions(chunkX, chunkY, chunkWidth, chunkHeight, chunkRenderDistance); //Get all new tile indices
+            var newTilePositions = GetChunkTilePositions(chunk.x, chunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all new tile indices
             Vector3Int[] tilesToBeDrawn;
 
             if (!firstDraw)
             {
-                var oldTilePositions = GetChunkTilePositions(prevChunkX, prevChunkY, chunkWidth, chunkHeight, chunkRenderDistance); //Get all old tile indices
+                var oldTilePositions = GetChunkTilePositions(prevChunk.x, prevChunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all old tile indices
                 tilesToBeDrawn = newTilePositions.Except(oldTilePositions).ToArray(); //Get exclusive new tiles
 
                 var tilesToBeCleared = oldTilePositions.Except(newTilePositions).ToArray(); //Get exclusive old tiles

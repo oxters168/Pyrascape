@@ -74,6 +74,7 @@ public class Digger : MonoBehaviour
     private IEnumerator DigTile(Vector3Int tilePosition)
     {
         isDigging = true;
+        WorldData.SetDug(tilePosition);
 
         Rigidbody2D podBody = GetComponentInChildren<Rigidbody2D>();
         PodPhysics2D pod = GetComponentInChildren<PodPhysics2D>();
