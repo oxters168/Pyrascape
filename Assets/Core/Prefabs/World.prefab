@@ -828,6 +828,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 3c3e3a95232b1b020ab19ee24b8f705a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  noiseMin: 0.42
+  noiseFrequency: 0.01
   foreground: {fileID: 8815847477263333932}
   physical: {fileID: 113412684099683025}
   background: {fileID: 933851237618495818}

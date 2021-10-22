@@ -54,6 +54,7 @@ public class CharacterSpawner : MonoBehaviour
     private void Spawn()
     {
         spawnedCharacter = GameObject.Instantiate(characterPrefab) as MovementController2D;
+        spawnedCharacter.transform.position = transform.position;
         controlledObject = spawnedCharacter.gameObject;
 
         spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;

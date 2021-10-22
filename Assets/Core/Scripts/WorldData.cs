@@ -3,6 +3,8 @@ using UnityEngine;
 
 public class WorldData
 {
+    public static int seed = 1337;
+
     public static int chunkWidth = 8; //Is the global setting and will be used to set the terrain generator values
     public static int chunkHeight = 8; //Is the global setting and will be used to set the terrain generator values
     public static int chunkRenderDistance = 1; //Is the global setting and will be used to set the terrain generator values

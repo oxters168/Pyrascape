@@ -1,12 +1,15 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 using System.Linq;
+using System.Collections;
 
 public class TerrainGenerator : MonoBehaviour
 {
     private CompositeCollider2D _physicsBounds;
     private CompositeCollider2D PhysicsBounds { get { if (_physicsBounds == null) _physicsBounds = GetComponentInChildren<CompositeCollider2D>(); return _physicsBounds; } }
 
+    public float noiseMin = 0.42f;
+    public float noiseFrequency = 0.01f;
     public Tilemap foreground, physical, background;
 
     [Space(10)]
@@ -31,7 +34,13 @@ public class TerrainGenerator : MonoBehaviour
     private Vector2Int prevChunk;
 
     private bool firstDraw = true;
+    private FastNoise noise;
 
+    void Start()
+    {
+        noise = new FastNoise(WorldData.seed);
+        noise.SetNoiseType(FastNoise.NoiseType.Perlin);
+    }
     void Update()
     {
         chunkWidth = (chunkWidth / 2) * 2; //Turns the width into an even number (since integer division is floored by default)
@@ -62,6 +71,10 @@ public class TerrainGenerator : MonoBehaviour
         for (int i = 0; i < physicalTiles.Length; i++)
         {
             var currentTilePos = tilesToBeDrawn[i];
+            noise.SetFrequency(noiseFrequency);
+            float perlin = (noise.GetValue(currentTilePos.x * 4001, currentTilePos.y * 7121) + 1) / 2;
+            // this.layer1Amplitude * noise.perlin2(col * this.layer1Frequency * this.layer1Multiplier, row * this.layer1Frequency * this.layer1Multiplier);
+
             if (currentTilePos.y == 1)
             {
                 if (!WorldData.IsDug(currentTilePos + Vector3Int.down))
@@ -77,7 +90,7 @@ public class TerrainGenerator : MonoBehaviour
 
             if (currentTilePos.y < 0)
             {
-                if (!WorldData.IsDug(currentTilePos))
+                if (perlin >= noiseMin && !WorldData.IsDug(currentTilePos))
                     physicalTiles[i] = currentBiome.undergroundTile;
                 backgroundTiles[i] = currentBiome.backgroundTile;
             }
@@ -121,10 +134,16 @@ public class TerrainGenerator : MonoBehaviour
             }
 
             DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid
+            // StartCoroutine(UpdateColliderNextFrame());
             // PhysicsBounds.GenerateGeometry(); //Regenerate collider
 
             // firstDraw = false;
         }
+    }
+    private IEnumerator UpdateColliderNextFrame()
+    {
+        yield return null;
+        PhysicsBounds.GenerateGeometry();
     }
 
     private static Vector3Int[] GetChunkTilePositions(int chunkX, int chunkY, int chunkWidth, int chunkHeight, int chunkRenderDistance)

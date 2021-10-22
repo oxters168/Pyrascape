@@ -35,6 +35,9 @@ public class Digger : MonoBehaviour
     {
         podBounds = transform.GetTotalBounds(Space.World);
 
+        if (physical == null)
+            FindTilemaps(); //Hacky solution should check on it later
+
         if (!isDigging)
         {
             currentCell = physical.WorldToCell(podBounds.center);
