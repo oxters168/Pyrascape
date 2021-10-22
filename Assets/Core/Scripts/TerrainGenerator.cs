@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityHelpers;
 using UnityEngine.Tilemaps;
 using System.Linq;
 using System.Collections;
@@ -14,12 +15,12 @@ public class TerrainGenerator : MonoBehaviour
 
     [Space(10)]
     public Transform target;
-    [Tooltip("The number of horizontal tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even")]
-    public int chunkWidth = 8;
-    [Tooltip("The number of vertical tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even")]
-    public int chunkHeight = 8;
-    [Tooltip("How many chunks beyond the current to render (0 renders 1 chunk, 1 renders 9 chunks, 2 renders 25 chunks...)")]
-    public int chunkRenderDistance = 1;
+    // [Tooltip("The number of horizontal tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even")]
+    // public int chunkWidth = 8;
+    // [Tooltip("The number of vertical tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even")]
+    // public int chunkHeight = 8;
+    // [Tooltip("How many chunks beyond the current to render (0 renders 1 chunk, 1 renders 9 chunks, 2 renders 25 chunks...)")]
+    // public int chunkRenderDistance = 1;
 
     public BiomeInfo currentBiome;
     private BackgroundLoop currentBackground;
@@ -43,10 +44,12 @@ public class TerrainGenerator : MonoBehaviour
     }
     void Update()
     {
-        chunkWidth = (chunkWidth / 2) * 2; //Turns the width into an even number (since integer division is floored by default)
-        chunkHeight = (chunkHeight / 2) * 2; //Turns the height into an even number (since integer division is floored by default)
+        WorldData.chunkWidth = (WorldData.chunkWidth / 2) * 2; //Turns the width into an even number (since integer division is floored by default)
+        WorldData.chunkHeight = (WorldData.chunkHeight / 2) * 2; //Turns the height into an even number (since integer division is floored by default)
         prevChunk = chunk;
         chunk = WorldData.GetChunkFromPosition(target.position);
+        DebugPanel.Log("Position", target.position.xy(), 5);
+        DebugPanel.Log("Chunk", chunk, 5);
 
         if (currentBackground != null)
             currentBackground.target = target;
@@ -114,12 +117,12 @@ public class TerrainGenerator : MonoBehaviour
         {
             // Debug.Log(chunkX + ", " + chunkY);
 
-            var newTilePositions = GetChunkTilePositions(chunk.x, chunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all new tile indices
+            var newTilePositions = GetChunkTilePositions(chunk.x, chunk.y, WorldData.chunkWidth, WorldData.chunkHeight, WorldData.chunkRenderDistance); //Get all new tile indices
             Vector3Int[] tilesToBeDrawn;
 
             if (!firstDraw)
             {
-                var oldTilePositions = GetChunkTilePositions(prevChunk.x, prevChunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all old tile indices
+                var oldTilePositions = GetChunkTilePositions(prevChunk.x, prevChunk.y, WorldData.chunkWidth, WorldData.chunkHeight, WorldData.chunkRenderDistance); //Get all old tile indices
                 tilesToBeDrawn = newTilePositions.Except(oldTilePositions).ToArray(); //Get exclusive new tiles
 
                 var tilesToBeCleared = oldTilePositions.Except(newTilePositions).ToArray(); //Get exclusive old tiles
