@@ -33,17 +33,20 @@ public class MovementController2D : MonoBehaviour//, IValueManager
 
     public float deadzone = 0.1f;
 
+    [Space(10), Tooltip("Inverts the direction the player faces")]
+    public bool invertFlip;
+
     public enum SpecificState { IdleLeft, IdleRight, RunLeft, RunRight, JumpFaceLeft, JumpFaceRight, JumpMoveLeft, JumpMoveRight, FallFaceLeft, FallFaceRight, FallMoveLeft, FallMoveRight, ClimbLeftIdle, ClimbLeftUp, ClimbLeftDown, ClimbRightIdle, ClimbRightUp, ClimbRightDown, ClimbTopIdleLeft, ClimbTopIdleRight, ClimbTopMoveLeft, ClimbTopMoveRight }
     public enum AnimeState { Idle, Run, Jump, AirFall, Land, TopClimb, TopClimbIdle, SideClimb, SideClimbIdle }
 
     // [Space(10)]
     // public ValuesVault controlValues;
-    private SpriteRenderer Sprite7Up { get { if (_sprite7Up == null) _sprite7Up = GetComponent<SpriteRenderer>(); return _sprite7Up; } }
-    private SpriteRenderer _sprite7Up;
+    private SpriteRenderer[] Sprite7Up { get { if (_sprite7Up == null) _sprite7Up = GetComponentsInChildren<SpriteRenderer>(); return _sprite7Up; } }
+    private SpriteRenderer[] _sprite7Up;
     private Rigidbody2D AffectedBody { get { if (_affectedBody == null) _affectedBody = GetComponent<Rigidbody2D>(); return _affectedBody; } }
     private Rigidbody2D _affectedBody;
-    private Animator SpriteAnim { get { if (_animator == null) _animator = GetComponent<Animator>(); return _animator; } }
-    private Animator _animator;
+    private Animator[] SpriteAnim { get { if (_animator == null) _animator = GetComponentsInChildren<Animator>(); return _animator; } }
+    private Animator[] _animator;
 
     private SpecificState prevState;
     private SpecificState currentState;
@@ -132,12 +135,24 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     }
     private void ApplyAnimation()
     {
-        Sprite7Up.flipX = IsFacingRight(currentState);
+        bool flipX = IsFacingRight(currentState);
+        SetFlipState(invertFlip ? !flipX : flipX);
         var prevAnimeState = GetAnimeFromState(prevState);
         var currentAnimeState = GetAnimeFromState(currentState);
         if (prevAnimeState != currentAnimeState)
-            SpriteAnim.SetTrigger(currentAnimeState.ToString());
+            SetAnimTrigger(currentAnimeState.ToString());
     }
+    private void SetFlipState(bool flipX)
+    {
+        foreach (var sprite7Up in Sprite7Up)
+            sprite7Up.flipX = flipX;
+    }
+    private void SetAnimTrigger(string name)
+    {
+        foreach(var spriteAnim in SpriteAnim)
+            spriteAnim.SetTrigger(name);
+    }
+
     private void MoveCharacter()
     {
         float horizontalForce = 0;
