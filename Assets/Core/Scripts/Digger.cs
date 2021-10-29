@@ -7,7 +7,9 @@ public class Digger : MonoBehaviour
 {
     private PodPhysics2D _pod;
     private PodPhysics2D Pod { get { if (_pod == null) _pod = GetComponentInChildren<PodPhysics2D>(); return _pod; } }
-    private Tilemap physical, foreground;
+    // private Tilemap physical, foreground;
+    private TerrainGenerator[] Terrains { get { if (_terrains == null) { _terrains = FindObjectsOfType<TerrainGenerator>(); } return _terrains; } }
+    private TerrainGenerator[] _terrains;
 
     private Vector3Int currentCell;
     private Bounds podBounds;
@@ -27,23 +29,55 @@ public class Digger : MonoBehaviour
 
     void Start()
     {
-        FindTilemaps();
+        // FindTilemaps();
         GetComponentInChildren<PodPhysics2D>();
+    }
+
+    private Vector3Int WorldToCell(Vector3 position)
+    {
+        if (Terrains != null && Terrains.Length > 0)
+            return Terrains[0].WorldToCell(position);
+        else
+            throw new System.NullReferenceException("No terrain found");
+    }
+    private bool HasTile(Vector3Int tilePosition)
+    {
+        if (Terrains != null && Terrains.Length > 0)
+            return Terrains[0].HasTile(tilePosition);
+        else
+            throw new System.NullReferenceException("No terrain found");
+    }
+    private Vector3 GetCellCenterWorld(Vector3Int tilePosition)
+    {
+        if (Terrains != null && Terrains.Length > 0)
+            return Terrains[0].GetCellCenterWorld(tilePosition);
+        else
+            throw new System.NullReferenceException("No terrain found");
+    }
+    private void RegenerateTerrain()
+    {
+        if (Terrains != null)
+            foreach (var terrain in Terrains)
+                terrain.GenerateTerrain(true);
     }
 
     void FixedUpdate()
     {
         podBounds = transform.GetTotalBounds(Space.World);
 
-        if (physical == null)
-            FindTilemaps(); //Hacky solution should check on it later
+        // if (physical == null)
+        //     FindTilemaps(); //Hacky solution should check on it later
 
         if (!isDigging)
         {
-            currentCell = physical.WorldToCell(podBounds.center);
-            bool leftCell = physical.HasTile(currentCell + Vector3Int.left);
-            bool rightCell = physical.HasTile(currentCell + Vector3Int.right);
-            bool botCell = physical.HasTile(currentCell + Vector3Int.down);
+            currentCell = WorldToCell(podBounds.center);
+            bool leftCell = HasTile(currentCell + Vector3Int.left);
+            bool rightCell = HasTile(currentCell + Vector3Int.right);
+            bool botCell = HasTile(currentCell + Vector3Int.down);
+            // currentCell = physical.WorldToCell(podBounds.center);
+            // bool leftCell = physical.HasTile(currentCell + Vector3Int.left);
+            // bool rightCell = physical.HasTile(currentCell + Vector3Int.right);
+            // bool botCell = physical.HasTile(currentCell + Vector3Int.down);
             // Debug.Log(currentCell + " => " + physical.CellToWorld(currentCell));
 
             Ray2D downRay = new Ray2D(podBounds.center.xy() + Vector2.down * podBounds.extents.y, Vector2.down);
@@ -101,7 +135,8 @@ public class Digger : MonoBehaviour
         // pod.horizontal = 0;
         // pod.fly = 0;
 
-        Vector2 targetPosition = physical.GetCellCenterWorld(tilePosition).xy();
+        // Vector2 targetPosition = physical.GetCellCenterWorld(tilePosition).xy();
+        Vector2 targetPosition = GetCellCenterWorld(tilePosition).xy();
         Vector2 startPosition = transform.position;
         float startRotation = podBody.rotation;
         // Debug.Log(startPosition + " going to " + targetPosition);
@@ -131,10 +166,11 @@ public class Digger : MonoBehaviour
         }
 
         //Remove any grass on top of tile
-        if (foreground.HasTile(tilePosition + Vector3Int.up))
-            foreground.SetTile(tilePosition + Vector3Int.up, null);
-        physical.SetTile(tilePosition, null); //Remove the dug tile
+        // if (foreground.HasTile(tilePosition + Vector3Int.up))
+        //     foreground.SetTile(tilePosition + Vector3Int.up, null);
+        // physical.SetTile(tilePosition, null); //Remove the dug tile
         // foreground.SetTile(tilePosition, null); //Remove temporary foreground tile
+        RegenerateTerrain();
 
         //Turn colliders back on and the gravity
         podBody.bodyType = RigidbodyType2D.Dynamic;
@@ -152,19 +188,19 @@ public class Digger : MonoBehaviour
         isDigging = false;
     }
 
-    private void FindTilemaps()
-    {
-        Tilemap[] tilemaps = FindObjectsOfType<Tilemap>();
-        for (int i = 0; i < tilemaps.Length; i++)
-        {
-            var tileMapRenderer = tilemaps[i].GetComponentInChildren<TilemapRenderer>();
-            if (tileMapRenderer != null)
-            {
-                if (tileMapRenderer.sortingOrder == 1)
-                    physical = tilemaps[i];
-                else if (tileMapRenderer.sortingOrder == 2)
-                    foreground = tilemaps[i];
-            }
-        }
-    }
+    // private void FindTilemaps()
+    // {
+    //     Tilemap[] tilemaps = FindObjectsOfType<Tilemap>();
+    //     for (int i = 0; i < tilemaps.Length; i++)
+    //     {
+    //         var tileMapRenderer = tilemaps[i].GetComponentInChildren<TilemapRenderer>();
+    //         if (tileMapRenderer != null)
+    //         {
+    //             if (tileMapRenderer.sortingOrder == 1)
+    //                 physical = tilemaps[i];
+    //             else if (tileMapRenderer.sortingOrder == 2)
+    //                 foreground = tilemaps[i];
+    //         }
+    //     }
+    // }
 }

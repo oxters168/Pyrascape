@@ -80,9 +80,7 @@ public class TerrainGenerator : MonoBehaviour
             currentBackground.background = currentBiome.background;
         }
 
-        GenerateTerrain();
-
-        firstDraw = false;
+        GenerateTerrain(false);
     }
 
     private void DrawTiles(params Vector3Int[] tilesToBeDrawn)
@@ -170,17 +168,18 @@ public class TerrainGenerator : MonoBehaviour
         return invertNoise && perlin <= noiseThreshold || !invertNoise && perlin >= noiseThreshold;
     }
 
-    private void GenerateTerrain()
+    public void GenerateTerrain(bool forceAll)
     {
-        bool changeHappens = firstDraw || chunk != prevChunk || chunkWidth != prevChunkWidth || chunkHeight != prevChunkHeight || chunkRenderDistance != prevChunkRenderDistance || !Mathf.Approximately(noiseFrequency, prevNoiseFrequency) || !Mathf.Approximately(noisePower, prevNoisePower) || invertNoise != prevInvertNoise || debugNoise != prevDebugNoise;
-        if (changeHappens)
+        bool smallChange =  chunk != prevChunk;
+        bool bigChange = forceAll || firstDraw || chunkWidth != prevChunkWidth || chunkHeight != prevChunkHeight || chunkRenderDistance != prevChunkRenderDistance || !Mathf.Approximately(noiseFrequency, prevNoiseFrequency) || !Mathf.Approximately(noisePower, prevNoisePower) || invertNoise != prevInvertNoise || debugNoise != prevDebugNoise;
+        if (smallChange || bigChange)
         {
             // Debug.Log(chunkX + ", " + chunkY);
 
             var newTilePositions = GetChunkTilePositions(chunk.x, chunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all new tile indices
             Vector3Int[] tilesToBeDrawn;
 
-            if (!changeHappens)
+            if (!bigChange)
             {
                 var oldTilePositions = GetChunkTilePositions(prevChunk.x, prevChunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all old tile indices
                 tilesToBeDrawn = newTilePositions.Except(oldTilePositions).ToArray(); //Get exclusive new tiles
@@ -198,7 +197,10 @@ public class TerrainGenerator : MonoBehaviour
 
             DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid
 
-            // firstDraw = false;
+            firstDraw = false;
+            prevChunkWidth = chunkWidth;
+            prevChunkHeight = chunkHeight;
+            prevChunkRenderDistance = chunkRenderDistance;
             prevNoiseFrequency = noiseFrequency;
             prevNoisePower = noisePower;
             prevInvertNoise = invertNoise;
@@ -221,5 +223,18 @@ public class TerrainGenerator : MonoBehaviour
             tilePositions[tileIndex] = new Vector3Int(tilePosX, tilePosY, 0);
         }
         return tilePositions;
+    }
+
+    public Vector3Int WorldToCell(Vector3 position)
+    {
+        return physical.WorldToCell(position);
+    }
+    public bool HasTile(Vector3Int tilePosition)
+    {
+        return physical.HasTile(tilePosition);
+    }
+    public Vector3 GetCellCenterWorld(Vector3Int tilePosition)
+    {
+        return physical.GetCellCenterWorld(tilePosition);
     }
 }
