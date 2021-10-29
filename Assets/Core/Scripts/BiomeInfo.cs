@@ -6,7 +6,7 @@ public class BiomeInfo : ScriptableObject
 {
     public BackgroundInfo background;
     public Tile ornamentalTile;
-    public Tile surfaceTile;
-    public Tile undergroundTile;
+    public Tile[] surfaceTile;
+    public Tile[] undergroundTile;
     public Tile backgroundTile;
 }

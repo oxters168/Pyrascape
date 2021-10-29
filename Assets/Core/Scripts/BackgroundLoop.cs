@@ -53,7 +53,7 @@ public class BackgroundLoop : MonoBehaviour
             int total = backgrounds[loopIndex].Length;
             int symmetricalHalf = (total - 1) / 2;
 
-            backgrounds[loopIndex][0].localPosition = new Vector3(xOffset, 0, backgroundLoop.distance);
+            backgrounds[loopIndex][0].localPosition = new Vector3(xOffset, backgroundLoop.relativeHeight, backgroundLoop.distance);
             backgrounds[loopIndex][0].localScale = Vector3.one * scale;
 
             for (int i = 1; i <= symmetricalHalf; i++)
@@ -61,9 +61,9 @@ public class BackgroundLoop : MonoBehaviour
                 int leftIndex = i;
                 int rightIndex = total - i;
                 
-                backgrounds[loopIndex][leftIndex].localPosition = new Vector3(xOffset + bgBounds.size.x * i, 0, backgroundLoop.distance);
+                backgrounds[loopIndex][leftIndex].localPosition = new Vector3(xOffset + bgBounds.size.x * i, backgroundLoop.relativeHeight, backgroundLoop.distance);
                 backgrounds[loopIndex][leftIndex].localScale = Vector3.one * scale;
-                backgrounds[loopIndex][rightIndex].localPosition = new Vector3(xOffset - bgBounds.size.x * i, 0, backgroundLoop.distance);
+                backgrounds[loopIndex][rightIndex].localPosition = new Vector3(xOffset - bgBounds.size.x * i, backgroundLoop.relativeHeight, backgroundLoop.distance);
                 backgrounds[loopIndex][rightIndex].localScale = Vector3.one * scale;
                 
             }

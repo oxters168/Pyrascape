@@ -13,4 +13,7 @@ public class LoopInfo : ScriptableObject
 
     [Tooltip("The draw order")]
     public int layerOrder;
+    
+    [Tooltip("The height of this layer in the background loop")]
+    public float relativeHeight;
 }

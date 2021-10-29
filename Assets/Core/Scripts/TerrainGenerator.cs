@@ -8,6 +8,7 @@ public class TerrainGenerator : MonoBehaviour
     private CompositeCollider2D _physicsBounds;
     private CompositeCollider2D PhysicsBounds { get { if (_physicsBounds == null) _physicsBounds = GetComponentInChildren<CompositeCollider2D>(); return _physicsBounds; } }
 
+    public int surfaceHeight = -1;
     public float noiseThreshold = 0.42f;
     public bool invertNoise;
     private bool prevInvertNoise;
@@ -96,36 +97,47 @@ public class TerrainGenerator : MonoBehaviour
         for (int i = 0; i < physicalTiles.Length; i++)
         {
             var currentTilePos = tilesToBeDrawn[i];
-            float rawNoise = noise.GetNoise(currentTilePos.x, currentTilePos.y);
-            // float someting = ((noise.GetNoise(currentTilePos.x + 2, currentTilePos.y) + 1) / 2);
-            // float sometingElse = ((noise.GetNoise(currentTilePos.x, currentTilePos.y + 1) + 1) / 2);
-            float perlin = Mathf.Pow((rawNoise + 1) / 2, noisePower);
-            // this.layer1Amplitude * noise.perlin2(col * this.layer1Frequency * this.layer1Multiplier, row * this.layer1Frequency * this.layer1Multiplier);
 
+            //Generate terrain
             if (!debugNoise)
             {
-                if (currentTilePos.y == 1)
-                {
-                    if (!WorldData.IsDug(currentTilePos + Vector3Int.down))
-                        foregroundTiles[i] = currentBiome.ornamentalTile;
-                }
-                
-                if (currentTilePos.y == 0)
-                {
-                    if (!WorldData.IsDug(currentTilePos))
-                        physicalTiles[i] = currentBiome.surfaceTile;
-                    backgroundTiles[i] = currentBiome.backgroundTile;
-                }
+                //Ornament tiles
+                if (currentTilePos.y == 0 && !WorldData.IsDug(currentTilePos + Vector3Int.down))
+                    foregroundTiles[i] = currentBiome.ornamentalTile;
 
-                if (currentTilePos.y < 0)
+                //Background and physical tiles
+                if (currentTilePos.y <= surfaceHeight)
                 {
-                    if ((invertNoise && perlin <= noiseThreshold || !invertNoise && perlin >= noiseThreshold) && !WorldData.IsDug(currentTilePos))
-                        physicalTiles[i] = currentBiome.undergroundTile;
-                    backgroundTiles[i] = currentBiome.backgroundTile;
+                    backgroundTiles[i] = currentBiome.backgroundTile; //Background tiles
+
+                    int borderIndex = 0;
+                    Vector3Int leftTilePos = currentTilePos + Vector3Int.left;
+                    Vector3Int upperTilePos = currentTilePos + Vector3Int.up;
+                    Vector3Int rightTilePos = currentTilePos + Vector3Int.right;
+                    Vector3Int lowerTilePos = currentTilePos + Vector3Int.down;
+                    bool hasLeftTile = !WorldData.IsDug(leftTilePos);
+                    bool hasTopTile = currentTilePos.y < surfaceHeight && !WorldData.IsDug(upperTilePos);
+                    bool hasRightTile = !WorldData.IsDug(rightTilePos);
+                    bool hasBotTile = !WorldData.IsDug(lowerTilePos) && PerlinCheck(lowerTilePos);
+                    if (currentTilePos.y < surfaceHeight)
+                    {
+                        hasLeftTile &= PerlinCheck(leftTilePos);
+                        hasRightTile &= PerlinCheck(rightTilePos);
+                    }
+                    if (currentTilePos.y < surfaceHeight - 1)
+                        hasTopTile &= PerlinCheck(upperTilePos);
+                    borderIndex = (hasLeftTile ? 1 : 0) + (hasTopTile ? 2 : 0) + (hasRightTile ? 4 : 0) + (hasBotTile ? 8 : 0);
+
+                    if (currentTilePos.y == surfaceHeight && !WorldData.IsDug(currentTilePos))
+                        physicalTiles[i] = currentBiome.surfaceTile[borderIndex];
+
+                    if (currentTilePos.y < surfaceHeight && PerlinCheck(currentTilePos) && !WorldData.IsDug(currentTilePos))
+                        physicalTiles[i] = currentBiome.undergroundTile[borderIndex];
                 }
             }
             else
             {
+                float perlin = GetPerlinOf(currentTilePos);
                 physical.SetTile(currentTilePos, noiseTile);
                 physical.SetTileFlags(currentTilePos, TileFlags.None);
                 physical.SetColor(currentTilePos, new Color(perlin, perlin, perlin, 1));
@@ -146,6 +158,16 @@ public class TerrainGenerator : MonoBehaviour
         foreground.SetTiles(tilesToBeCleared, nullTiles);
         physical.SetTiles(tilesToBeCleared, nullTiles);
         background.SetTiles(tilesToBeCleared, nullTiles);
+    }
+    private float GetPerlinOf(Vector3Int tilePosition)
+    {
+        float rawNoise = noise.GetNoise(tilePosition.x, tilePosition.y);
+        return Mathf.Pow((rawNoise + 1) / 2, noisePower);
+    }
+    private bool PerlinCheck(Vector3Int tilePosition)
+    {
+        float perlin = GetPerlinOf(tilePosition);
+        return invertNoise && perlin <= noiseThreshold || !invertNoise && perlin >= noiseThreshold;
     }
 
     private void GenerateTerrain()
