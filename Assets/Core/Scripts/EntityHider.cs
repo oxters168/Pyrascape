@@ -28,7 +28,7 @@ public class EntityHider : MonoBehaviour
                 }
             }
             
-                EntityRoot.spawnedEntity.SetActive(characterIsAround);
+            EntityRoot.spawnedEntity.SetActive(characterIsAround);
         }
         else
             EntityRoot.spawnedEntity.SetActive(false); 

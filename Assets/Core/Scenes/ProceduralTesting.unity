@@ -1724,6 +1724,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: EntitySpawner
       objectReference: {fileID: 0}
+    - target: {fileID: 4159340816827649416, guid: 8a9fee8817206a9868ea7d554c619621,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 1
+      objectReference: {fileID: 0}
     - target: {fileID: 8456954087377937169, guid: 8a9fee8817206a9868ea7d554c619621,
         type: 3}
       propertyPath: m_RootOrder

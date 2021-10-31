@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Data", menuName = "Background/LoopInfo", order = 3)]
+[CreateAssetMenu(fileName = "Data", menuName = "Pyrascape/LoopInfo", order = 4)]
 public class LoopInfo : ScriptableObject
 {
     [Tooltip("The sprite that will be displayed and looped")]

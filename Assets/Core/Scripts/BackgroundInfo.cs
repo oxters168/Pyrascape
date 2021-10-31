@@ -1,6 +1,6 @@
 using UnityEngine;
 
-[CreateAssetMenu(fileName = "Data", menuName = "Background/BackgroundInfo", order = 2)]
+[CreateAssetMenu(fileName = "Data", menuName = "Pyrascape/BackgroundInfo", order = 3)]
 public class BackgroundInfo : ScriptableObject
 {
     [Tooltip("The background layers")]

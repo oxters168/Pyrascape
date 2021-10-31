@@ -55,7 +55,8 @@ public class WorldGenerator : MonoBehaviour
     private int prevChunkRenderDistance = 1;
 
     public BiomeInfo currentBiome;
-    private BackgroundLoop currentBackground;
+    public BuildingInfo currentBuilding;
+    private BackgroundLoop currentOutdoorBackground;
 
     /// <summary>
     /// The chunk the target is currently in
@@ -87,13 +88,14 @@ public class WorldGenerator : MonoBehaviour
         DebugPanel.Log("Position", target.position.xy(), 5);
         DebugPanel.Log("Chunk", chunk, 5);
 
-        if (currentBackground != null)
-            currentBackground.target = target;
+        if (currentOutdoorBackground != null)
+            currentOutdoorBackground.target = target;
         if (firstDraw)
         {
             GameObject backgroundObject = new GameObject("Background");
-            currentBackground = backgroundObject.AddComponent<BackgroundLoop>();
-            currentBackground.background = currentBiome.background;
+            backgroundObject.transform.SetParent(outdoorPhysical.transform.parent);
+            currentOutdoorBackground = backgroundObject.AddComponent<BackgroundLoop>();
+            currentOutdoorBackground.background = currentBiome.background;
         }
 
         indoorPhysical.transform.parent.gameObject.SetActive(isIndoors);
@@ -159,12 +161,12 @@ public class WorldGenerator : MonoBehaviour
     }
     private void DrawTiles(params Vector3Int[] tilesToBeDrawn)
     {
-        var indoorForegroundTiles = new Tile[tilesToBeDrawn.Length];
-        var indoorPhysicalTiles = new Tile[tilesToBeDrawn.Length];
-        var indoorBackgroundTiles = new Tile[tilesToBeDrawn.Length];
-        var outdoorForegroundTiles = new Tile[tilesToBeDrawn.Length];
-        var outdoorPhysicalTiles = new Tile[tilesToBeDrawn.Length];
-        var outdoorBackgroundTiles = new Tile[tilesToBeDrawn.Length];
+        var indoorForegroundTiles = new TileBase[tilesToBeDrawn.Length];
+        var indoorPhysicalTiles = new TileBase[tilesToBeDrawn.Length];
+        var indoorBackgroundTiles = new TileBase[tilesToBeDrawn.Length];
+        var outdoorForegroundTiles = new TileBase[tilesToBeDrawn.Length];
+        var outdoorPhysicalTiles = new TileBase[tilesToBeDrawn.Length];
+        var outdoorBackgroundTiles = new TileBase[tilesToBeDrawn.Length];
         noise.SetNoiseType(noiseType);
         noise.SetFractalOctaves(noiseOctaves);
         noise.SetFrequency(noiseFrequency);
@@ -209,6 +211,8 @@ public class WorldGenerator : MonoBehaviour
                     if (currentTilePos.y < surfaceHeight && PerlinCheck(currentTilePos) && !WorldData.IsDug(currentTilePos))
                         outdoorPhysicalTiles[i] = currentBiome.undergroundTile[borderIndex];
 
+
+
                     if (currentTilePos.y < surfaceHeight - 1)
                     {
                         //Calculate building's start corner
@@ -221,9 +225,27 @@ public class WorldGenerator : MonoBehaviour
                         //Populate building
                         if (currentTilePos.x >= buildingCorner.x && currentTilePos.x < (buildingCorner.x + buildingMaxWidth) && currentTilePos.y >= buildingCorner.y && currentTilePos.y < (buildingCorner.y + buildingMaxHeight))
                         {
-                            //Place edges of the building
-                            if (currentTilePos.x == buildingCorner.x || currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1) || currentTilePos.y == buildingCorner.y || currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1))
-                                indoorPhysicalTiles[i] = currentBiome.undergroundTile[15];
+                            //Set background tiles through entire building
+                            indoorBackgroundTiles[i] = currentBuilding.backgroundTile;
+
+                            //Set walls of building
+                            if (currentTilePos.x == buildingCorner.x && currentTilePos.y == buildingCorner.y) //Bottom left corner
+                                indoorPhysicalTiles[i] = currentBuilding.wallTile[6];
+                            else if (currentTilePos.x == buildingCorner.x && currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1)) //Top left corner
+                                indoorPhysicalTiles[i] = currentBuilding.wallTile[12];
+                            else if (currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1) && currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1)) //Top right corner
+                                indoorPhysicalTiles[i] = currentBuilding.wallTile[9];
+                            else if (currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1) && currentTilePos.y == buildingCorner.y) //Bottom right corner
+                                indoorPhysicalTiles[i] = currentBuilding.wallTile[3];
+                            else if (currentTilePos.y == buildingCorner.y || currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1)) //Top and bottom wall
+                                indoorPhysicalTiles[i] = currentBuilding.wallTile[5];
+                            else if (currentTilePos.x == buildingCorner.x || currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1)) //Left and right wall
+                                indoorPhysicalTiles[i] = currentBuilding.wallTile[10];
+                            // //Place edges of the building
+                            // if (currentTilePos.x == buildingCorner.x || currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1) || currentTilePos.y == buildingCorner.y || currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1))
+                            // {
+                            //     indoorPhysicalTiles[i] = currentBuilding.wallTile[15];
+                            // }
                         }
                     }
                 }

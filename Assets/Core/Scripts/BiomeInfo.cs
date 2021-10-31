@@ -1,12 +1,13 @@
 using UnityEngine;
 using UnityEngine.Tilemaps;
 
-[CreateAssetMenu(fileName = "Data", menuName = "Background/BiomeInfo", order = 1)]
+[CreateAssetMenu(fileName = "Data", menuName = "Pyrascape/BiomeInfo", order = 1)]
 public class BiomeInfo : ScriptableObject
 {
+    public Color backgroundColor;
     public BackgroundInfo background;
-    public Tile ornamentalTile;
-    public Tile[] surfaceTile;
-    public Tile[] undergroundTile;
-    public Tile backgroundTile;
+    public TileBase ornamentalTile;
+    public TileBase[] surfaceTile;
+    public TileBase[] undergroundTile;
+    public TileBase backgroundTile;
 }

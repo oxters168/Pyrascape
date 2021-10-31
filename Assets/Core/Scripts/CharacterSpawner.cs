@@ -43,7 +43,15 @@ public class CharacterSpawner : MonoBehaviour
 
         BridgeInput();
 
+        SetCameraColor();
+
         terrain.target = controlledObject.transform;
+    }
+
+    private void SetCameraColor()
+    {
+        Color backgroundColor = terrain.isIndoors ? terrain.currentBuilding.backgroundColor : terrain.currentBiome.backgroundColor;
+        spawnedCamera.GetComponentInChildren<Camera>().backgroundColor = backgroundColor;
     }
 
     private void BridgeInput()

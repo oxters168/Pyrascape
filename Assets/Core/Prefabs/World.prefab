@@ -1492,6 +1492,7 @@ MonoBehaviour:
   chunkHeight: 2
   chunkRenderDistance: 7
   currentBiome: {fileID: 11400000, guid: 91bae9fa6f82b8f89966f3c0c4afdf93, type: 2}
+  currentBuilding: {fileID: 11400000, guid: 3b31c790b5c7ad44aa48f20271a9d912, type: 2}
 --- !u!156049354 &2445826112180455569
 Grid:
   m_ObjectHideFlags: 0
