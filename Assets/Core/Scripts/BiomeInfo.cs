@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 [CreateAssetMenu(fileName = "Data", menuName = "Pyrascape/BiomeInfo", order = 1)]
 public class BiomeInfo : ScriptableObject
 {
+    public NoiseInfo noise;
     public Color backgroundColor;
     public BackgroundInfo background;
     public TileBase ornamentalTile;

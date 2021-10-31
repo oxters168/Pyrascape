@@ -5,48 +5,27 @@ public class WorldData
 {
     public static int seed = 1337;
 
-    // /// <summary>
-    // /// The number of horizontal tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even
-    // /// </summary>
-    // public static int chunkWidth = 2; //Is the global setting and will be used to set the terrain generator values
-    // /// <summary>
-    // /// The number of vertical tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even
-    // /// </summary>
-    // public static int chunkHeight = 2; //Is the global setting and will be used to set the terrain generator values
-    // /// <summary>
-    // /// How many chunks beyond the current to render (0 renders 1 chunk, 1 renders 9 chunks, 2 renders 25 chunks...)
-    // /// </summary>
-    // public static int chunkRenderDistance = 8; //Is the global setting and will be used to set the terrain generator values
+    private static List<Vector2Int> indoorDug = new List<Vector2Int>();
+    private static List<Vector2Int> outdoorDug = new List<Vector2Int>();
 
-    // private static Dictionary<Vector2Int, List<Vector2Int>> dug = new Dictionary<Vector2Int, List<Vector2Int>>(); //The tiles that have been dug around the world
-    private static List<Vector2Int> dug = new List<Vector2Int>();
-
-    public static void SetDug(Vector2Int tilePosition)
+    public static void SetDug(Vector2Int tilePosition, bool indoor)
     {
-        // var chunk = GetChunkFromTile(tilePosition);
-        // if (!dug.ContainsKey(chunk)) //If the chunk list doesn't exits, add it
-        //     dug[chunk] = new List<Vector2Int>();
-        // if (!dug[chunk].Contains(tilePosition)) //If the tile isn't already set as dug, set it
-        //     dug[chunk].Add(tilePosition);
-        if (!dug.Contains(tilePosition))
-            dug.Add(tilePosition);
+        if (indoor && !indoorDug.Contains(tilePosition))
+            indoorDug.Add(tilePosition);
+        else if (!indoor && !outdoorDug.Contains(tilePosition))
+            outdoorDug.Add(tilePosition);
     }
-    public static void SetDug(Vector3Int tilePosition)
+    public static void SetDug(Vector3Int tilePosition, bool indoor)
     {
-        SetDug(new Vector2Int(tilePosition.x, tilePosition.y));
+        SetDug(new Vector2Int(tilePosition.x, tilePosition.y), indoor);
     }
-    public static bool IsDug(Vector2Int tilePosition)
+    public static bool IsDug(Vector2Int tilePosition, bool indoor)
     {
-        // var chunk = GetChunkFromTile(tilePosition);
-        // bool isDug = false;
-        // if (dug.ContainsKey(chunk))
-        //     isDug = dug[chunk].Contains(tilePosition);
-        // return isDug;
-        return dug.Contains(tilePosition);
+        return indoor ? indoorDug.Contains(tilePosition) : outdoorDug.Contains(tilePosition);
     }
-    public static bool IsDug(Vector3Int tilePosition)
+    public static bool IsDug(Vector3Int tilePosition, bool indoor)
     {
-        return IsDug(new Vector2Int(tilePosition.x, tilePosition.y));
+        return IsDug(new Vector2Int(tilePosition.x, tilePosition.y), indoor);
     }
 
     // public static Vector2Int GetChunkFromTile(Vector2Int tilePosition)
