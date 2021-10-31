@@ -8,8 +8,8 @@ public class Digger : MonoBehaviour
     private PodPhysics2D _pod;
     private PodPhysics2D Pod { get { if (_pod == null) _pod = GetComponentInChildren<PodPhysics2D>(); return _pod; } }
     // private Tilemap physical, foreground;
-    private TerrainGenerator[] Terrains { get { if (_terrains == null) { _terrains = FindObjectsOfType<TerrainGenerator>(); } return _terrains; } }
-    private TerrainGenerator[] _terrains;
+    private WorldGenerator[] Terrains { get { if (_terrains == null) { _terrains = FindObjectsOfType<WorldGenerator>(); } return _terrains; } }
+    private WorldGenerator[] _terrains;
 
     private Vector3Int currentCell;
     private Bounds podBounds;

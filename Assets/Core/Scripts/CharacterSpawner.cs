@@ -18,13 +18,16 @@ public class CharacterSpawner : MonoBehaviour
     [Space(10)]
     public OrbitCameraController cameraPrefab;
     public MovementController2D characterPrefab;
-    public TerrainGenerator terrainPrefab;
+    public WorldGenerator terrainPrefab;
     private MovementController2D spawnedCharacter;
-    private OrbitCameraController spawnedCamera;
-    private TerrainGenerator terrain;
+    public OrbitCameraController spawnedCamera { get; private set; }
+    private WorldGenerator terrain;
+    public bool IsIndoors { get { return terrain.isIndoors; } }
 
     [Space(10)]
     public float exitVelocityUpwards = 0;
+
+    private bool usedDoor;
     
     void Start()
     {
@@ -34,6 +37,8 @@ public class CharacterSpawner : MonoBehaviour
     
     void Update()
     {
+        EnterExitBuilding();
+
         EnterExitVehicle();
 
         BridgeInput();
@@ -60,10 +65,27 @@ public class CharacterSpawner : MonoBehaviour
         spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
         spawnedCamera.target = spawnedCharacter.transform;
 
-        terrain = GameObject.Instantiate(terrainPrefab) as TerrainGenerator;
+        terrain = GameObject.Instantiate(terrainPrefab) as WorldGenerator;
         terrain.target = controlledObject.transform;
     }
 
+    private void EnterExitBuilding()
+    {
+        if (player.GetButton("ButtonY"))
+        {
+            if (!usedDoor)
+            {
+                var doorDetector = spawnedCharacter.GetComponentInChildren<DoorDetector>();
+                if (doorDetector != null && doorDetector.door != null)
+                {
+                    terrain.isIndoors = !terrain.isIndoors;
+                }
+                usedDoor = true;
+            }
+        }
+        else
+            usedDoor = false;
+    }
     private void EnterExitVehicle()
     {
         if (player.GetButtonUp("ButtonY"))

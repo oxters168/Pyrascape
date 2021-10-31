@@ -525,6 +525,7 @@ GameObject:
   m_Component:
   - component: {fileID: 7924335594981259066}
   - component: {fileID: 4722693042688658922}
+  - component: {fileID: 2237238339823808384}
   - component: {fileID: 4645509497267210346}
   - component: {fileID: 7924335594981259068}
   - component: {fileID: 7924335594981259064}
@@ -574,6 +575,24 @@ MonoBehaviour:
     m_Bits: 8
   castDelay: 0.4
   vehicle: {fileID: 0}
+--- !u!114 &2237238339823808384
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7924335594981259078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 41014d085dc3882118527e29427684d8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  detectionRadius: 1
+  doorMask:
+    serializedVersion: 2
+    m_Bits: 128
+  castDelay: 0.4
+  door: {fileID: 0}
 --- !u!114 &4645509497267210346
 MonoBehaviour:
   m_ObjectHideFlags: 0

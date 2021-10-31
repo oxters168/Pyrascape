@@ -33,6 +33,7 @@ public class PodPhysics2D : MonoBehaviour
     public float antigravityFalloffDistance = 20;
     public AnimationCurve antigravityFalloffCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
+    public bool limitFlyHeight;
     [Tooltip("How high from the ground the pod can fly")]
     public float flyHeightDistance = 5;
     public AnimationCurve flyHeightCurve = AnimationCurve.Linear(0, 1, 1, 0);
@@ -94,7 +95,7 @@ public class PodPhysics2D : MonoBehaviour
             if (hitInfo)
                 groundDistance = hitInfo.distance;
 
-            float heightCoefficient = Mathf.Clamp01(flyHeightCurve.Evaluate(Mathf.Clamp01(groundDistance / flyHeightDistance)));
+            float heightCoefficient = limitFlyHeight ? Mathf.Clamp01(flyHeightCurve.Evaluate(Mathf.Clamp01(groundDistance / flyHeightDistance))) : 1;
             PodBody.AddForce(Vector2.up * (antigravityForce.y + Mathf.Lerp(antiMomentum, flyForce, heightCoefficient)), ForceMode2D.Force);
         }
     }
