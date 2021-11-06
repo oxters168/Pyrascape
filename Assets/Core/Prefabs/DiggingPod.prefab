@@ -122,6 +122,13 @@ MonoBehaviour:
       direction: {x: 0, y: 0, z: 0}
       point: {x: 0, y: 0, z: 0}
       orientation: {x: 0, y: 0, z: 0, w: 0}
+    - name: ButtonX
+      storedTypes: 2
+      axis: 0
+      toggle: 0
+      direction: {x: 0, y: 0, z: 0}
+      point: {x: 0, y: 0, z: 0}
+      orientation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &3022065316827036457
 MonoBehaviour:
   m_ObjectHideFlags: 0

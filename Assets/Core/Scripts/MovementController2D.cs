@@ -9,6 +9,7 @@ public struct InputData
     [Range(-1, 1)]
     public float vertical;
     public bool jump;
+    public bool sprint;
 }
 public struct PhysicalData
 {
@@ -22,9 +23,11 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     private InputData prevInput;
 
     [Space(10)]
-    public float speed = 4;
+    public float walkSpeed = 2.5f;
+    public float runSeed = 4;
     public float climbSpeed = 2;
-    public float jumpSpeed = 5;
+    public float walkJumpSpeed = 5;
+    public float runJumpSpeed = 4;
     public float addedFallAcceleration = 9.8f;
     public float wallDetectionDistance = 0.01f;
     public LayerMask groundMask = ~0;
@@ -36,8 +39,8 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     [Space(10), Tooltip("Inverts the direction the player faces")]
     public bool invertFlip;
 
-    public enum SpecificState { IdleLeft, IdleRight, RunLeft, RunRight, JumpFaceLeft, JumpFaceRight, JumpMoveLeft, JumpMoveRight, FallFaceLeft, FallFaceRight, FallMoveLeft, FallMoveRight, ClimbLeftIdle, ClimbLeftUp, ClimbLeftDown, ClimbRightIdle, ClimbRightUp, ClimbRightDown, ClimbTopIdleLeft, ClimbTopIdleRight, ClimbTopMoveLeft, ClimbTopMoveRight }
-    public enum AnimeState { Idle, Run, Jump, AirFall, Land, TopClimb, TopClimbIdle, SideClimb, SideClimbIdle }
+    public enum SpecificState { IdleLeft, IdleRight, WalkLeft, WalkRight, RunLeft, RunRight, JumpFaceLeft, JumpFaceRight, JumpMoveLeft, JumpMoveRight, FallFaceLeft, FallFaceRight, FallMoveLeft, FallMoveRight, ClimbLeftIdle, ClimbLeftUp, ClimbLeftDown, ClimbRightIdle, ClimbRightUp, ClimbRightDown, ClimbTopIdleLeft, ClimbTopIdleRight, ClimbTopMoveLeft, ClimbTopMoveRight }
+    public enum AnimeState { Idle, Walk, Run, Jump, AirFall, Land, TopClimb, TopClimbIdle, SideClimb, SideClimbIdle }
 
     // [Space(10)]
     // public ValuesVault controlValues;
@@ -64,8 +67,6 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     public bool debugWallRays = true;
     private Bounds colliderBounds;
 
-    // private float otherObjectHorizontalVelocity;
-    // private float otherObjectVerticalVelocity;
     private Vector2 otherObjectVelocity;
     private Vector2 otherObjectPrevVelocity;
 
@@ -165,12 +166,17 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         Vector2 otherObjectPredictedVelocity = (otherObjectVelocity - otherObjectPrevVelocity);
         
         float horizontalVelocity = 0;
-        if (currentAnimeState == AnimeState.Idle || currentAnimeState == AnimeState.Run || currentAnimeState == AnimeState.SideClimb || currentAnimeState == AnimeState.SideClimbIdle || currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle || currentState == SpecificState.FallMoveLeft || currentState == SpecificState.FallMoveRight || currentState == SpecificState.JumpMoveLeft || currentState == SpecificState.JumpMoveRight)
+        if (currentAnimeState == AnimeState.Idle || currentAnimeState == AnimeState.Walk || currentAnimeState == AnimeState.Run || currentAnimeState == AnimeState.SideClimb || currentAnimeState == AnimeState.SideClimbIdle || currentAnimeState == AnimeState.TopClimb || currentAnimeState == AnimeState.TopClimbIdle || currentState == SpecificState.FallMoveLeft || currentState == SpecificState.FallMoveRight || currentState == SpecificState.JumpMoveLeft || currentState == SpecificState.JumpMoveRight)
         {
             if (currentAnimeState == AnimeState.TopClimb)
                 horizontalVelocity = (isFacingRight ? 1 : -1) * climbSpeed;
             else if (currentAnimeState != AnimeState.Idle && currentAnimeState != AnimeState.TopClimbIdle && currentAnimeState != AnimeState.SideClimb && currentAnimeState != AnimeState.SideClimbIdle)
-                horizontalVelocity = (isFacingRight ? 1 : -1) * speed;
+            {
+                if (!currentInput.sprint)
+                    horizontalVelocity = (isFacingRight ? 1 : -1) * walkSpeed;
+                else
+                    horizontalVelocity = (isFacingRight ? 1 : -1) * runSeed;
+            }
         }
         // horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, horizontalVelocity, Time.fixedDeltaTime);
         horizontalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.x, (otherObjectVelocity.x + otherObjectPredictedVelocity.x) + horizontalVelocity, Time.fixedDeltaTime);
@@ -184,7 +190,12 @@ public class MovementController2D : MonoBehaviour//, IValueManager
             else if (currentState == SpecificState.ClimbLeftDown || currentState == SpecificState.ClimbRightDown)
                 verticalSpeed = -climbSpeed;
             else if (currentAnimeState != AnimeState.SideClimbIdle && currentAnimeState != AnimeState.TopClimb && currentAnimeState != AnimeState.TopClimbIdle)
-                verticalSpeed = jumpSpeed;
+            {
+                if (Mathf.Abs(currentInput.horizontal) > deadzone && currentInput.sprint)
+                    verticalSpeed = runJumpSpeed;
+                else
+                    verticalSpeed = walkJumpSpeed;
+            }
 
             // verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, verticalSpeed, Time.fixedDeltaTime, true);
             verticalForce = PhysicsHelpers.CalculateRequiredForceForSpeed(AffectedBody.mass, AffectedBody.velocity.y, (otherObjectVelocity.y + otherObjectPredictedVelocity.y) + verticalSpeed, Time.fixedDeltaTime, true);
@@ -220,8 +231,10 @@ public class MovementController2D : MonoBehaviour//, IValueManager
             case SpecificState.IdleLeft:
                 if (currentInput.horizontal > deadzone)
                     nextState = SpecificState.IdleRight;
-                else if (currentInput.horizontal < -deadzone)
+                else if (currentInput.sprint && currentInput.horizontal < -deadzone)
                     nextState = SpecificState.RunLeft;
+                else if (currentInput.horizontal < -deadzone)
+                    nextState = SpecificState.WalkLeft;
                 else if (currentPhysicals.velocity.y < -deadzone)
                     nextState = SpecificState.FallFaceLeft;
                 else if (currentInput.jump)
@@ -232,8 +245,10 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallFaceLeft;
                 break;
             case SpecificState.IdleRight:
-                if (currentInput.horizontal > deadzone)
+                if (currentInput.sprint && currentInput.horizontal > deadzone)
                     nextState = SpecificState.RunRight;
+                else if (currentInput.horizontal > deadzone)
+                    nextState = SpecificState.WalkRight;
                 else if (currentInput.horizontal < -deadzone)
                     nextState = SpecificState.IdleLeft;
                 else if (currentPhysicals.velocity.y < -deadzone)
@@ -245,8 +260,42 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                 else if (!currentPhysicals.botWall)
                     nextState = SpecificState.FallFaceRight;
                 break;
+            case SpecificState.WalkLeft:
+                if (currentInput.sprint && currentInput.horizontal < -deadzone)
+                    nextState = SpecificState.RunLeft;
+                else if (currentInput.horizontal > -deadzone)
+                    nextState = SpecificState.IdleLeft;
+                else if (currentPhysicals.velocity.y < -deadzone)
+                    nextState = SpecificState.FallMoveLeft;
+                else if (currentInput.jump)
+                    nextState = SpecificState.JumpMoveLeft;
+                else if (currentPhysicals.leftWall)
+                    nextState = SpecificState.ClimbLeftIdle;
+                else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
+                    nextState = SpecificState.ClimbTopMoveLeft;
+                else if (!currentPhysicals.botWall)
+                    nextState = SpecificState.FallMoveLeft;
+                break;
+            case SpecificState.WalkRight:
+                if (currentInput.sprint && currentInput.horizontal > deadzone)
+                    nextState = SpecificState.RunRight;
+                else if (currentInput.horizontal < deadzone)
+                    nextState = SpecificState.IdleRight;
+                else if (currentPhysicals.velocity.y < -deadzone)
+                    nextState = SpecificState.FallMoveRight;
+                else if (currentInput.jump)
+                    nextState = SpecificState.JumpMoveRight;
+                else if (currentPhysicals.rightWall)
+                    nextState = SpecificState.ClimbRightIdle;
+                else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
+                    nextState = SpecificState.ClimbTopMoveRight;
+                else if (!currentPhysicals.botWall)
+                    nextState = SpecificState.FallMoveRight;
+                break;
             case SpecificState.RunLeft:
-                if (currentInput.horizontal > -deadzone)
+                if (!currentInput.sprint && currentInput.horizontal < -deadzone)
+                    nextState = SpecificState.WalkLeft;
+                else if (currentInput.horizontal > -deadzone)
                     nextState = SpecificState.IdleLeft;
                 else if (currentPhysicals.velocity.y < -deadzone)
                     nextState = SpecificState.FallMoveLeft;
@@ -260,7 +309,9 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveLeft;
                 break;
             case SpecificState.RunRight:
-                if (currentInput.horizontal < deadzone)
+                if (!currentInput.sprint && currentInput.horizontal > deadzone)
+                    nextState = SpecificState.WalkRight;
+                else if (currentInput.horizontal < deadzone)
                     nextState = SpecificState.IdleRight;
                 else if (currentPhysicals.velocity.y < -deadzone)
                     nextState = SpecificState.FallMoveRight;
@@ -302,8 +353,12 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveLeft;
                 else if (currentInput.horizontal > -deadzone)
                     nextState = SpecificState.JumpFaceLeft;
-                else if (currentPhysicals.botWall)
+                else if (currentPhysicals.botWall && currentInput.sprint && currentInput.horizontal < -deadzone)
                     nextState = SpecificState.RunLeft;
+                else if (currentPhysicals.botWall && currentInput.horizontal < -deadzone)
+                    nextState = SpecificState.WalkLeft;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleLeft;
                 else if (currentPhysicals.leftWall)
                     nextState = SpecificState.ClimbLeftIdle;
                 else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
@@ -314,8 +369,12 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallMoveRight;
                 else if (currentInput.horizontal < deadzone)
                     nextState = SpecificState.JumpFaceRight;
-                else if (currentPhysicals.botWall)
+                else if (currentPhysicals.botWall && currentInput.sprint && currentInput.horizontal > deadzone)
                     nextState = SpecificState.RunRight;
+                else if (currentPhysicals.botWall && currentInput.horizontal > deadzone)
+                    nextState = SpecificState.WalkRight;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleRight;
                 else if (currentPhysicals.rightWall)
                     nextState = SpecificState.ClimbRightIdle;
                 else if (currentPhysicals.topWall && currentInput.vertical > deadzone)
@@ -338,16 +397,24 @@ public class MovementController2D : MonoBehaviour//, IValueManager
                     nextState = SpecificState.FallFaceLeft;
                 break;
             case SpecificState.FallMoveLeft:
-                if (currentPhysicals.botWall)
+                if (currentPhysicals.botWall && currentInput.sprint && currentInput.horizontal < -deadzone)
                     nextState = SpecificState.RunLeft;
+                else if (currentPhysicals.botWall && currentInput.horizontal < -deadzone)
+                    nextState = SpecificState.WalkLeft;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleLeft;
                 else if (currentInput.horizontal > -deadzone)
                     nextState = SpecificState.FallFaceLeft;
                 else if (currentPhysicals.leftWall)
                     nextState = SpecificState.ClimbLeftIdle;
                 break;
             case SpecificState.FallMoveRight:
-                if (currentPhysicals.botWall)
+                if (currentPhysicals.botWall && currentInput.sprint && currentInput.horizontal > deadzone)
                     nextState = SpecificState.RunRight;
+                else if (currentPhysicals.botWall && currentInput.horizontal > deadzone)
+                    nextState = SpecificState.WalkRight;
+                else if (currentPhysicals.botWall)
+                    nextState = SpecificState.IdleRight;
                 else if (currentInput.horizontal < deadzone)
                     nextState = SpecificState.FallFaceRight;
                 else if (currentPhysicals.rightWall)
@@ -475,6 +542,7 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         switch (state)
         {
             case SpecificState.IdleRight:
+            case SpecificState.WalkRight:
             case SpecificState.RunRight:
             case SpecificState.JumpFaceRight:
             case SpecificState.JumpMoveRight:
@@ -500,6 +568,10 @@ public class MovementController2D : MonoBehaviour//, IValueManager
 
         switch (state)
         {
+            case SpecificState.WalkLeft:
+            case SpecificState.WalkRight:
+                animeState = AnimeState.Walk;
+                break;
             case SpecificState.IdleLeft:
             case SpecificState.IdleRight:
                 animeState = AnimeState.Idle;

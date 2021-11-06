@@ -104,6 +104,12 @@ TextureImporter:
   - first:
       213: 5116015092833231416
     second: BetterHooman_Top_Climb_33
+  - first:
+      213: 3469478835136316510
+    second: BetterHooman_Top_Climb_34
+  - first:
+      213: -1444950284245470095
+    second: BetterHooman_Top_Climb_35
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -313,8 +319,8 @@ TextureImporter:
       name: BetterHooman_Top_Climb_5
       rect:
         serializedVersion: 2
-        x: 0
-        y: 192
+        x: 160
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -334,7 +340,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_6
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 192
         width: 32
         height: 48
@@ -355,7 +361,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_7
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 192
         width: 32
         height: 48
@@ -376,7 +382,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_8
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 192
         width: 32
         height: 48
@@ -397,7 +403,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_9
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 192
         width: 32
         height: 48
@@ -418,7 +424,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_10
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 192
         width: 32
         height: 48
@@ -439,8 +445,8 @@ TextureImporter:
       name: BetterHooman_Top_Climb_11
       rect:
         serializedVersion: 2
-        x: 0
-        y: 144
+        x: 160
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -460,7 +466,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_12
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 144
         width: 32
         height: 48
@@ -481,7 +487,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_13
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 144
         width: 32
         height: 48
@@ -502,7 +508,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_14
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 144
         width: 32
         height: 48
@@ -523,7 +529,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_15
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 144
         width: 32
         height: 48
@@ -544,7 +550,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_16
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 144
         width: 32
         height: 48
@@ -565,8 +571,8 @@ TextureImporter:
       name: BetterHooman_Top_Climb_17
       rect:
         serializedVersion: 2
-        x: 0
-        y: 96
+        x: 160
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -586,7 +592,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_18
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 96
         width: 32
         height: 48
@@ -607,7 +613,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_19
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 96
         width: 32
         height: 48
@@ -628,7 +634,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_20
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 96
         width: 32
         height: 48
@@ -649,7 +655,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_21
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 96
         width: 32
         height: 48
@@ -670,7 +676,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_22
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 96
         width: 32
         height: 48
@@ -691,8 +697,8 @@ TextureImporter:
       name: BetterHooman_Top_Climb_23
       rect:
         serializedVersion: 2
-        x: 0
-        y: 48
+        x: 160
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -712,7 +718,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_24
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 48
         width: 32
         height: 48
@@ -733,7 +739,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_25
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 48
         width: 32
         height: 48
@@ -754,7 +760,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_26
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 48
         width: 32
         height: 48
@@ -775,7 +781,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_27
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 48
         width: 32
         height: 48
@@ -796,7 +802,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_28
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 48
         width: 32
         height: 48
@@ -817,8 +823,8 @@ TextureImporter:
       name: BetterHooman_Top_Climb_29
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 160
+        y: 48
         width: 32
         height: 48
       alignment: 7
@@ -838,7 +844,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_30
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 0
         width: 32
         height: 48
@@ -859,7 +865,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_31
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 0
         width: 32
         height: 48
@@ -880,7 +886,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_32
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 0
         width: 32
         height: 48
@@ -901,7 +907,7 @@ TextureImporter:
       name: BetterHooman_Top_Climb_33
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 0
         width: 32
         height: 48
@@ -914,6 +920,48 @@ TextureImporter:
       bones: []
       spriteID: 832acd10f9cbff640800000000000000
       internalID: 5116015092833231416
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Top_Climb_34
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: e5449045e90162030800000000000000
+      internalID: 3469478835136316510
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Top_Climb_35
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 174f2754f5182fbe0800000000000000
+      internalID: -1444950284245470095
       vertices: []
       indices: 
       edges: []

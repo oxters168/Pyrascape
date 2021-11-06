@@ -13,6 +13,7 @@ public class UnifiedInputForCharacter : MonoBehaviour, IValueManager
         Character.currentInput.horizontal = Mathf.Clamp(GetAxis("Horizontal"), -1, 1);
         Character.currentInput.vertical = Mathf.Clamp(GetAxis("Vertical"), -1, 1);
         Character.currentInput.jump = GetToggle("ButtonA");
+        Character.currentInput.sprint = GetToggle("ButtonX");
     }
 
     public void SetAxis(string name, float value)

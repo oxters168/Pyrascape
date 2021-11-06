@@ -61,6 +61,7 @@ public class CharacterSpawner : MonoBehaviour
             InputDevice.SetAxis("Horizontal", player.GetAxis("Horizontal"));
             InputDevice.SetAxis("Vertical", player.GetAxis("Vertical"));
             InputDevice.SetToggle("ButtonA", player.GetButton("ButtonA"));
+            InputDevice.SetToggle("ButtonX", player.GetButton("ButtonX"));
         }
     }
 

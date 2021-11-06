@@ -59,6 +59,21 @@ TextureImporter:
   - first:
       213: -73132915972964201
     second: BetterHooman_Idle_18
+  - first:
+      213: 5874838771064490134
+    second: BetterHooman_Idle_19
+  - first:
+      213: 2981691125822420572
+    second: BetterHooman_Idle_20
+  - first:
+      213: -6003768929270686183
+    second: BetterHooman_Idle_21
+  - first:
+      213: -2067614245072210425
+    second: BetterHooman_Idle_22
+  - first:
+      213: -6734524786605331464
+    second: BetterHooman_Idle_23
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -184,8 +199,8 @@ TextureImporter:
       name: BetterHooman_Idle_1
       rect:
         serializedVersion: 2
-        x: 0
-        y: 192
+        x: 32
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -205,8 +220,8 @@ TextureImporter:
       name: BetterHooman_Idle_2
       rect:
         serializedVersion: 2
-        x: 32
-        y: 192
+        x: 64
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -226,8 +241,8 @@ TextureImporter:
       name: BetterHooman_Idle_3
       rect:
         serializedVersion: 2
-        x: 64
-        y: 192
+        x: 96
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -247,7 +262,7 @@ TextureImporter:
       name: BetterHooman_Idle_4
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 192
         width: 32
         height: 48
@@ -268,8 +283,8 @@ TextureImporter:
       name: BetterHooman_Idle_5
       rect:
         serializedVersion: 2
-        x: 0
-        y: 144
+        x: 32
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -289,8 +304,8 @@ TextureImporter:
       name: BetterHooman_Idle_6
       rect:
         serializedVersion: 2
-        x: 32
-        y: 144
+        x: 64
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -310,8 +325,8 @@ TextureImporter:
       name: BetterHooman_Idle_7
       rect:
         serializedVersion: 2
-        x: 64
-        y: 144
+        x: 96
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -331,7 +346,7 @@ TextureImporter:
       name: BetterHooman_Idle_8
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 144
         width: 32
         height: 48
@@ -352,8 +367,8 @@ TextureImporter:
       name: BetterHooman_Idle_9
       rect:
         serializedVersion: 2
-        x: 0
-        y: 96
+        x: 32
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -373,8 +388,8 @@ TextureImporter:
       name: BetterHooman_Idle_10
       rect:
         serializedVersion: 2
-        x: 32
-        y: 96
+        x: 64
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -394,8 +409,8 @@ TextureImporter:
       name: BetterHooman_Idle_11
       rect:
         serializedVersion: 2
-        x: 64
-        y: 96
+        x: 96
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -415,7 +430,7 @@ TextureImporter:
       name: BetterHooman_Idle_12
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 96
         width: 32
         height: 48
@@ -436,8 +451,8 @@ TextureImporter:
       name: BetterHooman_Idle_13
       rect:
         serializedVersion: 2
-        x: 0
-        y: 48
+        x: 32
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -457,8 +472,8 @@ TextureImporter:
       name: BetterHooman_Idle_14
       rect:
         serializedVersion: 2
-        x: 32
-        y: 48
+        x: 64
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -478,8 +493,8 @@ TextureImporter:
       name: BetterHooman_Idle_15
       rect:
         serializedVersion: 2
-        x: 64
-        y: 48
+        x: 96
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -499,7 +514,7 @@ TextureImporter:
       name: BetterHooman_Idle_16
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 48
         width: 32
         height: 48
@@ -520,8 +535,8 @@ TextureImporter:
       name: BetterHooman_Idle_17
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 32
+        y: 48
         width: 32
         height: 48
       alignment: 7
@@ -541,8 +556,8 @@ TextureImporter:
       name: BetterHooman_Idle_18
       rect:
         serializedVersion: 2
-        x: 32
-        y: 0
+        x: 64
+        y: 48
         width: 32
         height: 48
       alignment: 7
@@ -554,6 +569,111 @@ TextureImporter:
       bones: []
       spriteID: 7900b0a100e2cfef0800000000000000
       internalID: -73132915972964201
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Idle_19
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 48
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 698cdfd6cbe978150800000000000000
+      internalID: 5874838771064490134
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Idle_20
+      rect:
+        serializedVersion: 2
+        x: 0
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: c5674900848116920800000000000000
+      internalID: 2981691125822420572
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Idle_21
+      rect:
+        serializedVersion: 2
+        x: 32
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 91e1b49d7f35eaca0800000000000000
+      internalID: -6003768929270686183
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Idle_22
+      rect:
+        serializedVersion: 2
+        x: 64
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 706feed7ccb5e43e0800000000000000
+      internalID: -2067614245072210425
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Idle_23
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 8fb635b33692a82a0800000000000000
+      internalID: -6734524786605331464
       vertices: []
       indices: 
       edges: []

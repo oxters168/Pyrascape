@@ -104,6 +104,12 @@ TextureImporter:
   - first:
       213: -4803695465634772642
     second: BetterHooman_Run_33
+  - first:
+      213: 8474219770361071946
+    second: BetterHooman_Run_34
+  - first:
+      213: -6823974220509546095
+    second: BetterHooman_Run_35
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -313,8 +319,8 @@ TextureImporter:
       name: BetterHooman_Run_5
       rect:
         serializedVersion: 2
-        x: 0
-        y: 192
+        x: 160
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -334,7 +340,7 @@ TextureImporter:
       name: BetterHooman_Run_6
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 192
         width: 32
         height: 48
@@ -355,7 +361,7 @@ TextureImporter:
       name: BetterHooman_Run_7
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 192
         width: 32
         height: 48
@@ -376,7 +382,7 @@ TextureImporter:
       name: BetterHooman_Run_8
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 192
         width: 32
         height: 48
@@ -397,7 +403,7 @@ TextureImporter:
       name: BetterHooman_Run_9
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 192
         width: 32
         height: 48
@@ -418,7 +424,7 @@ TextureImporter:
       name: BetterHooman_Run_10
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 192
         width: 32
         height: 48
@@ -439,8 +445,8 @@ TextureImporter:
       name: BetterHooman_Run_11
       rect:
         serializedVersion: 2
-        x: 0
-        y: 144
+        x: 160
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -460,7 +466,7 @@ TextureImporter:
       name: BetterHooman_Run_12
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 144
         width: 32
         height: 48
@@ -481,7 +487,7 @@ TextureImporter:
       name: BetterHooman_Run_13
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 144
         width: 32
         height: 48
@@ -502,7 +508,7 @@ TextureImporter:
       name: BetterHooman_Run_14
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 144
         width: 32
         height: 48
@@ -523,7 +529,7 @@ TextureImporter:
       name: BetterHooman_Run_15
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 144
         width: 32
         height: 48
@@ -544,7 +550,7 @@ TextureImporter:
       name: BetterHooman_Run_16
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 144
         width: 32
         height: 48
@@ -565,8 +571,8 @@ TextureImporter:
       name: BetterHooman_Run_17
       rect:
         serializedVersion: 2
-        x: 0
-        y: 96
+        x: 160
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -586,7 +592,7 @@ TextureImporter:
       name: BetterHooman_Run_18
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 96
         width: 32
         height: 48
@@ -607,7 +613,7 @@ TextureImporter:
       name: BetterHooman_Run_19
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 96
         width: 32
         height: 48
@@ -628,7 +634,7 @@ TextureImporter:
       name: BetterHooman_Run_20
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 96
         width: 32
         height: 48
@@ -649,7 +655,7 @@ TextureImporter:
       name: BetterHooman_Run_21
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 96
         width: 32
         height: 48
@@ -670,7 +676,7 @@ TextureImporter:
       name: BetterHooman_Run_22
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 96
         width: 32
         height: 48
@@ -691,8 +697,8 @@ TextureImporter:
       name: BetterHooman_Run_23
       rect:
         serializedVersion: 2
-        x: 0
-        y: 48
+        x: 160
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -712,7 +718,7 @@ TextureImporter:
       name: BetterHooman_Run_24
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 48
         width: 32
         height: 48
@@ -733,7 +739,7 @@ TextureImporter:
       name: BetterHooman_Run_25
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 48
         width: 32
         height: 48
@@ -754,7 +760,7 @@ TextureImporter:
       name: BetterHooman_Run_26
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 48
         width: 32
         height: 48
@@ -775,7 +781,7 @@ TextureImporter:
       name: BetterHooman_Run_27
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 48
         width: 32
         height: 48
@@ -796,7 +802,7 @@ TextureImporter:
       name: BetterHooman_Run_28
       rect:
         serializedVersion: 2
-        x: 160
+        x: 128
         y: 48
         width: 32
         height: 48
@@ -817,8 +823,8 @@ TextureImporter:
       name: BetterHooman_Run_29
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 160
+        y: 48
         width: 32
         height: 48
       alignment: 7
@@ -838,7 +844,7 @@ TextureImporter:
       name: BetterHooman_Run_30
       rect:
         serializedVersion: 2
-        x: 32
+        x: 0
         y: 0
         width: 32
         height: 48
@@ -859,7 +865,7 @@ TextureImporter:
       name: BetterHooman_Run_31
       rect:
         serializedVersion: 2
-        x: 64
+        x: 32
         y: 0
         width: 32
         height: 48
@@ -880,7 +886,7 @@ TextureImporter:
       name: BetterHooman_Run_32
       rect:
         serializedVersion: 2
-        x: 96
+        x: 64
         y: 0
         width: 32
         height: 48
@@ -901,7 +907,7 @@ TextureImporter:
       name: BetterHooman_Run_33
       rect:
         serializedVersion: 2
-        x: 128
+        x: 96
         y: 0
         width: 32
         height: 48
@@ -914,6 +920,48 @@ TextureImporter:
       bones: []
       spriteID: e594fa1dc68d55db0800000000000000
       internalID: -4803695465634772642
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Run_34
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: a49c6f89bf97a9570800000000000000
+      internalID: 8474219770361071946
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Run_35
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 199fa16f99f5c41a0800000000000000
+      internalID: -6823974220509546095
       vertices: []
       indices: 
       edges: []

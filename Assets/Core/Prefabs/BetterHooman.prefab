@@ -72,7 +72,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: 4611067883712046142, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
+  m_Sprite: {fileID: 1582804330400660645, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
     type: 3}
   m_Color: {r: 0.3962264, g: 0.26255265, b: 0.22614808, a: 1}
   m_FlipX: 0
@@ -278,7 +278,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 1
-  m_Sprite: {fileID: -9106824746712230798, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
+  m_Sprite: {fileID: 2981691125822420572, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
     type: 3}
   m_Color: {r: 0.39607844, g: 0.2627451, b: 0.22745098, a: 1}
   m_FlipX: 0
@@ -381,7 +381,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: 8622413802584065451, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
+  m_Sprite: {fileID: 2670614986063178620, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
     type: 3}
   m_Color: {r: 1, g: 0.62402993, b: 0, a: 1}
   m_FlipX: 0
@@ -484,7 +484,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -3638453541807637854, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
+  m_Sprite: {fileID: 7552542058255778481, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
     type: 3}
   m_Color: {r: 0.8584906, g: 0.62767, b: 0.66065043, a: 1}
   m_FlipX: 0
@@ -628,6 +628,13 @@ MonoBehaviour:
       direction: {x: 0, y: 0, z: 0}
       point: {x: 0, y: 0, z: 0}
       orientation: {x: 0, y: 0, z: 0, w: 0}
+    - name: ButtonX
+      storedTypes: 2
+      axis: 0
+      toggle: 0
+      direction: {x: 0, y: 0, z: 0}
+      point: {x: 0, y: 0, z: 0}
+      orientation: {x: 0, y: 0, z: 0, w: 0}
 --- !u!114 &7924335594981259068
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -644,9 +651,12 @@ MonoBehaviour:
     horizontal: 0
     vertical: 0
     jump: 0
-  speed: 4
+    sprint: 0
+  walkSpeed: 2.5
+  runSeed: 4
   climbSpeed: 2
-  jumpSpeed: 5
+  walkJumpSpeed: 5
+  runJumpSpeed: 4
   addedFallAcceleration: 9.8
   wallDetectionDistance: 0.02
   groundMask:
@@ -776,7 +786,7 @@ SpriteRenderer:
   m_SortingLayerID: 0
   m_SortingLayer: 0
   m_SortingOrder: 0
-  m_Sprite: {fileID: -1799567972637259352, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
+  m_Sprite: {fileID: -4784773975001338594, guid: 8c8235e0a82b0b8c699c7fd92fcdb4b8,
     type: 3}
   m_Color: {r: 0, g: 0.3233118, b: 1, a: 1}
   m_FlipX: 0

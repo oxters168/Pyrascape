@@ -6,7 +6,7 @@ AnimationClip:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Better_Hooman_TopClimb_Torso
+  m_Name: Better_Hooman_Walk_Beard
   serializedVersion: 6
   m_Legacy: 0
   m_Compressed: 0
@@ -20,25 +20,25 @@ AnimationClip:
   m_PPtrCurves:
   - curve:
     - time: 0
-      value: {fileID: -374716688156468071, guid: 0a01caaacd3551332ac1d7713c098e75,
+      value: {fileID: 7270123444060320641, guid: e83ab0d904889140dac1e7bf945e308e,
         type: 3}
     - time: 0.083333336
-      value: {fileID: 292223392810672348, guid: 0a01caaacd3551332ac1d7713c098e75,
+      value: {fileID: 7983356963398645624, guid: e83ab0d904889140dac1e7bf945e308e,
         type: 3}
     - time: 0.16666667
-      value: {fileID: 7381861279602370241, guid: 0a01caaacd3551332ac1d7713c098e75,
+      value: {fileID: 5011061502326514563, guid: e83ab0d904889140dac1e7bf945e308e,
         type: 3}
     - time: 0.25
-      value: {fileID: 3401892838679010426, guid: 0a01caaacd3551332ac1d7713c098e75,
+      value: {fileID: -4230951475287975063, guid: e83ab0d904889140dac1e7bf945e308e,
         type: 3}
     - time: 0.33333334
-      value: {fileID: -1338097363934341809, guid: 0a01caaacd3551332ac1d7713c098e75,
+      value: {fileID: -9035822164813275474, guid: e83ab0d904889140dac1e7bf945e308e,
         type: 3}
     - time: 0.41666666
-      value: {fileID: 7314079733671163162, guid: 0a01caaacd3551332ac1d7713c098e75,
+      value: {fileID: -538690640202341499, guid: e83ab0d904889140dac1e7bf945e308e,
         type: 3}
     - time: 0.48333332
-      value: {fileID: 7314079733671163162, guid: 0a01caaacd3551332ac1d7713c098e75,
+      value: {fileID: -538690640202341499, guid: e83ab0d904889140dac1e7bf945e308e,
         type: 3}
     attribute: m_Sprite
     path: 
@@ -59,13 +59,13 @@ AnimationClip:
       customType: 23
       isPPtrCurve: 1
     pptrCurveMapping:
-    - {fileID: -374716688156468071, guid: 0a01caaacd3551332ac1d7713c098e75, type: 3}
-    - {fileID: 292223392810672348, guid: 0a01caaacd3551332ac1d7713c098e75, type: 3}
-    - {fileID: 7381861279602370241, guid: 0a01caaacd3551332ac1d7713c098e75, type: 3}
-    - {fileID: 3401892838679010426, guid: 0a01caaacd3551332ac1d7713c098e75, type: 3}
-    - {fileID: -1338097363934341809, guid: 0a01caaacd3551332ac1d7713c098e75, type: 3}
-    - {fileID: 7314079733671163162, guid: 0a01caaacd3551332ac1d7713c098e75, type: 3}
-    - {fileID: 7314079733671163162, guid: 0a01caaacd3551332ac1d7713c098e75, type: 3}
+    - {fileID: 7270123444060320641, guid: e83ab0d904889140dac1e7bf945e308e, type: 3}
+    - {fileID: 7983356963398645624, guid: e83ab0d904889140dac1e7bf945e308e, type: 3}
+    - {fileID: 5011061502326514563, guid: e83ab0d904889140dac1e7bf945e308e, type: 3}
+    - {fileID: -4230951475287975063, guid: e83ab0d904889140dac1e7bf945e308e, type: 3}
+    - {fileID: -9035822164813275474, guid: e83ab0d904889140dac1e7bf945e308e, type: 3}
+    - {fileID: -538690640202341499, guid: e83ab0d904889140dac1e7bf945e308e, type: 3}
+    - {fileID: -538690640202341499, guid: e83ab0d904889140dac1e7bf945e308e, type: 3}
   m_AnimationClipSettings:
     serializedVersion: 2
     m_AdditiveReferencePoseClip: {fileID: 0}

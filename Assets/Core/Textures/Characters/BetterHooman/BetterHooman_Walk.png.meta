@@ -101,6 +101,15 @@ TextureImporter:
   - first:
       213: -2639972382569688193
     second: BetterHooman_Walk_32
+  - first:
+      213: -3996778095144899119
+    second: BetterHooman_Walk_33
+  - first:
+      213: -7249096690294564158
+    second: BetterHooman_Walk_34
+  - first:
+      213: 1660175685702030570
+    second: BetterHooman_Walk_35
   externalObjects: {}
   serializedVersion: 11
   mipmaps:
@@ -268,8 +277,8 @@ TextureImporter:
       name: BetterHooman_Walk_3
       rect:
         serializedVersion: 2
-        x: 0
-        y: 192
+        x: 96
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -289,8 +298,8 @@ TextureImporter:
       name: BetterHooman_Walk_4
       rect:
         serializedVersion: 2
-        x: 32
-        y: 192
+        x: 128
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -310,8 +319,8 @@ TextureImporter:
       name: BetterHooman_Walk_5
       rect:
         serializedVersion: 2
-        x: 64
-        y: 192
+        x: 160
+        y: 240
         width: 32
         height: 48
       alignment: 7
@@ -331,7 +340,7 @@ TextureImporter:
       name: BetterHooman_Walk_6
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 192
         width: 32
         height: 48
@@ -352,7 +361,7 @@ TextureImporter:
       name: BetterHooman_Walk_7
       rect:
         serializedVersion: 2
-        x: 128
+        x: 32
         y: 192
         width: 32
         height: 48
@@ -373,7 +382,7 @@ TextureImporter:
       name: BetterHooman_Walk_8
       rect:
         serializedVersion: 2
-        x: 160
+        x: 64
         y: 192
         width: 32
         height: 48
@@ -394,8 +403,8 @@ TextureImporter:
       name: BetterHooman_Walk_9
       rect:
         serializedVersion: 2
-        x: 0
-        y: 144
+        x: 96
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -415,8 +424,8 @@ TextureImporter:
       name: BetterHooman_Walk_10
       rect:
         serializedVersion: 2
-        x: 32
-        y: 144
+        x: 128
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -436,8 +445,8 @@ TextureImporter:
       name: BetterHooman_Walk_11
       rect:
         serializedVersion: 2
-        x: 64
-        y: 144
+        x: 160
+        y: 192
         width: 32
         height: 48
       alignment: 7
@@ -457,7 +466,7 @@ TextureImporter:
       name: BetterHooman_Walk_12
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 144
         width: 32
         height: 48
@@ -478,7 +487,7 @@ TextureImporter:
       name: BetterHooman_Walk_13
       rect:
         serializedVersion: 2
-        x: 128
+        x: 32
         y: 144
         width: 32
         height: 48
@@ -499,7 +508,7 @@ TextureImporter:
       name: BetterHooman_Walk_14
       rect:
         serializedVersion: 2
-        x: 160
+        x: 64
         y: 144
         width: 32
         height: 48
@@ -520,8 +529,8 @@ TextureImporter:
       name: BetterHooman_Walk_15
       rect:
         serializedVersion: 2
-        x: 0
-        y: 96
+        x: 96
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -541,8 +550,8 @@ TextureImporter:
       name: BetterHooman_Walk_16
       rect:
         serializedVersion: 2
-        x: 32
-        y: 96
+        x: 128
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -562,8 +571,8 @@ TextureImporter:
       name: BetterHooman_Walk_17
       rect:
         serializedVersion: 2
-        x: 64
-        y: 96
+        x: 160
+        y: 144
         width: 32
         height: 48
       alignment: 7
@@ -583,7 +592,7 @@ TextureImporter:
       name: BetterHooman_Walk_18
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 96
         width: 32
         height: 48
@@ -604,7 +613,7 @@ TextureImporter:
       name: BetterHooman_Walk_19
       rect:
         serializedVersion: 2
-        x: 128
+        x: 32
         y: 96
         width: 32
         height: 48
@@ -625,7 +634,7 @@ TextureImporter:
       name: BetterHooman_Walk_20
       rect:
         serializedVersion: 2
-        x: 160
+        x: 64
         y: 96
         width: 32
         height: 48
@@ -646,8 +655,8 @@ TextureImporter:
       name: BetterHooman_Walk_21
       rect:
         serializedVersion: 2
-        x: 0
-        y: 48
+        x: 96
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -667,8 +676,8 @@ TextureImporter:
       name: BetterHooman_Walk_22
       rect:
         serializedVersion: 2
-        x: 32
-        y: 48
+        x: 128
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -688,8 +697,8 @@ TextureImporter:
       name: BetterHooman_Walk_23
       rect:
         serializedVersion: 2
-        x: 64
-        y: 48
+        x: 160
+        y: 96
         width: 32
         height: 48
       alignment: 7
@@ -709,7 +718,7 @@ TextureImporter:
       name: BetterHooman_Walk_24
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 48
         width: 32
         height: 48
@@ -730,7 +739,7 @@ TextureImporter:
       name: BetterHooman_Walk_25
       rect:
         serializedVersion: 2
-        x: 128
+        x: 32
         y: 48
         width: 32
         height: 48
@@ -751,7 +760,7 @@ TextureImporter:
       name: BetterHooman_Walk_26
       rect:
         serializedVersion: 2
-        x: 160
+        x: 64
         y: 48
         width: 32
         height: 48
@@ -772,8 +781,8 @@ TextureImporter:
       name: BetterHooman_Walk_27
       rect:
         serializedVersion: 2
-        x: 0
-        y: 0
+        x: 96
+        y: 48
         width: 32
         height: 48
       alignment: 7
@@ -793,8 +802,8 @@ TextureImporter:
       name: BetterHooman_Walk_28
       rect:
         serializedVersion: 2
-        x: 32
-        y: 0
+        x: 128
+        y: 48
         width: 32
         height: 48
       alignment: 7
@@ -814,8 +823,8 @@ TextureImporter:
       name: BetterHooman_Walk_29
       rect:
         serializedVersion: 2
-        x: 64
-        y: 0
+        x: 160
+        y: 48
         width: 32
         height: 48
       alignment: 7
@@ -835,7 +844,7 @@ TextureImporter:
       name: BetterHooman_Walk_30
       rect:
         serializedVersion: 2
-        x: 96
+        x: 0
         y: 0
         width: 32
         height: 48
@@ -856,7 +865,7 @@ TextureImporter:
       name: BetterHooman_Walk_31
       rect:
         serializedVersion: 2
-        x: 128
+        x: 32
         y: 0
         width: 32
         height: 48
@@ -877,7 +886,7 @@ TextureImporter:
       name: BetterHooman_Walk_32
       rect:
         serializedVersion: 2
-        x: 160
+        x: 64
         y: 0
         width: 32
         height: 48
@@ -890,6 +899,69 @@ TextureImporter:
       bones: []
       spriteID: f739710fa1fec5bd0800000000000000
       internalID: -2639972382569688193
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Walk_33
+      rect:
+        serializedVersion: 2
+        x: 96
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 1dd63d09f779888c0800000000000000
+      internalID: -3996778095144899119
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Walk_34
+      rect:
+        serializedVersion: 2
+        x: 128
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: 2ca5880b7f8066b90800000000000000
+      internalID: -7249096690294564158
+      vertices: []
+      indices: 
+      edges: []
+      weights: []
+    - serializedVersion: 2
+      name: BetterHooman_Walk_35
+      rect:
+        serializedVersion: 2
+        x: 160
+        y: 0
+        width: 32
+        height: 48
+      alignment: 7
+      pivot: {x: 0.5, y: 0}
+      border: {x: 0, y: 0, z: 0, w: 0}
+      outline: []
+      physicsShape: []
+      tessellationDetail: 0
+      bones: []
+      spriteID: ae4920b7df02a0710800000000000000
+      internalID: 1660175685702030570
       vertices: []
       indices: 
       edges: []
