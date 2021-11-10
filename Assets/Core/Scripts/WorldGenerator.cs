@@ -44,26 +44,20 @@ public class WorldGenerator : MonoBehaviour
 
     [Space(10)]
     public Transform target;
-    [Tooltip("The number of horizontal tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even")]
-    public int chunkWidth = 8;
-    private int prevChunkWidth = 8;
-    [Tooltip("The number of vertical tiles per chunk. Should be even, if not even will be floor(half) x 2 of the odd number to make it even")]
-    public int chunkHeight = 8;
-    private int prevChunkHeight = 8;
-    [Tooltip("How many chunks beyond the current to render (0 renders 1 chunk, 1 renders 9 chunks, 2 renders 25 chunks...)")]
-    public int chunkRenderDistance = 1;
-    private int prevChunkRenderDistance = 1;
+    [Tooltip("How many tiles should be visible at once")]
+    public Vector2Int renderSize = new Vector2Int(16, 12);
+    private Vector2Int prevRenderSize;
 
     public BiomeInfo currentBiome;
     public BuildingInfo currentBuilding;
     private BackgroundLoop currentOutdoorBackground;
 
     /// <summary>
-    /// The chunk the target is currently in
+    /// The chunk the target is currently in represented by the bottom left corner tile index
     /// </summary>
     private Vector2Int chunk;
     /// <summary>
-    /// The chunk the target was in
+    /// The chunk the target was in in the previous frame
     /// </summary>
     private Vector2Int prevChunk;
 
@@ -77,14 +71,9 @@ public class WorldGenerator : MonoBehaviour
     }
     void Update()
     {
-        chunkWidth = (chunkWidth / 2) * 2; //Turns the width into an even number (since integer division is floored by default)
-        chunkHeight = (chunkHeight / 2) * 2; //Turns the height into an even number (since integer division is floored by default)
         prevChunk = chunk;
-        chunk = new Vector2Int(Mathf.FloorToInt(((target.position.x - (chunkWidth / 2f)) / chunkWidth) + 1),
-            Mathf.FloorToInt(((target.position.y - (chunkHeight / 2f)) / chunkHeight) + 1));
-        // chunk = GetChunkFromPosition(target.position);
+        chunk = new Vector2Int(Mathf.FloorToInt(target.position.x - (renderSize.x / 2f)), Mathf.FloorToInt(target.position.y - (renderSize.y / 2f)));
         DebugPanel.Log("Position", target.position.xy(), 5);
-        DebugPanel.Log("Chunk", chunk, 5);
 
         if (currentOutdoorBackground != null)
             currentOutdoorBackground.target = target;
@@ -117,17 +106,17 @@ public class WorldGenerator : MonoBehaviour
     public void GenerateTerrain(bool forceAll)
     {
         bool smallChange =  chunk != prevChunk;
-        bool bigChange = forceAll || firstDraw || chunkWidth != prevChunkWidth || chunkHeight != prevChunkHeight || chunkRenderDistance != prevChunkRenderDistance || debugNoise != prevDebugNoise;
+        bool bigChange = forceAll || firstDraw || renderSize != prevRenderSize || debugNoise != prevDebugNoise;
         if (smallChange || bigChange)
         {
             // Debug.Log(chunkX + ", " + chunkY);
 
-            var newTilePositions = GetChunkTilePositions(chunk.x, chunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all new tile indices
+            var newTilePositions = GetChunkTilePositions(chunk.x, chunk.y, renderSize.x, renderSize.y); //Get all new tile indices
             Vector3Int[] tilesToBeDrawn;
 
             if (!bigChange)
             {
-                var oldTilePositions = GetChunkTilePositions(prevChunk.x, prevChunk.y, chunkWidth, chunkHeight, chunkRenderDistance); //Get all old tile indices
+                var oldTilePositions = GetChunkTilePositions(prevChunk.x, prevChunk.y, renderSize.x, renderSize.y); //Get all old tile indices
                 tilesToBeDrawn = newTilePositions.Except(oldTilePositions).ToArray(); //Get exclusive new tiles
 
                 var tilesToBeCleared = oldTilePositions.Except(newTilePositions).ToArray(); //Get exclusive old tiles
@@ -148,12 +137,7 @@ public class WorldGenerator : MonoBehaviour
             DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid
 
             firstDraw = false;
-            prevChunkWidth = chunkWidth;
-            prevChunkHeight = chunkHeight;
-            prevChunkRenderDistance = chunkRenderDistance;
-            // prevNoiseFrequency = noiseFrequency;
-            // prevNoisePower = noisePower;
-            // prevInvertNoise = invertNoise;
+            prevRenderSize = renderSize;
             prevDebugNoise = debugNoise;
         }
     }
@@ -289,18 +273,18 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    private static Vector3Int[] GetChunkTilePositions(int chunkX, int chunkY, int chunkWidth, int chunkHeight, int chunkRenderDistance)
+    private static Vector3Int[] GetChunkTilePositions(int chunkX, int chunkY, int chunkWidth, int chunkHeight)
     {
-        int totalXTiles = (chunkWidth * chunkRenderDistance * 2) + chunkWidth;
-        int totalYTiles = (chunkHeight * chunkRenderDistance * 2) + chunkHeight;
+        int totalXTiles = chunkWidth;
+        int totalYTiles = chunkHeight;
         int totalTiles = totalXTiles * totalYTiles;
         Vector3Int[] tilePositions = new Vector3Int[totalTiles];
         for (int tileIndex = 0; tileIndex < totalTiles; tileIndex++)
         {
             int tileX = tileIndex % totalXTiles;
             int tileY = tileIndex / totalXTiles;
-            int tilePosX = (tileX + (chunkX * chunkWidth)) - (totalXTiles / 2);
-            int tilePosY = (tileY + (chunkY * chunkHeight)) - (totalYTiles / 2);
+            int tilePosX = chunkX + tileX;
+            int tilePosY = chunkY + tileY;
             tilePositions[tileIndex] = new Vector3Int(tilePosX, tilePosY, 0);
         }
         return tilePositions;

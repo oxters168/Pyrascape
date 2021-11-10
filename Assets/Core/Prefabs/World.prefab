@@ -1466,13 +1466,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   surfaceHeight: -1
-  noiseThreshold: 0.38
-  invertNoise: 0
   noiseTile: {fileID: 11400000, guid: f073a129e5e006f82bf933197585a6e5, type: 2}
-  noiseType: 2
-  noiseFrequency: 0.38
-  noiseOctaves: 3
-  noisePower: 1.13
   debugNoise: 0
   doorPrefab: {fileID: 1018143791792846128, guid: 304ed420ca33fa7869252157d18ccda5,
     type: 3}
@@ -1488,9 +1482,7 @@ MonoBehaviour:
   outdoorPhysical: {fileID: 113412684099683025}
   outdoorBackground: {fileID: 933851237618495818}
   target: {fileID: 0}
-  chunkWidth: 2
-  chunkHeight: 2
-  chunkRenderDistance: 7
+  renderSize: {x: 16, y: 12}
   currentBiome: {fileID: 11400000, guid: 91bae9fa6f82b8f89966f3c0c4afdf93, type: 2}
   currentBuilding: {fileID: 11400000, guid: 3b31c790b5c7ad44aa48f20271a9d912, type: 2}
 --- !u!156049354 &2445826112180455569
