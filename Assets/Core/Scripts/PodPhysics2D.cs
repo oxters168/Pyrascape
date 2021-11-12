@@ -28,13 +28,14 @@ public class PodPhysics2D : MonoBehaviour
 
     [Space(10), Tooltip("The layer(s) to be raycasted when looking for the ground")]
     public LayerMask groundMask = ~0;
+    public LayerMask dockLayer = ~0;
 
     [Tooltip("How much distance beyond the minimum ground height before anti-gravity wears off")]
     public float antigravityFalloffDistance = 20;
     public AnimationCurve antigravityFalloffCurve = AnimationCurve.Linear(0, 0, 1, 1);
 
     public bool limitFlyHeight;
-    [Tooltip("How high from the ground the pod can fly")]
+    [Tooltip("The max distance from the ground the pod can fly (only works if limitFlyHeight is set to true)")]
     public float flyHeightDistance = 5;
     public AnimationCurve flyHeightCurve = AnimationCurve.Linear(0, 1, 1, 0);
 
@@ -58,7 +59,8 @@ public class PodPhysics2D : MonoBehaviour
     /// Used in the pd controller of the floatation
     /// </summary>
     private float prevErr;
-    private bool facingLeft;
+    [HideInInspector]
+    public bool facingLeft { get; private set; }
 
     void Update()
     {
@@ -68,6 +70,8 @@ public class PodPhysics2D : MonoBehaviour
             facingLeft = false;
 
         Sprite7Up.flipX = facingLeft;
+        
+        DockAtDoors();
     }
     void FixedUpdate()
     {
@@ -155,5 +159,30 @@ public class PodPhysics2D : MonoBehaviour
         }
 
         return antigravityForce + floatingForce;
+    }
+    private void DockAtDoors()
+    {
+        var dockCast = Physics2D.BoxCast(vehicleBounds.center, vehicleBounds.size, 0, Vector2.up, 0, dockLayer);
+        bool docked = false;
+        DiggerDock dock = null;
+        if (dockCast)
+        {
+            dock = dockCast.transform.GetComponent<DiggerDock>();
+            docked = dock.diggerDocked;
+        }
+
+        if (docked)
+        {
+            PodBody.isKinematic = true;
+            PodBody.velocity = Vector2.zero;
+            PodBody.angularVelocity = 0;
+            PodBody.MovePosition(dock.transform.position.xy() + dock.origin - vehicleBounds.extents.y * Vector2.up);
+            PodBody.MoveRotation(0);
+            facingLeft = false;
+        }
+        else
+        {
+            PodBody.isKinematic = false;
+        }
     }
 }

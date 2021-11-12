@@ -1468,7 +1468,7 @@ MonoBehaviour:
   surfaceHeight: -1
   noiseTile: {fileID: 11400000, guid: f073a129e5e006f82bf933197585a6e5, type: 2}
   debugNoise: 0
-  doorPrefab: {fileID: 1018143791792846128, guid: 304ed420ca33fa7869252157d18ccda5,
+  doorPrefab: {fileID: 7820451020778112094, guid: 304ed420ca33fa7869252157d18ccda5,
     type: 3}
   buildingMaxWidth: 24
   buildingMaxHeight: 32

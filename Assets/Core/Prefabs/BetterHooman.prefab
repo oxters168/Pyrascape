@@ -587,7 +587,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 41014d085dc3882118527e29427684d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  detectionRadius: 1
+  origin: {x: 0, y: 0.33}
+  detectionRadius: 0.2
   doorMask:
     serializedVersion: 2
     m_Bits: 128

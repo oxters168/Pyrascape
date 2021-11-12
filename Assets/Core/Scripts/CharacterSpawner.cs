@@ -85,7 +85,7 @@ public class CharacterSpawner : MonoBehaviour
             if (!usedDoor)
             {
                 var doorDetector = spawnedCharacter.GetComponentInChildren<DoorDetector>();
-                if (doorDetector != null && doorDetector.door != null)
+                if (doorDetector != null && doorDetector.door != null && doorDetector.door.GetComponent<Door>().isOpen)
                 {
                     terrain.isIndoors = !terrain.isIndoors;
                 }

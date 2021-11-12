@@ -3,6 +3,7 @@ using System.Collections;
 
 public class DoorDetector : MonoBehaviour
 {
+    public Vector2 origin = Vector2.zero;
     public float detectionRadius = 1;
     public LayerMask doorMask = ~0;
     public float castDelay = 0.4f;
@@ -24,5 +25,12 @@ public class DoorDetector : MonoBehaviour
             door = null;
 
         yield return new WaitForSeconds(castDelay);
+    }
+    void OnDrawGizmos()
+    {
+        #if UNITY_EDITOR
+        UnityEditor.Handles.color = Color.blue;
+        UnityEditor.Handles.DrawWireDisc(transform.position + new Vector3(origin.x, origin.y), transform.forward, detectionRadius);
+        #endif
     }
 }

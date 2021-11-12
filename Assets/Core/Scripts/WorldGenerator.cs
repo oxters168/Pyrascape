@@ -10,28 +10,19 @@ public class WorldGenerator : MonoBehaviour
     private CompositeCollider2D PhysicsBounds { get { if (_physicsBounds == null) _physicsBounds = GetComponentInChildren<CompositeCollider2D>(); return _physicsBounds; } }
 
     public int surfaceHeight = -1;
-    // public float noiseThreshold = 0.42f;
-    // public bool invertNoise;
-    // private bool prevInvertNoise;
     [Space(10)]
     public Tile noiseTile;
-    // public FastNoise.NoiseType noiseType = FastNoise.NoiseType.Perlin;
-    // public float noiseFrequency = 0.01f;
-    // private float prevNoiseFrequency = 0.01f;
-    // public int noiseOctaves = 3;
-    // public float noisePower = 1;
-    // private float prevNoisePower = 1;
     public bool debugNoise;
     private bool prevDebugNoise;
 
     [Space(10)]
-    public Door doorPrefab;
-    private ObjectPool<Door> doorsPool;
+    public DoorController doorPrefab;
+    private ObjectPool<DoorController> doorsPool;
     public int buildingMaxWidth = 8;
     public int buildingMaxHeight = 8;
     public int buildingCushionX = 8;
     public int buildingCushionY = 8;
-    private List<Door> doors = new List<Door>();
+    private List<DoorController> doors = new List<DoorController>();
 
     [Space(10)]
     public bool isIndoors;
@@ -67,7 +58,8 @@ public class WorldGenerator : MonoBehaviour
     void Start()
     {
         noise = new FastNoise(WorldData.seed);
-        doorsPool = new ObjectPool<Door>(doorPrefab, 5, false, true, transform);
+        Transform doorsParent = new GameObject("Doors").transform;
+        doorsPool = new ObjectPool<DoorController>(doorPrefab, 5, false, true, doorsParent);
     }
     void Update()
     {
@@ -198,7 +190,7 @@ public class WorldGenerator : MonoBehaviour
                         
                         //Add door to building
                         if (currentTilePos.x == buildingCorner.x + 1 && currentTilePos.y == buildingCorner.y + 1)
-                            doors.Add(doorsPool.Get(door => door.transform.position = outdoorPhysical.CellToWorld(currentTilePos) + Vector3.right * 0.5f));
+                            doors.Add(doorsPool.Get(door => { door.world = this; door.transform.position = outdoorPhysical.CellToWorld(currentTilePos) + Vector3.right * 0.5f; }));
                         
                         //Populate building
                         if (currentTilePos.x >= buildingCorner.x && currentTilePos.x < (buildingCorner.x + buildingMaxWidth) && currentTilePos.y >= buildingCorner.y && currentTilePos.y < (buildingCorner.y + buildingMaxHeight))

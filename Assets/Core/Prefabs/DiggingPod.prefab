@@ -151,6 +151,9 @@ MonoBehaviour:
   groundMask:
     serializedVersion: 2
     m_Bits: 1
+  dockLayer:
+    serializedVersion: 2
+    m_Bits: 256
   antigravityFalloffDistance: 1
   antigravityFalloffCurve:
     serializedVersion: 2
@@ -232,6 +235,7 @@ MonoBehaviour:
   digLayer:
     serializedVersion: 2
     m_Bits: 1
+  digTimeWindow: 0.33
 --- !u!50 &3022065316827036454
 Rigidbody2D:
   serializedVersion: 4
