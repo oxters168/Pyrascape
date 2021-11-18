@@ -125,8 +125,9 @@ public class Digger : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
 
-        //Remove any grass on top of tile
-        RegenerateTerrain();
+        //Refresh terrain
+        // RegenerateTerrain();
+        RegenerateTerrainAt(tilePosition);
 
         //Turn colliders back on and the gravity
         podBody.bodyType = RigidbodyType2D.Dynamic;
@@ -162,10 +163,19 @@ public class Digger : MonoBehaviour
         else
             throw new System.NullReferenceException("No terrain found");
     }
-    private void RegenerateTerrain()
+    // private void RegenerateTerrain()
+    // {
+    //     if (Terrains != null)
+    //         foreach (var terrain in Terrains)
+    //             terrain.GenerateTerrain(true);
+    // }
+    private void RegenerateTerrainAt(Vector3Int tileIndex)
     {
         if (Terrains != null)
             foreach (var terrain in Terrains)
-                terrain.GenerateTerrain(true);
+            {
+                Debug.Log(terrain.GetOreData(tileIndex)?.name);
+                terrain.RefreshArea(tileIndex);
+            }
     }
 }
