@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1768698615}
   - component: {fileID: 2628202000926428139}
   - component: {fileID: 2145980406413813517}
-  m_Layer: 11
+  m_Layer: 13
   m_Name: Dock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -130,7 +130,7 @@ GameObject:
   - component: {fileID: 2539003393266349677}
   - component: {fileID: 1049763532527128499}
   - component: {fileID: 4534678858023442887}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HalfWall (1)
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -287,7 +287,7 @@ GameObject:
   - component: {fileID: 2392891691309925874}
   - component: {fileID: 6692820139650858494}
   - component: {fileID: 2087047648814993656}
-  m_Layer: 0
+  m_Layer: 8
   m_Name: HalfWall
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -398,7 +398,7 @@ GameObject:
   - component: {fileID: 8229198052295009382}
   - component: {fileID: 9018905754569824941}
   - component: {fileID: 1072508812993119995}
-  m_Layer: 10
+  m_Layer: 12
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}

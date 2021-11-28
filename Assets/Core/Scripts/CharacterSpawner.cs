@@ -57,14 +57,6 @@ public class CharacterSpawner : MonoBehaviour
         //Switch camera viewing layers and character layer
         spawnedCamera.GetComponent<Camera>().cullingMask = isIndoors ? indoorViewingLayers : outdoorViewingLayers;
         spawnedCharacter.isIndoors = isIndoors;
-
-        // if (prevControlledObject != controlledObject)
-        // {
-        //     terrain.RemoveTarget(prevControlledObject.transform);
-        //     terrain.AddTarget(controlledObject.transform);
-        //     // terrain.target = controlledObject.transform;
-        //     prevControlledObject = controlledObject;
-        // }
     }
 
     private void SetCameraColor()
@@ -134,7 +126,7 @@ public class CharacterSpawner : MonoBehaviour
                 }
                 
                     
-                if (!inVehicle && nearbyVehicle != null) //If not in vehicle and there is a vehicle nearby then enter
+                if (!isIndoors && !inVehicle && nearbyVehicle != null) //If not in vehicle and there is a vehicle nearby then enter
                 {
                     var diggerVehicle = nearbyVehicle?.GetComponentInChildren<PodPhysics2D>();
                     if (!diggerVehicle || !diggerVehicle.isOccupied) //If the vehicle is not a digger or it is not occupied, if I add other vehicles later I should unify them

@@ -141,6 +141,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 14e43e1d05f22a74bb77cd20fe3bc32a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  isOccupied: 0
   horizontal: 0
   fly: 0
   acceleration: 0.15
@@ -153,7 +154,7 @@ MonoBehaviour:
     m_Bits: 256
   dockLayer:
     serializedVersion: 2
-    m_Bits: 2048
+    m_Bits: 8192
   antigravityFalloffDistance: 1
   antigravityFalloffCurve:
     serializedVersion: 2

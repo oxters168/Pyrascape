@@ -50,12 +50,11 @@ MonoBehaviour:
   controlledObject: {fileID: 0}
   outdoorViewingLayers:
     serializedVersion: 2
-    m_Bits: 3401
+    m_Bits: 13640
   indoorViewingLayers:
     serializedVersion: 2
-    m_Bits: 1664
-  outdoorCharacterLayer: 
-  indoorCharacterLayer: 
+    m_Bits: 6784
+  renderSize: {x: 16, y: 12}
   cameraPrefab: {fileID: 365432475856182428, guid: 21e57581d841bbf47ad46d18bc4fbccf,
     type: 3}
   characterPrefab: {fileID: 7924335594981259068, guid: 2d6ab429bf89f92a5a5847772c0e6d8e,

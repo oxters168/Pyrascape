@@ -10,7 +10,6 @@ GameObject:
   m_Component:
   - component: {fileID: 8456954087377937169}
   - component: {fileID: 9054085223080519547}
-  - component: {fileID: 3676610978821481710}
   m_Layer: 0
   m_Name: EntitySpawner
   m_TagString: Untagged
@@ -45,15 +44,4 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entityPrefab: {fileID: 0}
---- !u!114 &3676610978821481710
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4159340816827649416}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 1391bb0708e5bd311aa799d1995c6f40, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
+  renderSize: {x: 4, y: 4}
