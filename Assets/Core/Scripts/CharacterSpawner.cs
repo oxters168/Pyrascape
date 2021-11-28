@@ -94,7 +94,7 @@ public class CharacterSpawner : MonoBehaviour
         spawnedCamera.target = spawnedCharacter.transform;
 
         terrain = FindObjectOfType<WorldGenerator>();
-        terrain.AddTarget(spawnedCharacter.transform, renderSize);
+        terrain.AddOrSetTarget(spawnedCharacter.transform, renderSize);
         // terrain = GameObject.Instantiate(terrainPrefab) as WorldGenerator;
         // terrain.target = controlledObject.transform;
     }
@@ -132,14 +132,25 @@ public class CharacterSpawner : MonoBehaviour
                     if (vehicleDetector != null && vehicleDetector.vehicle != null)
                         nearbyVehicle = vehicleDetector.vehicle.gameObject;
                 }
-
+                
+                    
                 if (!inVehicle && nearbyVehicle != null) //If not in vehicle and there is a vehicle nearby then enter
                 {
-                    usedVehicle = true;
-                    spawnedCharacter.gameObject.SetActive(false);
-                    terrain.RemoveTarget(spawnedCharacter.transform); //Stop tracking character in terrain generation
-                    controlledObject = nearbyVehicle;
-                    spawnedCamera.target = nearbyVehicle.transform;
+                    var diggerVehicle = nearbyVehicle?.GetComponentInChildren<PodPhysics2D>();
+                    if (!diggerVehicle || !diggerVehicle.isOccupied) //If the vehicle is not a digger or it is not occupied, if I add other vehicles later I should unify them
+                    {
+                        if (diggerVehicle)
+                        {
+                            diggerVehicle.isOccupied = true;
+                            terrain.AddOrSetTarget(nearbyVehicle.transform, renderSize);
+                        }
+                            
+                        usedVehicle = true;
+                        spawnedCharacter.gameObject.SetActive(false);
+                        terrain.RemoveTarget(spawnedCharacter.transform); //Stop tracking character in terrain generation
+                        controlledObject = nearbyVehicle;
+                        spawnedCamera.target = nearbyVehicle.transform;
+                    }
                 }
                 else if (inVehicle) //If in vehicle then exit
                 {
@@ -183,10 +194,14 @@ public class CharacterSpawner : MonoBehaviour
                         var vehiclePhysics = controlledObject.GetComponentInChildren<Rigidbody2D>();
                         var characterPhysics = spawnedCharacter.GetComponentInChildren<Rigidbody2D>();
 
+                        var diggerVehicle = controlledObject.GetComponentInChildren<PodPhysics2D>();
+                        if (diggerVehicle)
+                            diggerVehicle.isOccupied = false;
+
                         // spawnedCharacter.transform.position = aboveVehiclePosition;
                         spawnedCharacter.transform.position = exitPosition;
                         controlledObject = spawnedCharacter.gameObject;
-                        terrain.AddTarget(spawnedCharacter.transform, renderSize); //Track character again in terrain generation
+                        terrain.AddOrSetTarget(spawnedCharacter.transform, renderSize); //Track character again in terrain generation
                         spawnedCharacter.gameObject.SetActive(true);
                         spawnedCamera.target = spawnedCharacter.transform;
 

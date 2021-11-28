@@ -81,12 +81,12 @@ public class WorldGenerator : MonoBehaviour
         GenerateTerrain(targets, false);
     }
 
-    public void AddTarget(Transform target, Vector2Int renderSize)
+    public void AddOrSetTarget(Transform target, Vector2Int renderSize)
     {
         if (!targets.ContainsKey(target))
             targets.Add(target, new TargetData(renderSize));
         else
-            Debug.LogError("Cannot add a target that already exists in the world generator dictionary");
+            targets[target].renderSize = renderSize;
     }
     public void RemoveTarget(Transform target)
     {
@@ -119,8 +119,9 @@ public class WorldGenerator : MonoBehaviour
         {
             target.Value.prevChunkStart = target.Value.chunkStart;
             target.Value.chunkStart = new Vector2Int(Mathf.FloorToInt(target.Key.position.x - (target.Value.renderSize.x / 2f)), Mathf.FloorToInt(target.Key.position.y - (target.Value.renderSize.y / 2f)));
-            if (target.Value.chunkStart != target.Value.prevChunkStart)
+            if (target.Value.chunkStart != target.Value.prevChunkStart || target.Value.renderSize != target.Value.prevRenderSize)
                 smallChange = true;
+            target.Value.prevRenderSize = target.Value.renderSize;
             
             var currentChunk = new RectInt(target.Value.chunkStart, target.Value.renderSize);
             allNewTiles = allNewTiles.Union(GetChunkTilePositions(currentChunk));
@@ -157,71 +158,6 @@ public class WorldGenerator : MonoBehaviour
             prevDebugNoise = debugNoise;
         }
     }
-    // public void GenerateTerrain(Transform target, TargetData targetData, bool forceAll)
-    // {        
-    //     targetData.prevChunkStart = targetData.chunkStart;
-    //     targetData.chunkStart = new Vector2Int(Mathf.FloorToInt(target.position.x - (targetData.renderSize.x / 2f)), Mathf.FloorToInt(target.position.y - (targetData.renderSize.y / 2f)));
-    //     var currentChunk = new RectInt(targetData.chunkStart, targetData.renderSize);
-    //     var prevChunk = new RectInt(targetData.prevChunkStart, targetData.renderSize);
-    //     DebugPanel.Log("Position", target.position.xy(), 5);
-
-    //     bool smallChange = targetData.chunkStart != targetData.prevChunkStart;
-    //     bool bigChange = forceAll || firstDraw || targetData.renderSize != targetData.prevRenderSize || debugNoise != prevDebugNoise;
-    //     if (smallChange || bigChange)
-    //     {
-    //         // Debug.Log(chunkX + ", " + chunkY);
-
-    //         var newTilePositions = GetChunkTilePositions(currentChunk); //Get all new tile indices
-    //         Vector3Int[] tilesToBeDrawn = null;
-
-    //         if (!bigChange)
-    //         {
-    //             //Check if you're overlapping other targets' chunks and remove their tiles from being drawn
-    //             foreach (var otherTarget in targets)
-    //             {
-    //                 if (otherTarget.Key == target)
-    //                     continue;
-                    
-    //                 RectInt otherChunk = new RectInt(otherTarget.Value.chunkStart, otherTarget.Value.renderSize);
-    //                 if (otherChunk.Overlaps(currentChunk))
-    //                     newTilePositions = newTilePositions.Except(GetChunkTilePositions(otherChunk)).ToArray();
-    //             }
-
-    //             if (newTilePositions.Length > 0)
-    //             {
-    //                 // drawnChunks.Add(currentChunk); //Not shadowed by other chunk so add to drawn chunks
-    //                 var oldTilePositions = GetChunkTilePositions(prevChunk); //Get all old tile indices
-    //                 tilesToBeDrawn = newTilePositions.Except(oldTilePositions).ToArray(); //Get exclusive new tiles
-    //                 var tilesToBeCleared = oldTilePositions.Except(newTilePositions).ToArray(); //Get exclusive old tiles
-    //                 ClearTiles(tilesToBeCleared); //Clear exclusive old tiles from grid
-    //                 ClearOreMapOf(tilesToBeCleared);
-    //             }
-    //         }
-    //         else
-    //         {
-    //             indoorForeground.ClearAllTiles();
-    //             indoorPhysical.ClearAllTiles();
-    //             indoorBackground.ClearAllTiles();
-    //             outdoorForeground.ClearAllTiles();
-    //             outdoorPhysical.ClearAllTiles();
-    //             outdoorBackground.ClearAllTiles();
-    //             tilesToBeDrawn = newTilePositions;
-    //             oreMap.Clear();
-    //         }
-
-    //         if (tilesToBeDrawn != null)
-    //         {
-    //             RemoveObjectsOutsideOf(doors, doorsPool, currentChunk);
-    //             RemoveObjectsOutsideOf(trapDoors, trapDoorPool, currentChunk);
-    //             // RemoveObjectsOutsideOf(ores, oresPool, newTilePositions);
-    //             DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid //When redrawing an area, doors may double spawn
-    //         }
-
-    //         firstDraw = false;
-    //         targetData.prevRenderSize = targetData.renderSize;
-    //         prevDebugNoise = debugNoise;
-    //     }
-    // }
     public OreData GetOreData(Vector3Int tileIndex)
     {
         OreData oreData = null;
