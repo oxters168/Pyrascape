@@ -9,7 +9,7 @@ public class DiggerDock : MonoBehaviour
 
     [Space(10)]
     public Vector2 origin = Vector2.zero;
-    public float radius = 0.16f;
+    public float radius = 0.3f;
     public LayerMask diggerMask = ~0;
 
     void Update()

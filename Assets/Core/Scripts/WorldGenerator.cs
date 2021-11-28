@@ -23,9 +23,12 @@ public class WorldGenerator : MonoBehaviour
     public int buildingCushionX = 8;
     public int buildingCushionY = 8;
     private List<DoorController> doors = new List<DoorController>();
+    public Door trapDoorPrefab;
+    private ObjectPool<Door> trapDoorPool;
+    private List<Door> trapDoors = new List<Door>();
 
     [Space(10)]
-    public bool isIndoors;
+    // public bool isIndoors;
     public Tilemap indoorForeground;
     public Tilemap indoorPhysical;
     public Tilemap indoorBackground;
@@ -34,30 +37,20 @@ public class WorldGenerator : MonoBehaviour
     public Tilemap outdoorBackground;
 
     [Space(10)]
-    public Transform target;
-    [Tooltip("How many tiles should be visible at once")]
-    public Vector2Int renderSize = new Vector2Int(16, 12);
-    private Vector2Int prevRenderSize;
+    // public Transform target;
+    private Dictionary<Transform, TargetData> targets = new Dictionary<Transform, TargetData>();
 
     [Space(10)]
     // public Ore orePrefab;
     public NoiseInfo oreNoise;
     public OreScriptableObject oreInfo;
     public BiomeInfo currentBiome;
+    public BuildingScriptableObject buildingsInfo;
     public BuildingInfo currentBuilding;
     private BackgroundLoop currentOutdoorBackground;
     // private ObjectPool<Ore> oresPool;
     // private List<Ore> ores = new List<Ore>();
     private Dictionary<Vector3Int, OreData> oreMap = new Dictionary<Vector3Int, OreData>();
-
-    /// <summary>
-    /// The chunk the target is currently in represented by the bottom left corner tile index
-    /// </summary>
-    private Vector2Int chunk;
-    /// <summary>
-    /// The chunk the target was in in the previous frame
-    /// </summary>
-    private Vector2Int prevChunk;
 
     private bool firstDraw = true;
     private FastNoise noise;
@@ -69,15 +62,12 @@ public class WorldGenerator : MonoBehaviour
         // Transform oresParent = new GameObject("Ores").transform;
         doorsPool = new ObjectPool<DoorController>(doorPrefab, 5, false, true, doorsParent);
         // oresPool = new ObjectPool<Ore>(orePrefab, 5, false, true, oresParent);
+        trapDoorPool = new ObjectPool<Door>(trapDoorPrefab, 5, false, true, doorsParent);
     }
     void Update()
     {
-        prevChunk = chunk;
-        chunk = new Vector2Int(Mathf.FloorToInt(target.position.x - (renderSize.x / 2f)), Mathf.FloorToInt(target.position.y - (renderSize.y / 2f)));
-        DebugPanel.Log("Position", target.position.xy(), 5);
-
-        if (currentOutdoorBackground != null)
-            currentOutdoorBackground.target = target;
+        // indoorPhysical.transform.parent.gameObject.SetActive(isIndoors);
+        // outdoorPhysical.transform.parent.gameObject.SetActive(!isIndoors);
         if (firstDraw)
         {
             GameObject backgroundObject = new GameObject("Background");
@@ -86,9 +76,24 @@ public class WorldGenerator : MonoBehaviour
             currentOutdoorBackground.background = currentBiome.background;
         }
 
-        indoorPhysical.transform.parent.gameObject.SetActive(isIndoors);
-        outdoorPhysical.transform.parent.gameObject.SetActive(!isIndoors);
-        GenerateTerrain(false);
+        // if (currentOutdoorBackground != null)
+        //     currentOutdoorBackground.target = targetDuo.Key;
+        GenerateTerrain(targets, false);
+    }
+
+    public void AddTarget(Transform target, Vector2Int renderSize)
+    {
+        if (!targets.ContainsKey(target))
+            targets.Add(target, new TargetData(renderSize));
+        else
+            Debug.LogError("Cannot add a target that already exists in the world generator dictionary");
+    }
+    public void RemoveTarget(Transform target)
+    {
+        if (targets.ContainsKey(target))
+            targets.Remove(target);
+        else
+            Debug.LogError("Cannot remove a target that is not in the world generator dictionary");
     }
 
     public Vector3Int WorldToCell(Vector3 position)
@@ -104,23 +109,32 @@ public class WorldGenerator : MonoBehaviour
         return outdoorPhysical.GetCellCenterWorld(tilePosition);
     }
 
-    public void GenerateTerrain(bool forceAll)
-    {
-        bool smallChange =  chunk != prevChunk;
-        bool bigChange = forceAll || firstDraw || renderSize != prevRenderSize || debugNoise != prevDebugNoise;
+    public void GenerateTerrain(Dictionary<Transform, TargetData> allTargets, bool forceAll)
+    {        
+        bool bigChange = forceAll || firstDraw || debugNoise != prevDebugNoise;
+        bool smallChange = false;
+        IEnumerable<Vector3Int> allNewTiles = new Vector3Int[0];
+        IEnumerable<Vector3Int> allOldTiles = new Vector3Int[0];
+        foreach (var target in allTargets)
+        {
+            target.Value.prevChunkStart = target.Value.chunkStart;
+            target.Value.chunkStart = new Vector2Int(Mathf.FloorToInt(target.Key.position.x - (target.Value.renderSize.x / 2f)), Mathf.FloorToInt(target.Key.position.y - (target.Value.renderSize.y / 2f)));
+            if (target.Value.chunkStart != target.Value.prevChunkStart)
+                smallChange = true;
+            
+            var currentChunk = new RectInt(target.Value.chunkStart, target.Value.renderSize);
+            allNewTiles = allNewTiles.Union(GetChunkTilePositions(currentChunk));
+            var prevChunk = new RectInt(target.Value.prevChunkStart, target.Value.renderSize);
+            allOldTiles = allOldTiles.Union(GetChunkTilePositions(prevChunk));
+        }
+
         if (smallChange || bigChange)
         {
-            // Debug.Log(chunkX + ", " + chunkY);
-
-            var newTilePositions = GetChunkTilePositions(chunk.x, chunk.y, renderSize.x, renderSize.y); //Get all new tile indices
-            Vector3Int[] tilesToBeDrawn;
-
+            Vector3Int[] tilesToBeDrawn = new Vector3Int[0];
             if (!bigChange)
             {
-                var oldTilePositions = GetChunkTilePositions(prevChunk.x, prevChunk.y, renderSize.x, renderSize.y); //Get all old tile indices
-                tilesToBeDrawn = newTilePositions.Except(oldTilePositions).ToArray(); //Get exclusive new tiles
-
-                var tilesToBeCleared = oldTilePositions.Except(newTilePositions).ToArray(); //Get exclusive old tiles
+                tilesToBeDrawn = allNewTiles.Except(allOldTiles).ToArray(); //Get exclusive new tiles
+                var tilesToBeCleared = allOldTiles.Except(allNewTiles).ToArray(); //Get exclusive old tiles
                 ClearTiles(tilesToBeCleared); //Clear exclusive old tiles from grid
                 ClearOreMapOf(tilesToBeCleared);
             }
@@ -132,19 +146,82 @@ public class WorldGenerator : MonoBehaviour
                 outdoorForeground.ClearAllTiles();
                 outdoorPhysical.ClearAllTiles();
                 outdoorBackground.ClearAllTiles();
-                tilesToBeDrawn = newTilePositions;
+                tilesToBeDrawn = allNewTiles.ToArray();
                 oreMap.Clear();
             }
 
-            RemoveObjectsOutsideOf(doors, doorsPool, chunk.x, chunk.y, renderSize.x, renderSize.y);
-            // RemoveObjectsOutsideOf(ores, oresPool, newTilePositions);
+            // RemoveObjectsOutsideOf(doors, doorsPool, currentChunk);
+            // RemoveObjectsOutsideOf(trapDoors, trapDoorPool, currentChunk);
             DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid //When redrawing an area, doors may double spawn
-
             firstDraw = false;
-            prevRenderSize = renderSize;
             prevDebugNoise = debugNoise;
         }
     }
+    // public void GenerateTerrain(Transform target, TargetData targetData, bool forceAll)
+    // {        
+    //     targetData.prevChunkStart = targetData.chunkStart;
+    //     targetData.chunkStart = new Vector2Int(Mathf.FloorToInt(target.position.x - (targetData.renderSize.x / 2f)), Mathf.FloorToInt(target.position.y - (targetData.renderSize.y / 2f)));
+    //     var currentChunk = new RectInt(targetData.chunkStart, targetData.renderSize);
+    //     var prevChunk = new RectInt(targetData.prevChunkStart, targetData.renderSize);
+    //     DebugPanel.Log("Position", target.position.xy(), 5);
+
+    //     bool smallChange = targetData.chunkStart != targetData.prevChunkStart;
+    //     bool bigChange = forceAll || firstDraw || targetData.renderSize != targetData.prevRenderSize || debugNoise != prevDebugNoise;
+    //     if (smallChange || bigChange)
+    //     {
+    //         // Debug.Log(chunkX + ", " + chunkY);
+
+    //         var newTilePositions = GetChunkTilePositions(currentChunk); //Get all new tile indices
+    //         Vector3Int[] tilesToBeDrawn = null;
+
+    //         if (!bigChange)
+    //         {
+    //             //Check if you're overlapping other targets' chunks and remove their tiles from being drawn
+    //             foreach (var otherTarget in targets)
+    //             {
+    //                 if (otherTarget.Key == target)
+    //                     continue;
+                    
+    //                 RectInt otherChunk = new RectInt(otherTarget.Value.chunkStart, otherTarget.Value.renderSize);
+    //                 if (otherChunk.Overlaps(currentChunk))
+    //                     newTilePositions = newTilePositions.Except(GetChunkTilePositions(otherChunk)).ToArray();
+    //             }
+
+    //             if (newTilePositions.Length > 0)
+    //             {
+    //                 // drawnChunks.Add(currentChunk); //Not shadowed by other chunk so add to drawn chunks
+    //                 var oldTilePositions = GetChunkTilePositions(prevChunk); //Get all old tile indices
+    //                 tilesToBeDrawn = newTilePositions.Except(oldTilePositions).ToArray(); //Get exclusive new tiles
+    //                 var tilesToBeCleared = oldTilePositions.Except(newTilePositions).ToArray(); //Get exclusive old tiles
+    //                 ClearTiles(tilesToBeCleared); //Clear exclusive old tiles from grid
+    //                 ClearOreMapOf(tilesToBeCleared);
+    //             }
+    //         }
+    //         else
+    //         {
+    //             indoorForeground.ClearAllTiles();
+    //             indoorPhysical.ClearAllTiles();
+    //             indoorBackground.ClearAllTiles();
+    //             outdoorForeground.ClearAllTiles();
+    //             outdoorPhysical.ClearAllTiles();
+    //             outdoorBackground.ClearAllTiles();
+    //             tilesToBeDrawn = newTilePositions;
+    //             oreMap.Clear();
+    //         }
+
+    //         if (tilesToBeDrawn != null)
+    //         {
+    //             RemoveObjectsOutsideOf(doors, doorsPool, currentChunk);
+    //             RemoveObjectsOutsideOf(trapDoors, trapDoorPool, currentChunk);
+    //             // RemoveObjectsOutsideOf(ores, oresPool, newTilePositions);
+    //             DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid //When redrawing an area, doors may double spawn
+    //         }
+
+    //         firstDraw = false;
+    //         targetData.prevRenderSize = targetData.renderSize;
+    //         prevDebugNoise = debugNoise;
+    //     }
+    // }
     public OreData GetOreData(Vector3Int tileIndex)
     {
         OreData oreData = null;
@@ -161,19 +238,7 @@ public class WorldGenerator : MonoBehaviour
     }
     public void RefreshArea(Vector3Int tileIndex) //It's not exactly dig for tiles but just for ore, this is very messy
     {
-        //Long handed way to get ore at position
-        // for (int i = 0; i < ores.Count; i++)
-        // {
-        //     var currentOre = ores[i];
-        //     if (tileIndex == outdoorPhysical.WorldToCell(currentOre.transform.position))
-        //     {
-        //         oreData = currentOre.oreData;
-        //         oresPool.Return(currentOre);
-        //         ores.RemoveAt(i);
-        //         break;
-        //     }
-        // }
-        DrawTiles(GetChunkTilePositions(tileIndex.x - 1, tileIndex.y - 1, 3, 3)); //When redrawing an area, doors may double spawn
+        DrawTiles(GetChunkTilePositions(new RectInt(tileIndex.x - 1, tileIndex.y - 1, 3, 3)).ToArray()); //When redrawing an area, doors may double spawn
     }
     private void DrawTiles(params Vector3Int[] tilesToBeDrawn)
     {
@@ -249,6 +314,7 @@ public class WorldGenerator : MonoBehaviour
 
                     if (currentTilePos.y < surfaceHeight - 1)
                     {
+
                         //Calculate building's start corner
                         Vector3Int buildingCorner = new Vector3Int(Mathf.FloorToInt(((float)currentTilePos.x) / (buildingMaxWidth + buildingCushionX)) * (buildingMaxWidth + buildingCushionX), Mathf.FloorToInt(((float)currentTilePos.y) / (buildingMaxHeight + buildingCushionY)) * (buildingMaxHeight + buildingCushionY), 0);
                         
@@ -267,6 +333,8 @@ public class WorldGenerator : MonoBehaviour
                             hasRightTile = !WorldData.IsDug(rightTilePos, true) && NoiseCheck(rightTilePos, currentBuilding.noise);
                             hasBotTile = !WorldData.IsDug(lowerTilePos, true) && NoiseCheck(lowerTilePos, currentBuilding.noise);
 
+                            float buildingTilePerlin = GetNoiseValueOf(currentTilePos, currentBuilding.noise);
+
                             //Set walls of building
                             if (currentTilePos.x == buildingCorner.x && currentTilePos.y == buildingCorner.y) //Bottom left corner
                                 indoorPhysicalTiles[i] = currentBuilding.wallTile[6];
@@ -284,7 +352,7 @@ public class WorldGenerator : MonoBehaviour
                                 indoorPhysicalTiles[i] = currentBuilding.wallTile[10 + (hasRightTile ? 4 : 0)];
                             else if (currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1)) //Right wall
                                 indoorPhysicalTiles[i] = currentBuilding.wallTile[10 + (hasLeftTile ? 1 : 0)];
-                            else if (currentTilePos.y > buildingCorner.y + 1 && NoiseCheck(currentTilePos, currentBuilding.noise) && !WorldData.IsDug(currentTilePos, true)) //Inner walls
+                            else if (currentTilePos.y > buildingCorner.y + 1 && NoiseCheck(buildingTilePerlin, currentBuilding.noise) && !WorldData.IsDug(currentTilePos, true)) //Inner walls
                             {
                                 if (currentTilePos.x == buildingCorner.x + 1) //Near left edge, so make sure has left border
                                     hasLeftTile = true;
@@ -295,8 +363,16 @@ public class WorldGenerator : MonoBehaviour
                                 if (currentTilePos.y == buildingCorner.y + buildingMaxHeight - 2) //Near top edge, so make sure has top border
                                     hasTopTile = true;
 
-                                borderIndex = (hasLeftTile ? 1 : 0) + (hasTopTile ? 2 : 0) + (hasRightTile ? 4 : 0) + (hasBotTile ? 8 : 0);
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[borderIndex];
+                                if (!hasBotTile && !hasTopTile && buildingTilePerlin >= currentBuilding.noise.threshold * 1.1f)
+                                {
+                                    // WorldData.SetDug(currentTilePos, true);
+                                    trapDoors.Add(trapDoorPool.Get(trapDoor => { trapDoor.transform.position = outdoorPhysical.CellToWorld(currentTilePos); }));
+                                }
+                                else
+                                {
+                                    borderIndex = (hasLeftTile ? 1 : 0) + (hasTopTile ? 2 : 0) + (hasRightTile ? 4 : 0) + (hasBotTile ? 8 : 0);
+                                    indoorPhysicalTiles[i] = currentBuilding.wallTile[borderIndex];
+                                }
                             }
                         }
                     }
@@ -329,30 +405,30 @@ public class WorldGenerator : MonoBehaviour
         }
     }
 
-    private static Vector3Int[] GetChunkTilePositions(int chunkX, int chunkY, int chunkWidth, int chunkHeight)
+    private static IEnumerable<Vector3Int> GetChunkTilePositions(RectInt chunk)
     {
-        int totalXTiles = chunkWidth;
-        int totalYTiles = chunkHeight;
+        int totalXTiles = chunk.size.x;
+        int totalYTiles = chunk.size.y;
         int totalTiles = totalXTiles * totalYTiles;
         Vector3Int[] tilePositions = new Vector3Int[totalTiles];
         for (int tileIndex = 0; tileIndex < totalTiles; tileIndex++)
         {
             int tileX = tileIndex % totalXTiles;
             int tileY = tileIndex / totalXTiles;
-            int tilePosX = chunkX + tileX;
-            int tilePosY = chunkY + tileY;
+            int tilePosX = chunk.xMin + tileX;
+            int tilePosY = chunk.yMin + tileY;
             tilePositions[tileIndex] = new Vector3Int(tilePosX, tilePosY, 0);
         }
         return tilePositions;
     }
 
-    private void RemoveObjectsOutsideOf<T>(List<T> objects, ObjectPool<T> pool, int chunkStartPosX, int chunkStartPosY, int chunkWidth, int chunkHeight) where T : MonoBehaviour
+    private void RemoveObjectsOutsideOf<T>(List<T> objects, ObjectPool<T> pool, RectInt chunk) where T : MonoBehaviour
     {
         for (int i = objects.Count - 1; i >= 0; i--)
         {
             Vector3Int doorPos = outdoorPhysical.WorldToCell(objects[i].transform.position);
             // if (System.Array.IndexOf(tiles, doorPos) < 0)
-            if (!(doorPos.x >= chunkStartPosX && doorPos.x < chunkStartPosX + chunkWidth && doorPos.y >= chunkStartPosY && doorPos.y < chunkStartPosY + chunkHeight))
+            if (!(doorPos.x >= chunk.xMin && doorPos.x < chunk.xMax && doorPos.y >= chunk.yMin && doorPos.y < chunk.yMax))
             {
                 pool.Return(objects[i]);
                 objects.RemoveAt(i);
@@ -385,6 +461,34 @@ public class WorldGenerator : MonoBehaviour
     private bool NoiseCheck(Vector3Int tilePosition, NoiseInfo noiseInfo)
     {
         float perlin = GetNoiseValueOf(tilePosition, noiseInfo);
-        return noiseInfo.invert && perlin <= noiseInfo.threshold || !noiseInfo.invert && perlin >= noiseInfo.threshold;
+        return NoiseCheck(perlin, noiseInfo);
+    }
+    private bool NoiseCheck(float perlinValue, NoiseInfo noiseInfo)
+    {
+        return noiseInfo.invert && perlinValue <= noiseInfo.threshold || !noiseInfo.invert && perlinValue >= noiseInfo.threshold;
+    }
+
+    public class TargetData
+    {
+        // public Transform target;
+        /// <summary>
+        /// The chunk the target is currently in represented by the bottom left corner tile index
+        /// </summary>
+        public Vector2Int chunkStart;
+        /// <summary>
+        /// The chunk the target was in in the previous frame
+        /// </summary>
+        public Vector2Int prevChunkStart;
+
+        /// <summary>
+        /// How many tiles should be visible at once
+        /// </summary>
+        public Vector2Int renderSize;
+        public Vector2Int prevRenderSize;
+
+        public TargetData(Vector2Int renderSize)
+        {
+            this.renderSize = renderSize;
+        }
     }
 }

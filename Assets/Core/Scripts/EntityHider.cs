@@ -21,7 +21,7 @@ public class EntityHider : MonoBehaviour
                 Vector3 characterPosition = character.controlledObject.transform.position;
 
                 //If character is outdoors and can see the entity then we can enable it or leave it enabled
-                if (!character.IsIndoors && Mathf.Abs(characterPosition.x - EntityRoot.spawnedEntity.transform.position.x) < worldViewSize.x && Mathf.Abs(characterPosition.y - EntityRoot.spawnedEntity.transform.position.y) < worldViewSize.y)
+                if (!character.isIndoors && Mathf.Abs(characterPosition.x - EntityRoot.spawnedEntity.transform.position.x) < worldViewSize.x && Mathf.Abs(characterPosition.y - EntityRoot.spawnedEntity.transform.position.y) < worldViewSize.y)
                 {
                     characterIsAround = true;
                     break;

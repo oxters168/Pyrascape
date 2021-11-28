@@ -150,10 +150,10 @@ MonoBehaviour:
   minGroundDistance: 0.3
   groundMask:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   dockLayer:
     serializedVersion: 2
-    m_Bits: 256
+    m_Bits: 2048
   antigravityFalloffDistance: 1
   antigravityFalloffCurve:
     serializedVersion: 2
@@ -230,11 +230,12 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c94ddcc95bf786e4ba4a6b34585559d8, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  collectedOres: []
   digReach: 0.05
   digSpeed: 0.01
   digLayer:
     serializedVersion: 2
-    m_Bits: 1
+    m_Bits: 256
   digTimeWindow: 0.33
 --- !u!50 &3022065316827036454
 Rigidbody2D:

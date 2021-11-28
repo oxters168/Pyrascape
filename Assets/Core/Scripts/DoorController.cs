@@ -12,7 +12,7 @@ public class DoorController : MonoBehaviour
 
     void Update()
     {
-        TheDoor.isOpen = world.isIndoors || TheDock.diggerDocked;
-        TheDock.gameObject.SetActive(!world.isIndoors);
+        TheDoor.isOpen = TheDock.diggerDocked;
+        // TheDock.gameObject.SetActive(!world.isIndoors);
     }
 }

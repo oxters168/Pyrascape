@@ -11,18 +11,25 @@ public class CharacterSpawner : MonoBehaviour
 
     [RequireInterface(typeof(IValueManager))]
     public GameObject controlledObject;
+    // private GameObject prevControlledObject;
     private GameObject _prevControlledObject;
     private IValueManager InputDevice { get { if (controlledObject != _prevControlledObject) { _inputDevice = controlledObject.GetComponent<IValueManager>(); _prevControlledObject = controlledObject; } return _inputDevice; } }
     private IValueManager _inputDevice;
 
     [Space(10)]
+    public LayerMask outdoorViewingLayers = ~0;
+    public LayerMask indoorViewingLayers = ~0;
+    [Tooltip("How many tiles should be visible at once")]
+    public Vector2Int renderSize = new Vector2Int(16, 12);
+    
+    [Space(10)]
     public OrbitCameraController cameraPrefab;
     public MovementController2D characterPrefab;
-    public WorldGenerator terrainPrefab;
+    // public WorldGenerator terrainPrefab;
     private MovementController2D spawnedCharacter;
     public OrbitCameraController spawnedCamera { get; private set; }
     private WorldGenerator terrain;
-    public bool IsIndoors { get { return terrain.isIndoors; } }
+    public bool isIndoors;
 
     [Space(10)]
     public float exitVelocityUpwards = 0;
@@ -34,6 +41,7 @@ public class CharacterSpawner : MonoBehaviour
     {
         player = ReInput.players.GetPlayer(playerId);
         Spawn();
+        // prevControlledObject = controlledObject;
     }
     
     void Update()
@@ -46,12 +54,22 @@ public class CharacterSpawner : MonoBehaviour
 
         SetCameraColor();
 
-        terrain.target = controlledObject.transform;
+        //Switch camera viewing layers and character layer
+        spawnedCamera.GetComponent<Camera>().cullingMask = isIndoors ? indoorViewingLayers : outdoorViewingLayers;
+        spawnedCharacter.isIndoors = isIndoors;
+
+        // if (prevControlledObject != controlledObject)
+        // {
+        //     terrain.RemoveTarget(prevControlledObject.transform);
+        //     terrain.AddTarget(controlledObject.transform);
+        //     // terrain.target = controlledObject.transform;
+        //     prevControlledObject = controlledObject;
+        // }
     }
 
     private void SetCameraColor()
     {
-        Color backgroundColor = terrain.isIndoors ? terrain.currentBuilding.backgroundColor : terrain.currentBiome.backgroundColor;
+        Color backgroundColor = isIndoors ? terrain.currentBuilding.backgroundColor : terrain.currentBiome.backgroundColor;
         spawnedCamera.GetComponentInChildren<Camera>().backgroundColor = backgroundColor;
     }
 
@@ -75,8 +93,10 @@ public class CharacterSpawner : MonoBehaviour
         spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
         spawnedCamera.target = spawnedCharacter.transform;
 
-        terrain = GameObject.Instantiate(terrainPrefab) as WorldGenerator;
-        terrain.target = controlledObject.transform;
+        terrain = FindObjectOfType<WorldGenerator>();
+        terrain.AddTarget(spawnedCharacter.transform, renderSize);
+        // terrain = GameObject.Instantiate(terrainPrefab) as WorldGenerator;
+        // terrain.target = controlledObject.transform;
     }
 
     private void EnterExitBuilding()
@@ -89,7 +109,8 @@ public class CharacterSpawner : MonoBehaviour
                 if (doorDetector != null && doorDetector.door != null && doorDetector.door.GetComponent<Door>().isOpen)
                 {
                     usedDoor = true;
-                    terrain.isIndoors = !terrain.isIndoors;
+                    isIndoors = !isIndoors;
+                    // terrain.isIndoors = !terrain.isIndoors;
                 }
             }
         }
@@ -116,6 +137,7 @@ public class CharacterSpawner : MonoBehaviour
                 {
                     usedVehicle = true;
                     spawnedCharacter.gameObject.SetActive(false);
+                    terrain.RemoveTarget(spawnedCharacter.transform); //Stop tracking character in terrain generation
                     controlledObject = nearbyVehicle;
                     spawnedCamera.target = nearbyVehicle.transform;
                 }
@@ -164,6 +186,7 @@ public class CharacterSpawner : MonoBehaviour
                         // spawnedCharacter.transform.position = aboveVehiclePosition;
                         spawnedCharacter.transform.position = exitPosition;
                         controlledObject = spawnedCharacter.gameObject;
+                        terrain.AddTarget(spawnedCharacter.transform, renderSize); //Track character again in terrain generation
                         spawnedCharacter.gameObject.SetActive(true);
                         spawnedCamera.target = spawnedCharacter.transform;
 

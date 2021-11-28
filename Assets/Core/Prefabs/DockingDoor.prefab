@@ -12,7 +12,7 @@ GameObject:
   - component: {fileID: 1768698615}
   - component: {fileID: 2628202000926428139}
   - component: {fileID: 2145980406413813517}
-  m_Layer: 8
+  m_Layer: 11
   m_Name: Dock
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -97,9 +97,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   diggerDocked: 0
-  maxSpeed: 0.3
+  maxSpeed: 1
   origin: {x: 0, y: 0.38}
-  radius: 0.16
+  radius: 0.3
   diggerMask:
     serializedVersion: 2
     m_Bits: 8
@@ -398,7 +398,7 @@ GameObject:
   - component: {fileID: 8229198052295009382}
   - component: {fileID: 9018905754569824941}
   - component: {fileID: 1072508812993119995}
-  m_Layer: 7
+  m_Layer: 10
   m_Name: Door
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -502,6 +502,8 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOpen: 0
+  randomlyOpenClose: 0
+  interval: 3
 --- !u!61 &1072508812993119995
 BoxCollider2D:
   m_ObjectHideFlags: 0

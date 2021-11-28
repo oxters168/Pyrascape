@@ -22,6 +22,7 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     public InputData currentInput;
     private InputData prevInput;
 
+
     [Space(10)]
     public float walkSpeed = 2.5f;
     public float runSeed = 4;
@@ -33,6 +34,13 @@ public class MovementController2D : MonoBehaviour//, IValueManager
     public LayerMask groundMask = ~0;
     public LayerMask wallMask = ~0;
     public LayerMask ceilingMask = ~0;
+
+    [Space(10)]
+    public bool isIndoors;
+    public string outdoorCharacterLayer = "OutdoorCharacter";
+    public string indoorCharacterLayer = "IndoorCharacter";
+    public LayerMask outdoorPhysicalLayers = ~0;
+    public LayerMask indoorPhysicalLayers = ~0;
 
     public float deadzone = 0.1f;
 
@@ -77,6 +85,17 @@ public class MovementController2D : MonoBehaviour//, IValueManager
         TickState();
         ApplyAnimation();
         // Debug.Log(currentState);
+
+        int currentLayer = isIndoors ? (LayerMask.NameToLayer(indoorCharacterLayer)) : (LayerMask.NameToLayer(outdoorCharacterLayer));
+        gameObject.layer = currentLayer;
+        foreach (Transform t in transform)
+            t.gameObject.layer = currentLayer;
+        groundMask &= isIndoors ? ~outdoorPhysicalLayers : ~indoorPhysicalLayers; //Remove indoor/outdoor layers from gound mask
+        groundMask |= isIndoors ? indoorPhysicalLayers : outdoorPhysicalLayers; //Add indoor/outdoor layers to gound mask
+        wallMask &= isIndoors ? ~outdoorPhysicalLayers : ~indoorPhysicalLayers;
+        wallMask |= isIndoors ? indoorPhysicalLayers : outdoorPhysicalLayers;
+        ceilingMask &= isIndoors ? ~outdoorPhysicalLayers : ~indoorPhysicalLayers;
+        ceilingMask |= isIndoors ? indoorPhysicalLayers : outdoorPhysicalLayers;
     }
     void FixedUpdate()
     {

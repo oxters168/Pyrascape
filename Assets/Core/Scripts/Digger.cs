@@ -1,6 +1,7 @@
 using UnityEngine;
 using UnityHelpers;
 using System.Collections;
+using System.Collections.Generic;
 
 public class Digger : MonoBehaviour
 {
@@ -12,6 +13,8 @@ public class Digger : MonoBehaviour
     private Vector3Int currentCell;
     private Bounds podBounds;
     public bool isDigging { get; private set; }
+
+    public List<OreData> collectedOres = new List<OreData>();
 
     /// <summary>
     /// How close the target tile needs to be before digging starts
@@ -125,6 +128,11 @@ public class Digger : MonoBehaviour
             yield return new WaitForFixedUpdate();
         }
 
+        //Get ore
+        var ore = CheckOre(tilePosition);
+        if (ore != null)
+            collectedOres.Add(ore);
+        
         //Refresh terrain
         // RegenerateTerrain();
         RegenerateTerrainAt(tilePosition);
@@ -163,19 +171,17 @@ public class Digger : MonoBehaviour
         else
             throw new System.NullReferenceException("No terrain found");
     }
-    // private void RegenerateTerrain()
-    // {
-    //     if (Terrains != null)
-    //         foreach (var terrain in Terrains)
-    //             terrain.GenerateTerrain(true);
-    // }
-    private void RegenerateTerrainAt(Vector3Int tileIndex)
+    private void RegenerateTerrainAt(Vector3Int tilePosition)
     {
         if (Terrains != null)
             foreach (var terrain in Terrains)
-            {
-                Debug.Log(terrain.GetOreData(tileIndex)?.name);
-                terrain.RefreshArea(tileIndex);
-            }
+                terrain.RefreshArea(tilePosition);
+    }
+    private OreData CheckOre(Vector3Int tilePosition)
+    {
+        OreData oreData = null;
+        if (Terrains != null && Terrains.Length > 0)
+            oreData = Terrains[0].GetOreData(tilePosition);
+        return oreData;
     }
 }

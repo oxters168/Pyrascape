@@ -591,7 +591,7 @@ MonoBehaviour:
   detectionRadius: 0.2
   doorMask:
     serializedVersion: 2
-    m_Bits: 128
+    m_Bits: 1024
   castDelay: 0.4
   door: {fileID: 0}
 --- !u!114 &4645509497267210346
@@ -653,6 +653,7 @@ MonoBehaviour:
     vertical: 0
     jump: 0
     sprint: 0
+  isIndoors: 0
   walkSpeed: 2.5
   runSeed: 4
   climbSpeed: 2
@@ -662,13 +663,19 @@ MonoBehaviour:
   wallDetectionDistance: 0.02
   groundMask:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 8
   wallMask:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 8
   ceilingMask:
     serializedVersion: 2
-    m_Bits: 9
+    m_Bits: 8
+  outdoorPhysicalLayers:
+    serializedVersion: 2
+    m_Bits: 256
+  indoorPhysicalLayers:
+    serializedVersion: 2
+    m_Bits: 512
   deadzone: 0.1
   invertFlip: 1
   leftDetectOffset: 0

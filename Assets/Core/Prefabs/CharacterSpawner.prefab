@@ -48,10 +48,17 @@ MonoBehaviour:
     serializedVersion: 2
     m_Bits: 4294967295
   controlledObject: {fileID: 0}
+  outdoorViewingLayers:
+    serializedVersion: 2
+    m_Bits: 3401
+  indoorViewingLayers:
+    serializedVersion: 2
+    m_Bits: 1664
+  outdoorCharacterLayer: 
+  indoorCharacterLayer: 
   cameraPrefab: {fileID: 365432475856182428, guid: 21e57581d841bbf47ad46d18bc4fbccf,
     type: 3}
   characterPrefab: {fileID: 7924335594981259068, guid: 2d6ab429bf89f92a5a5847772c0e6d8e,
     type: 3}
-  terrainPrefab: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
-    type: 3}
+  isIndoors: 0
   exitVelocityUpwards: 0
