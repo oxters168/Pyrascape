@@ -48,8 +48,6 @@ public class WorldGenerator : MonoBehaviour
     public BuildingScriptableObject buildingsInfo;
     public BuildingInfo currentBuilding;
     private BackgroundLoop currentOutdoorBackground;
-    // private ObjectPool<Ore> oresPool;
-    // private List<Ore> ores = new List<Ore>();
     private Dictionary<Vector3Int, OreData> oreMap = new Dictionary<Vector3Int, OreData>();
 
     private bool firstDraw = true;
@@ -68,13 +66,13 @@ public class WorldGenerator : MonoBehaviour
     {
         // indoorPhysical.transform.parent.gameObject.SetActive(isIndoors);
         // outdoorPhysical.transform.parent.gameObject.SetActive(!isIndoors);
-        if (firstDraw)
-        {
-            GameObject backgroundObject = new GameObject("Background");
-            backgroundObject.transform.SetParent(outdoorPhysical.transform.parent);
-            currentOutdoorBackground = backgroundObject.AddComponent<BackgroundLoop>();
-            currentOutdoorBackground.background = currentBiome.background;
-        }
+        // if (firstDraw)
+        // {
+        //     GameObject backgroundObject = new GameObject("Background");
+        //     backgroundObject.transform.SetParent(outdoorPhysical.transform.parent);
+        //     currentOutdoorBackground = backgroundObject.AddComponent<BackgroundLoop>();
+        //     // currentOutdoorBackground.background = currentBiome.background;
+        // }
 
         // if (currentOutdoorBackground != null)
         //     currentOutdoorBackground.target = targetDuo.Key;
@@ -93,8 +91,15 @@ public class WorldGenerator : MonoBehaviour
         if (targets.ContainsKey(target))
             targets.Remove(target);
         else
-            Debug.LogError("Cannot remove a target that is not in the world generator dictionary");
+            Debug.LogError("Cannot remove a target that is not in the world generator targets collection");
     }
+    // public void SetTargetBGIndex(Transform target, int bgIndex = -1)
+    // {
+    //     if (targets.Contains(target))
+    //         targets[target].SetBackground(bgIndex);
+    //     else
+    //         Debug.LogError("Cannot set background of a target that is not in the world generator targets collection");
+    // }
 
     public Vector3Int WorldToCell(Vector3 position)
     {
@@ -422,9 +427,27 @@ public class WorldGenerator : MonoBehaviour
         public Vector2Int renderSize;
         public Vector2Int prevRenderSize;
 
+        private BackgroundLoop currentOutdoorBackground;
+
         public TargetData(Vector2Int renderSize)
         {
             this.renderSize = renderSize;
         }
+
+        // public void SetBackground(int bgIndex = -1)
+        // {
+        //     if (bgIndex >= 0)
+        //     {
+        //         if (!currentOutdoorBackground)
+        //         {
+        //             GameObject backgroundObject = new GameObject("Background");
+        //             backgroundObject.transform.SetParent(outdoorPhysical.transform.parent);
+        //             currentOutdoorBackground = backgroundObject.AddComponent<BackgroundLoop>();
+        //             currentOutdoorBackground.background = currentBiome.background;
+        //         }
+        //     }
+        //     else
+        //         Destroy(currentOutdoorBackground.gameObject);
+        // }
     }
 }

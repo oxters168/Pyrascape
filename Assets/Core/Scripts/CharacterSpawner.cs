@@ -29,6 +29,7 @@ public class CharacterSpawner : MonoBehaviour
     private MovementController2D spawnedCharacter;
     public OrbitCameraController spawnedCamera { get; private set; }
     private WorldGenerator terrain;
+    private BackgroundLoop backgroundLoop;
     public bool isIndoors;
 
     [Space(10)]
@@ -87,6 +88,8 @@ public class CharacterSpawner : MonoBehaviour
 
         terrain = FindObjectOfType<WorldGenerator>();
         terrain.AddOrSetTarget(spawnedCharacter.transform, renderSize);
+        backgroundLoop = FindObjectOfType<BackgroundLoop>();
+        backgroundLoop.AddTarget(spawnedCharacter.transform);
         // terrain = GameObject.Instantiate(terrainPrefab) as WorldGenerator;
         // terrain.target = controlledObject.transform;
     }
@@ -102,6 +105,11 @@ public class CharacterSpawner : MonoBehaviour
                 {
                     usedDoor = true;
                     isIndoors = !isIndoors;
+
+                    if (isIndoors)
+                        backgroundLoop.RemoveTarget(spawnedCharacter.transform);
+                    else
+                        backgroundLoop.AddTarget(spawnedCharacter.transform);
                     // terrain.isIndoors = !terrain.isIndoors;
                 }
             }
@@ -140,6 +148,7 @@ public class CharacterSpawner : MonoBehaviour
                         usedVehicle = true;
                         spawnedCharacter.gameObject.SetActive(false);
                         terrain.RemoveTarget(spawnedCharacter.transform); //Stop tracking character in terrain generation
+                        backgroundLoop.RemoveTarget(spawnedCharacter.transform);
                         controlledObject = nearbyVehicle;
                         spawnedCamera.target = nearbyVehicle.transform;
                     }
@@ -194,6 +203,7 @@ public class CharacterSpawner : MonoBehaviour
                         spawnedCharacter.transform.position = exitPosition;
                         controlledObject = spawnedCharacter.gameObject;
                         terrain.AddOrSetTarget(spawnedCharacter.transform, renderSize); //Track character again in terrain generation
+                        backgroundLoop.AddTarget(spawnedCharacter.transform);
                         spawnedCharacter.gameObject.SetActive(true);
                         spawnedCamera.target = spawnedCharacter.transform;
 
