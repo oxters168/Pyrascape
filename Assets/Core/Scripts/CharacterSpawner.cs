@@ -44,7 +44,6 @@ public class CharacterSpawner : MonoBehaviour
         Spawn();
         // prevControlledObject = controlledObject;
     }
-    
     void Update()
     {
         EnterExitBuilding();
@@ -58,6 +57,10 @@ public class CharacterSpawner : MonoBehaviour
         //Switch camera viewing layers and character layer
         spawnedCamera.GetComponent<Camera>().cullingMask = isIndoors ? indoorViewingLayers : outdoorViewingLayers;
         spawnedCharacter.isIndoors = isIndoors;
+    }
+    void OnDestroy()
+    {
+        CharacterRegistry.RemoveCharacter(this);
     }
 
     private void SetCameraColor()
@@ -79,6 +82,8 @@ public class CharacterSpawner : MonoBehaviour
 
     private void Spawn()
     {
+        CharacterRegistry.AddCharacter(this);
+
         spawnedCharacter = GameObject.Instantiate(characterPrefab) as MovementController2D;
         spawnedCharacter.transform.position = transform.position;
         controlledObject = spawnedCharacter.gameObject;

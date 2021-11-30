@@ -34,7 +34,7 @@ public class BackgroundLoop : MonoBehaviour
             int bgDiff = bgIndices.Count - backgrounds.Count;
             for (int i = 0; i < Mathf.Abs(bgDiff); i++)
             {
-                if (Mathf.Sign(bgDiff) < 0)
+                if (bgDiff < 0)
                 {
                     backgrounds[0].Destroy();
                     backgrounds.RemoveAt(0);

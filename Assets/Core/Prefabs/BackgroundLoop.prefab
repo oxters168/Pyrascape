@@ -11,6 +11,7 @@ GameObject:
   - component: {fileID: 3423538667357645440}
   - component: {fileID: 387971782876640740}
   - component: {fileID: 2035447524790854193}
+  - component: {fileID: 5844663718285055801}
   m_Layer: 0
   m_Name: BackgroundLoop
   m_TagString: Untagged
@@ -58,3 +59,16 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   allBiomes:
   - {fileID: 11400000, guid: 91bae9fa6f82b8f89966f3c0c4afdf93, type: 2}
+--- !u!114 &5844663718285055801
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 5968743808282196422}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 78780e3fc8cc216ef9fd1bf24ea38737, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  refreshTime: 3
