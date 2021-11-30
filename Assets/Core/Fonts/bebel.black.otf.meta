@@ -1,0 +1,24 @@
+fileFormatVersion: 2
+guid: 3ba55e9ffba978c518d4cab8b40c1a2f
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontNames:
+  - Bebel
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: e6c22412b98107141b79b58a9e9b4045, type: 3}
+  - {fileID: 12800000, guid: 26a11ea6a15659ac79d28f9a142ce8a6, type: 3}
+  - {fileID: 12800000, guid: b5ec5146286b065a08f56f1d62f7c40a, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  useLegacyBoundsCalculation: 0
+  shouldRoundAdvanceValue: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
