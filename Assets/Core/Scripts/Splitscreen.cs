@@ -1,4 +1,5 @@
 using UnityEngine;
+using System.Linq;
 
 public class Splitscreen : MonoBehaviour
 {
@@ -7,6 +8,8 @@ public class Splitscreen : MonoBehaviour
 
     int prevCharacterCount;
 
+    float prevScreenWidth, prevScreenHeight;
+
     void Update()
     {
         if (Time.time - lastRefresh >= refreshTime)
@@ -14,25 +17,15 @@ public class Splitscreen : MonoBehaviour
             var spawnedCharacters = CharacterRegistry.GetCurrentCharacters();
             int currentCharacterCount = spawnedCharacters.Length;
 
-            if (prevCharacterCount != currentCharacterCount)
+            if (prevCharacterCount != currentCharacterCount || !Mathf.Approximately(Screen.width, prevScreenWidth) || !Mathf.Approximately(Screen.height, prevScreenHeight))
             {
-                int col = 1, row = 1;
-                float width = 1, height = 1;
-                if (currentCharacterCount > 1)
-                {
-                    col = Mathf.RoundToInt(Mathf.Log(currentCharacterCount, 2));
-                    row = currentCharacterCount > col ? Mathf.RoundToInt(currentCharacterCount / (float)col) : 1;
-                    width = 1f / col;
-                    height = 1f / row;
-                }
-
+                var screenRects = BSP.Partition(new Rect(0, 0, Screen.width, Screen.height), (uint)currentCharacterCount).EnumerateRects().ToArray();
                 for (int cameraIndex = 0; cameraIndex < currentCharacterCount; cameraIndex++)
-                {
-                    Rect cameraSplit = new Rect((cameraIndex % col) * width, height * (row - 1) - ((cameraIndex / col) * height), width, height);
-                    spawnedCharacters[cameraIndex].spawnedCamera.GetComponent<Camera>().rect = cameraSplit;
-                }
+                    spawnedCharacters[cameraIndex].spawnedCamera.GetComponent<Camera>().rect = new Rect(screenRects[cameraIndex].x / Screen.width, screenRects[cameraIndex].y / Screen.height, screenRects[cameraIndex].width / Screen.width, screenRects[cameraIndex].height / Screen.height);
 
                 prevCharacterCount = currentCharacterCount;
+                prevScreenWidth = Screen.width;
+                prevScreenHeight = Screen.height;
             }
 
             lastRefresh = Time.time;

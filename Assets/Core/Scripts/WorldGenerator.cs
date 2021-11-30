@@ -6,9 +6,6 @@ using System.Collections.Generic;
 
 public class WorldGenerator : MonoBehaviour
 {
-    private CompositeCollider2D _physicsBounds;
-    private CompositeCollider2D PhysicsBounds { get { if (_physicsBounds == null) _physicsBounds = GetComponentInChildren<CompositeCollider2D>(); return _physicsBounds; } }
-
     public int surfaceHeight = -1;
     [Space(10)]
     public Tile noiseTile;
