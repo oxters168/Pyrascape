@@ -14,7 +14,7 @@ public class Splitscreen : MonoBehaviour
 
         if (prevCharacterCount != currentCharacterCount || Screen.width != prevScreenWidth || Screen.height != prevScreenHeight)//|| !Mathf.Approximately(Screen.width, prevScreenWidth) || !Mathf.Approximately(Screen.height, prevScreenHeight))
         {
-            var screenRects = BSP.Partition(new Rect(0, 0, Screen.width, Screen.height), (uint)currentCharacterCount).EnumerateRects().ToArray();
+            var screenRects = UnityHelpers.BSP.Partition(new Rect(0, 0, Screen.width, Screen.height), (uint)currentCharacterCount).EnumerateRects().ToArray();
             for (int cameraIndex = 0; cameraIndex < currentCharacterCount; cameraIndex++)
                 spawnedCharacters[cameraIndex].spawnedCamera.GetComponent<Camera>().rect = new Rect(screenRects[cameraIndex].x / Screen.width, screenRects[cameraIndex].y / Screen.height, screenRects[cameraIndex].width / Screen.width, screenRects[cameraIndex].height / Screen.height);
 
