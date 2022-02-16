@@ -262,6 +262,11 @@ PrefabInstance:
       propertyPath: m_Name
       value: CharacterSpawner (1)
       objectReference: {fileID: 0}
+    - target: {fileID: 5189249297879181194, guid: 48f4487bd89a4524a9b1431ddccb3888,
+        type: 3}
+      propertyPath: m_IsActive
+      value: 0
+      objectReference: {fileID: 0}
     - target: {fileID: 5189249297879181195, guid: 48f4487bd89a4524a9b1431ddccb3888,
         type: 3}
       propertyPath: playerId
