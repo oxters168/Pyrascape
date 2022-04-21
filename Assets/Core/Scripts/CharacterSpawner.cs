@@ -73,6 +73,10 @@ public class CharacterSpawner : MonoBehaviour
     {
         if (InputDevice != null)
         {
+            // string controllersDebug = "";
+            // foreach (var controller in ReInput.controllers.Controllers)
+            //     controllersDebug += controller.hardwareName + ", ";
+            // DebugPanel.Log("Controllers: ", controllersDebug, 5);
             InputDevice.SetAxis("Horizontal", player.GetAxis("Horizontal"));
             InputDevice.SetAxis("Vertical", player.GetAxis("Vertical"));
             InputDevice.SetToggle("ButtonA", player.GetButton("ButtonA"));
