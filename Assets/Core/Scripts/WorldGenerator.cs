@@ -52,6 +52,7 @@ public class WorldGenerator : MonoBehaviour
 
     void Start()
     {
+        Application.targetFrameRate = 30;
         noise = new FastNoise(WorldData.seed);
         Transform doorsParent = new GameObject("Doors").transform;
         // Transform oresParent = new GameObject("Ores").transform;
@@ -301,16 +302,16 @@ public class WorldGenerator : MonoBehaviour
                                 if (currentTilePos.y == buildingCorner.y + buildingMaxHeight - 2) //Near top edge, so make sure has top border
                                     hasTopTile = true;
 
-                                if (!hasBotTile && !hasTopTile && buildingTilePerlin >= currentBuilding.noise.threshold * 1.1f)
-                                {
-                                    // WorldData.SetDug(currentTilePos, true);
-                                    trapDoors.Add(trapDoorPool.Get(trapDoor => { trapDoor.transform.position = outdoorPhysical.CellToWorld(currentTilePos); }));
-                                }
-                                else
-                                {
-                                    borderIndex = (hasLeftTile ? 1 : 0) + (hasTopTile ? 2 : 0) + (hasRightTile ? 4 : 0) + (hasBotTile ? 8 : 0);
-                                    indoorPhysicalTiles[i] = currentBuilding.wallTile[borderIndex];
-                                }
+                                // if (!hasBotTile && !hasTopTile && buildingTilePerlin >= currentBuilding.noise.threshold * 1.1f)
+                                // {
+                                //     // WorldData.SetDug(currentTilePos, true);
+                                //     trapDoors.Add(trapDoorPool.Get(trapDoor => { trapDoor.transform.position = outdoorPhysical.CellToWorld(currentTilePos); }));
+                                // }
+                                // else
+                                // {
+                                borderIndex = (hasLeftTile ? 1 : 0) + (hasTopTile ? 2 : 0) + (hasRightTile ? 4 : 0) + (hasBotTile ? 8 : 0);
+                                indoorPhysicalTiles[i] = currentBuilding.wallTile[borderIndex];
+                                // }
                             }
                         }
                     }
