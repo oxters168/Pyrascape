@@ -20,9 +20,9 @@ public class WorldGenerator : MonoBehaviour
     public int buildingCushionX = 8;
     public int buildingCushionY = 8;
     private List<DoorController> doors = new List<DoorController>();
-    public Door trapDoorPrefab;
-    private ObjectPool<Door> trapDoorPool;
-    private List<Door> trapDoors = new List<Door>();
+    // public Door trapDoorPrefab;
+    // private ObjectPool<Door> trapDoorPool;
+    // private List<Door> trapDoors = new List<Door>();
 
     [Space(10)]
     // public bool isIndoors;
@@ -52,13 +52,13 @@ public class WorldGenerator : MonoBehaviour
 
     void Start()
     {
-        Application.targetFrameRate = 30;
+        Application.targetFrameRate = 60;
         noise = new FastNoise(WorldData.seed);
         Transform doorsParent = new GameObject("Doors").transform;
         // Transform oresParent = new GameObject("Ores").transform;
         doorsPool = new ObjectPool<DoorController>(doorPrefab, 5, false, true, doorsParent);
         // oresPool = new ObjectPool<Ore>(orePrefab, 5, false, true, oresParent);
-        trapDoorPool = new ObjectPool<Door>(trapDoorPrefab, 5, false, true, doorsParent);
+        // trapDoorPool = new ObjectPool<Door>(trapDoorPrefab, 5, false, true, doorsParent);
     }
     void Update()
     {
