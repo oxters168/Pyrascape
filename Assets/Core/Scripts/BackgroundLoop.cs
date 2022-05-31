@@ -1,5 +1,6 @@
 using UnityEngine;
 using System.Collections.Generic;
+using UnityHelpers;
 
 public class BackgroundLoop : MonoBehaviour
 {
@@ -17,11 +18,13 @@ public class BackgroundLoop : MonoBehaviour
                 allBackgrounds[j] = new List<Background>();
             var backgrounds = allBackgrounds[j];
 
+            float distance = BackgroundInfo.DISTANCE[j];
+            float bgScale = Background.CalculateScale(distance);
             //Calculate how many backgrounds will exist based on targets' positions
             List<int> bgIndices = new List<int>();
             foreach (var target in targets)
             {
-                int index = Mathf.RoundToInt((target.position.x - 0) / Background.BACKGROUND_BASE_WIDTH);
+                int index = Mathf.RoundToInt((target.position.x - 0) / (Background.BACKGROUND_BASE_WIDTH  * bgScale));
                 if (!bgIndices.Contains(index))
                     bgIndices.Add(index);
                 if (!bgIndices.Contains(index - 1))
@@ -132,6 +135,7 @@ public class BackgroundLoop : MonoBehaviour
                 currentImageObj = CreateImage(backgroundsParent, backgroundLoop, distance).transform;
             }
 
+            //float bgWidth = currentImageObj.GetBounds(Space.World).size.x;
             //Move the parent to the proper x and y
             currentImageObj.localPosition = new Vector3(posIndex * BACKGROUND_BASE_WIDTH * CalculateScale(distance), bgInfo.height + backgroundLoop.relativeHeight, distance);
         }
