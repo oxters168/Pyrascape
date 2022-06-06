@@ -5,6 +5,34 @@ using UnityEngine.Tilemaps;
 public class OreScriptableObject : ScriptableObject
 {
     public OreData[] ores;
+
+    public OreData GetOreAt(Vector3Int currentTilePos, int surfaceHeight, bool hasPhysicalTile)
+    {
+        OreData outputOre = null;
+        if (currentTilePos.y < surfaceHeight && hasPhysicalTile) //If we are currently underneath the surface and there currently exists
+        {
+            for (int j = ores.Length - 1; j >= 0; j--)
+            {
+                var currentOre = ores[j];
+                var currentDepth = Mathf.Abs(currentTilePos.y - (surfaceHeight - 1)); //(surfaceHeight - 1) because we don't want to consider the surface
+                if (currentDepth >= currentOre.minDepth && currentDepth <= currentOre.maxDepth) //If we are in the correct depth
+                {
+                    float depthPercent = ((float)(currentDepth - currentOre.minDepth)) / (currentOre.maxDepth - currentOre.minDepth); //Get the t value to evaluate with based on depth
+                    float currentDepthChance = (currentOre.percentSpread.Evaluate(depthPercent) * (currentOre.maxPercentChance - currentOre.minPercentChance)) + currentOre.minPercentChance; //Evaluate to retrieve the chance of spawning
+                    currentDepthChance = 1 - currentDepthChance; //Flip 0-1 to 1-0
+                    if (currentDepthChance < WorldGenerator.GetNoiseValueOf(currentTilePos, currentOre.noise))
+                    {
+                        // ores.Add(oresPool.Get(ore => { ore.world = this; ore.oreData = currentOre.Clone(); ore.transform.position = outdoorPhysical.CellToWorld(currentTilePos) + (Vector3.right + Vector3.up) * 0.5f; }));
+                        // outdoorForegroundTiles[i] = currentOre.ore;
+                        // oreMap[currentTilePos] = currentOre.Clone();
+                        outputOre = currentOre;
+                        break;
+                    }
+                }
+            }
+        }
+        return outputOre;
+    }
 }
 [System.Serializable]
 public class OreData
@@ -12,6 +40,7 @@ public class OreData
     public string name;
     // public Sprite sprite;
     public TileBase ore;
+    public NoiseInfo noise;
     [Tooltip("The highest depth the ore can be found at [inclusive]")]
     public int minDepth = 0;
     [Tooltip("The lowest depth the ore can be found at [inclusive]")]
