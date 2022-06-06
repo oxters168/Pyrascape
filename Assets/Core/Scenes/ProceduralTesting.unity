@@ -2888,6 +2888,29 @@ PrefabInstance:
       propertyPath: m_ColliderPaths.Array.data[0].m_Collider
       value: 
       objectReference: {fileID: 962194448}
+    - target: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
+        type: 3}
+      propertyPath: buildings.Array.size
+      value: 3
+      objectReference: {fileID: 0}
+    - target: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
+        type: 3}
+      propertyPath: buildings.Array.data[0]
+      value: 
+      objectReference: {fileID: 11400000, guid: 3b31c790b5c7ad44aa48f20271a9d912,
+        type: 2}
+    - target: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
+        type: 3}
+      propertyPath: buildings.Array.data[1]
+      value: 
+      objectReference: {fileID: 11400000, guid: 92607b36077183e4997f480d671d9218,
+        type: 2}
+    - target: {fileID: 4123269454695081877, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
+        type: 3}
+      propertyPath: buildings.Array.data[2]
+      value: 
+      objectReference: {fileID: 11400000, guid: 65b801db21a289943bd3804b4351f3c6,
+        type: 2}
     - target: {fileID: 5944026451479631683, guid: 16ff141fd82d3ddcc9775e08655c1a5b,
         type: 3}
       propertyPath: m_RootOrder

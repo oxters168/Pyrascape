@@ -79,7 +79,11 @@ public class CharacterSpawner : MonoBehaviour
     }
     private void SetCameraColor()
     {
-        Color backgroundColor = GetIsIndoors() ? terrain.currentBuilding.backgroundColor : terrain.currentBiome.backgroundColor;
+        var currentBuilding = WorldGenerator.GetCurrentBuilding(terrain.buildings, Vector3Int.RoundToInt(controlledObject.transform.position));
+        Color buildingBg = Color.black;
+        if (currentBuilding != null)
+            buildingBg = currentBuilding.backgroundColor;
+        Color backgroundColor = GetIsIndoors() ? buildingBg : terrain.currentBiome.backgroundColor;
         spawnedCamera.GetComponentInChildren<Camera>().backgroundColor = backgroundColor;
     }
 
