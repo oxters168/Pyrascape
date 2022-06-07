@@ -1558,24 +1558,18 @@ MonoBehaviour:
   debugNoise: 0
   doorPrefab: {fileID: 7820451020778112094, guid: 304ed420ca33fa7869252157d18ccda5,
     type: 3}
-  buildingMaxWidth: 24
-  buildingMaxHeight: 32
-  buildingCushionX: 16
-  buildingCushionY: 16
-  trapDoorPrefab: {fileID: 2740216795809925898, guid: d0f268ba4236ff282af2420815c11c44,
-    type: 3}
   indoorForeground: {fileID: 6691407379866779323}
   indoorPhysical: {fileID: 4340286997470167972}
   indoorBackground: {fileID: 1522008152773158560}
   outdoorForeground: {fileID: 8815847477263333932}
   outdoorPhysical: {fileID: 113412684099683025}
   outdoorBackground: {fileID: 933851237618495818}
-  renderSize: {x: 16, y: 12}
-  oreNoise: {fileID: 11400000, guid: bedff1d8f9c691c82afa3f58539af82b, type: 2}
   oreInfo: {fileID: 11400000, guid: 4c47dbbc8b175174496ac71c38263320, type: 2}
   currentBiome: {fileID: 11400000, guid: 91bae9fa6f82b8f89966f3c0c4afdf93, type: 2}
-  buildingsInfo: {fileID: 0}
-  currentBuilding: {fileID: 11400000, guid: 3b31c790b5c7ad44aa48f20271a9d912, type: 2}
+  buildings:
+  - {fileID: 11400000, guid: 3b31c790b5c7ad44aa48f20271a9d912, type: 2}
+  - {fileID: 11400000, guid: 92607b36077183e4997f480d671d9218, type: 2}
+  - {fileID: 11400000, guid: 65b801db21a289943bd3804b4351f3c6, type: 2}
 --- !u!156049354 &2445826112180455569
 Grid:
   m_ObjectHideFlags: 0

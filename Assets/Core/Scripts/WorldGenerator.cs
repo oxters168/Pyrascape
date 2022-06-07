@@ -40,13 +40,13 @@ public class WorldGenerator : MonoBehaviour
     [Space(10)]
     // public Ore orePrefab;
     //public NoiseInfo oreNoise;
-    public OreScriptableObject oreInfo;
+    public OreInfo oreInfo;
     public BiomeInfo currentBiome;
     //public BuildingScriptableObject buildingsInfo;
     // public BuildingInfo currentBuilding;
     public BuildingInfo[] buildings;
     // private BackgroundLoop currentOutdoorBackground;
-    private Dictionary<Vector3Int, OreData> oreMap = new Dictionary<Vector3Int, OreData>();
+    private Dictionary<Vector3Int, OreData> oreMap = new Dictionary<Vector3Int, OreData>(); //Necessary to know what is dug
 
     private bool firstDraw = true;
     private static FastNoise noise;
@@ -197,11 +197,11 @@ public class WorldGenerator : MonoBehaviour
             //Generate terrain
             if (!debugNoise)
             {
-                outdoorForegroundTiles[i] = currentBiome.GetOrnamentTileAt(currentTilePos, surfaceHeight);
-                outdoorBackgroundTiles[i] = currentBiome.GetBackgroundTileAt(currentTilePos, surfaceHeight);
-                outdoorPhysicalTiles[i] = currentBiome.GetPhysicalTileAt(currentTilePos, surfaceHeight);
+                outdoorForegroundTiles[i] = currentBiome.GetOrnamentTileAt(currentTilePos);
+                outdoorBackgroundTiles[i] = currentBiome.GetBackgroundTileAt(currentTilePos);
+                outdoorPhysicalTiles[i] = currentBiome.GetPhysicalTileAt(currentTilePos);
 
-                var currentOre = oreInfo.GetOreAt(currentTilePos, surfaceHeight, outdoorPhysicalTiles[i] != null);
+                var currentOre = oreInfo.GetOreAt(currentTilePos, outdoorPhysicalTiles[i] != null);
                 if (currentOre != null)
                 {
                     outdoorForegroundTiles[i] = currentOre.ore;
