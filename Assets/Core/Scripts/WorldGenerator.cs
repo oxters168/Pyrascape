@@ -15,17 +15,12 @@ public class WorldGenerator : MonoBehaviour
     [Space(10)]
     public DoorController doorPrefab;
     private ObjectPool<DoorController> doorsPool;
-    // public int buildingMaxWidth = 8;
-    // public int buildingMaxHeight = 8;
-    // public int buildingCushionX = 8;
-    // public int buildingCushionY = 8;
     private List<DoorController> doors = new List<DoorController>();
     // public Door trapDoorPrefab;
     // private ObjectPool<Door> trapDoorPool;
     // private List<Door> trapDoors = new List<Door>();
 
     [Space(10)]
-    // public bool isIndoors;
     public Tilemap indoorForeground;
     public Tilemap indoorPhysical;
     public Tilemap indoorBackground;
@@ -34,18 +29,12 @@ public class WorldGenerator : MonoBehaviour
     public Tilemap outdoorBackground;
 
     [Space(10)]
-    // public Transform target;
     private Dictionary<Transform, TargetData> targets = new Dictionary<Transform, TargetData>();
 
     [Space(10)]
-    // public Ore orePrefab;
-    //public NoiseInfo oreNoise;
     public OreInfo oreInfo;
     public BiomeInfo currentBiome;
-    //public BuildingScriptableObject buildingsInfo;
-    // public BuildingInfo currentBuilding;
     public BuildingInfo[] buildings;
-    // private BackgroundLoop currentOutdoorBackground;
     private Dictionary<Vector3Int, OreData> oreMap = new Dictionary<Vector3Int, OreData>(); //Necessary to know what is dug
 
     private bool firstDraw = true;

@@ -158,6 +158,7 @@ public class CharacterSpawner : MonoBehaviour
                 else
                 {
                     controlledObject = preSpecControlledObj;
+                    controlledObject.transform.position = spawnedSpectator.transform.position;
                     //isIndoors = preSpecIndoors;
                     //spawnedSpectator.transform.localPosition = Vector3.zero;
                 }
