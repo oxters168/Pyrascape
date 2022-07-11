@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 public class WorldGenerator : MonoBehaviour
 {
+    public static WorldGenerator _instance;
+
     public int surfaceHeight = -1;
     [Space(10)]
     public Tile noiseTile;
@@ -14,7 +16,7 @@ public class WorldGenerator : MonoBehaviour
 
     [Space(10)]
     public DoorController doorPrefab;
-    private ObjectPool<DoorController> doorsPool;
+    // private ObjectPool<DoorController> doorsPool;
     private List<DoorController> doors = new List<DoorController>();
     // public Door trapDoorPrefab;
     // private ObjectPool<Door> trapDoorPool;
@@ -40,13 +42,17 @@ public class WorldGenerator : MonoBehaviour
     private bool firstDraw = true;
     private static FastNoise noise;
 
+    void Awake()
+    {
+        _instance = this;
+    }
     void Start()
     {
         Application.targetFrameRate = 60;
         noise = new FastNoise(WorldData.seed);
         Transform doorsParent = new GameObject("Doors").transform;
         // Transform oresParent = new GameObject("Ores").transform;
-        doorsPool = new ObjectPool<DoorController>(doorPrefab, 5, false, true, doorsParent);
+        // doorsPool = new ObjectPool<DoorController>(doorPrefab, 5, false, true, doorsParent);
         // oresPool = new ObjectPool<Ore>(orePrefab, 5, false, true, oresParent);
         // trapDoorPool = new ObjectPool<Door>(trapDoorPrefab, 5, false, true, doorsParent);
     }
@@ -73,6 +79,10 @@ public class WorldGenerator : MonoBehaviour
             targets.Add(target, new TargetData(renderSize));
         else
             targets[target].renderSize = renderSize;
+    }
+    public bool HasTarget(Transform target)
+    {
+        return targets.ContainsKey(target);
     }
     public void RemoveTarget(Transform target)
     {

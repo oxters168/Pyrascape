@@ -5,14 +5,19 @@ using System.Collections.Generic;
 
 public class Digger : MonoBehaviour
 {
-    private PodPhysics2D _pod;
     private PodPhysics2D Pod { get { if (_pod == null) _pod = GetComponentInChildren<PodPhysics2D>(); return _pod; } }
-    private WorldGenerator[] Terrains { get { if (_terrains == null) { _terrains = FindObjectsOfType<WorldGenerator>(); } return _terrains; } }
-    private WorldGenerator[] _terrains;
+    private PodPhysics2D _pod;
+    // private WorldGenerator[] Terrains { get { if (_terrains == null) { _terrains = FindObjectsOfType<WorldGenerator>(); } return _terrains; } }
+    // private WorldGenerator[] _terrains;
+    public RenderForMe WorldRender { get { if (_worldRender == null) _worldRender = GetComponent<RenderForMe>(); return _worldRender; } }
+    private RenderForMe _worldRender;
+
+    private bool prevDiggerIsOccupied;
 
     private Vector3Int currentCell;
     private Bounds podBounds;
     public bool isDigging { get; private set; }
+    public bool isOccupied { get; private set; }
 
     public List<OreData> collectedOres = new List<OreData>();
 
@@ -36,6 +41,8 @@ public class Digger : MonoBehaviour
     void Start()
     {
         GetComponentInChildren<PodPhysics2D>();
+        WorldRender.renderTerrain = true;
+        WorldRender.renderBackground = false;
     }
     void Update()
     {
@@ -84,21 +91,34 @@ public class Digger : MonoBehaviour
         }
     }
 
+    private void UpdateWorldRender()
+    {
+        if (!isOccupied)
+            WorldRender.renderTerrain = true;
+
+        if (!isOccupied && prevDiggerIsOccupied)
+            WorldRender.renderBackground = false;
+        if (isOccupied && !prevDiggerIsOccupied)
+            WorldRender.renderBackground = true;
+            
+        prevDiggerIsOccupied = isOccupied;
+    }
+
     private IEnumerator DigTile(Vector3Int tilePosition)
     {
         isDigging = true;
         WorldData.SetDug(tilePosition, false);
 
         Rigidbody2D podBody = GetComponentInChildren<Rigidbody2D>();
-        PodPhysics2D pod = GetComponentInChildren<PodPhysics2D>();
+        // PodPhysics2D pod = GetComponentInChildren<PodPhysics2D>();
         UnifiedInputForPod playerInput = GetComponentInChildren<UnifiedInputForPod>();
 
         //Take away control from player
         if (playerInput != null)
             playerInput.enabled = false;
         //Turn off pod physics so we can move the pod freely
-        if (pod != null)
-            pod.enabled = false;
+        if (Pod != null)
+            Pod.enabled = false;
         
         //Let the pod be able to go through objects and not fall
         podBody.bodyType = RigidbodyType2D.Kinematic;
@@ -106,8 +126,8 @@ public class Digger : MonoBehaviour
         podBody.angularVelocity = 0;
 
         //Stop pod input
-        pod.horizontal = 0;
-        pod.fly = 0;
+        Pod.horizontal = 0;
+        Pod.fly = 0;
 
         Vector2 targetPosition = GetCellCenterWorld(tilePosition).xy();
         Vector2 startPosition = transform.position;
@@ -141,8 +161,8 @@ public class Digger : MonoBehaviour
         podBody.bodyType = RigidbodyType2D.Dynamic;
 
         //Turn the pod physics back on
-        if (pod != null)
-            pod.enabled = true;
+        if (Pod != null)
+            Pod.enabled = true;
         //Give back control to player
         if (playerInput != null)
             playerInput.enabled = true;
@@ -150,38 +170,65 @@ public class Digger : MonoBehaviour
         isDigging = false;
     }
 
+    public bool Enter()
+    {
+        if (!isOccupied)
+        {
+            isOccupied = true;
+            return true;
+        }
+        else
+            Debug.LogError("Could not enter a digger that is already occupied");
+        return false;
+    }
+    public bool Exit()
+    {
+        if (isOccupied)
+        {
+            isOccupied = false;
+            return true;
+        }
+        else
+            Debug.LogError("Could empty an already empty digger");
+        return false;
+    }
     private Vector3Int WorldToCell(Vector3 position)
     {
-        if (Terrains != null && Terrains.Length > 0)
-            return Terrains[0].WorldToCell(position);
-        else
-            throw new System.NullReferenceException("No terrain found");
+        // if (Terrains != null && Terrains.Length > 0)
+        //     return Terrains[0].WorldToCell(position);
+        // else
+        //     throw new System.NullReferenceException("No terrain found");
+        return WorldGenerator._instance.WorldToCell(position);
     }
     private bool HasTile(Vector3Int tilePosition)
     {
-        if (Terrains != null && Terrains.Length > 0)
-            return Terrains[0].HasTile(tilePosition);
-        else
-            throw new System.NullReferenceException("No terrain found");
+        // if (Terrains != null && Terrains.Length > 0)
+        //     return Terrains[0].HasTile(tilePosition);
+        // else
+        //     throw new System.NullReferenceException("No terrain found");
+        return WorldGenerator._instance.HasTile(tilePosition);
     }
     private Vector3 GetCellCenterWorld(Vector3Int tilePosition)
     {
-        if (Terrains != null && Terrains.Length > 0)
-            return Terrains[0].GetCellCenterWorld(tilePosition);
-        else
-            throw new System.NullReferenceException("No terrain found");
+        // if (Terrains != null && Terrains.Length > 0)
+        //     return Terrains[0].GetCellCenterWorld(tilePosition);
+        // else
+        //     throw new System.NullReferenceException("No terrain found");
+        return WorldGenerator._instance.GetCellCenterWorld(tilePosition);
     }
     private void RegenerateTerrainAt(Vector3Int tilePosition)
     {
-        if (Terrains != null)
-            foreach (var terrain in Terrains)
-                terrain.RefreshArea(tilePosition);
+        // if (Terrains != null)
+        //     foreach (var terrain in Terrains)
+        //         terrain.RefreshArea(tilePosition);
+        WorldGenerator._instance.RefreshArea(tilePosition);
     }
     private OreData CheckOre(Vector3Int tilePosition)
     {
-        OreData oreData = null;
-        if (Terrains != null && Terrains.Length > 0)
-            oreData = Terrains[0].GetOreData(tilePosition);
-        return oreData;
+        // OreData oreData = null;
+        // if (Terrains != null && Terrains.Length > 0)
+        //     oreData = Terrains[0].GetOreData(tilePosition);
+        // return oreData;
+        return WorldGenerator._instance.GetOreData(tilePosition);
     }
 }

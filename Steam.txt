@@ -1,0 +1,10 @@
+Create New App
+Done creating new app!
+Requesting AppID For: Dig Deep
+Created package "Dig Deep Developer Comp" with ID 735390
+Created package "Dig Deep for Beta Testing" with ID 735391
+Created package "Dig Deep" with ID 735392
+Added auto-grant to publisher Ox Games LLC
+Created store item '471698'
+Created store package for store item '471698'
+Done!

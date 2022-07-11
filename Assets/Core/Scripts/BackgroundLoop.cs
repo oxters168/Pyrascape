@@ -62,6 +62,10 @@ public class BackgroundLoop : MonoBehaviour
         else
             Debug.LogError("Cannot add a target that is already in the background targets collection");
     }
+    public bool HasTarget(Transform target)
+    {
+        return targets.Contains(target);
+    }
     public void RemoveTarget(Transform target)
     {
         if (targets.Contains(target))

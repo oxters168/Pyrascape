@@ -8,6 +8,8 @@ public class BuildingInfo : ScriptableObject
     public Vector2Int corner;
     [Tooltip("The number of tiles along the horizontal and vertical axes of the building")]
     public Vector2Int size;
+    [Tooltip("The building's door relative to the corner position")]
+    public Vector2Int doorPos;
     [Tooltip("How the building's tiles should be placed")]
     public NoiseInfo noise;
     [Tooltip("When the player is in this building, what should the camera's solid color be set to")]
@@ -80,4 +82,8 @@ public class BuildingInfo : ScriptableObject
 
         return physicalTile;
     }
+    // public Entity GetEntityAt(Vector3Int currentTilePos)
+    // {
+
+    // }
 }

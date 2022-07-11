@@ -3,7 +3,7 @@ using UnityHelpers;
 
 public class PodPhysics2D : MonoBehaviour
 {
-    public bool isOccupied;
+    // public bool isOccupied;
     
     [Range(-1f, 1f)]
     public float horizontal;

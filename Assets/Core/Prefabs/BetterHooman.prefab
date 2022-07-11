@@ -524,10 +524,12 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 7924335594981259066}
+  - component: {fileID: 6750797566265270935}
+  - component: {fileID: 6670553438046258235}
+  - component: {fileID: 7924335594981259068}
   - component: {fileID: 4722693042688658922}
   - component: {fileID: 2237238339823808384}
   - component: {fileID: 4645509497267210346}
-  - component: {fileID: 7924335594981259068}
   - component: {fileID: 7924335594981259064}
   - component: {fileID: 7924335594981259065}
   m_Layer: 6
@@ -557,6 +559,101 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &6750797566265270935
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7924335594981259078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1789db35b16bbe344919dc425af43877, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  renderSize: {x: 16, y: 12}
+  renderTerrain: 1
+  renderBackground: 1
+--- !u!114 &6670553438046258235
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7924335594981259078}
+  m_Enabled: 0
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 161d38475edc1b15bb620f00e2133721, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  playerId: 0
+  surroundingsMask:
+    serializedVersion: 2
+    m_Bits: 4294967295
+  controlledObject: {fileID: 0}
+  outdoorViewingLayers:
+    serializedVersion: 2
+    m_Bits: 30024
+  indoorViewingLayers:
+    serializedVersion: 2
+    m_Bits: 6784
+  orbitCamera: {fileID: 11400000, guid: 8aca4fb886b51394fb112c82416e8a20, type: 2}
+  spectator: {fileID: 11400000, guid: a28e8521358c2fd499382ed243f54d0c, type: 2}
+  isIndoors: 0
+  isSpecIndoors: 0
+  isSpectating: 0
+  exitVelocityUpwards: 0
+--- !u!114 &7924335594981259068
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7924335594981259078}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 60471b145ddd0b2188e6e4a90bc9051a, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  currentInput:
+    horizontal: 0
+    vertical: 0
+    jump: 0
+    sprint: 0
+  walkSpeed: 2.5
+  runSeed: 4
+  climbSpeed: 2
+  walkJumpSpeed: 5
+  runJumpSpeed: 4
+  addedFallAcceleration: 9.8
+  wallDetectionDistance: 0.02
+  groundMask:
+    serializedVersion: 2
+    m_Bits: 8
+  wallMask:
+    serializedVersion: 2
+    m_Bits: 8
+  ceilingMask:
+    serializedVersion: 2
+    m_Bits: 8
+  isIndoors: 0
+  outdoorCharacterLayer: OutdoorCharacter
+  indoorCharacterLayer: IndoorCharacter
+  outdoorPhysicalLayers:
+    serializedVersion: 2
+    m_Bits: 1288
+  indoorPhysicalLayers:
+    serializedVersion: 2
+    m_Bits: 2560
+  deadzone: 0.1
+  invertFlip: 1
+  leftDetectOffset: 0
+  rightDetectOffset: 0
+  topDetectOffset: 0
+  bottomDetectOffset: 0
+  sideDetectVerticalOffset: -0.1
+  verticalDetectSideOffset: -0.1
+  debugWallRays: 1
 --- !u!114 &4722693042688658922
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -636,57 +733,6 @@ MonoBehaviour:
       direction: {x: 0, y: 0, z: 0}
       point: {x: 0, y: 0, z: 0}
       orientation: {x: 0, y: 0, z: 0, w: 0}
---- !u!114 &7924335594981259068
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 7924335594981259078}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 60471b145ddd0b2188e6e4a90bc9051a, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  currentInput:
-    horizontal: 0
-    vertical: 0
-    jump: 0
-    sprint: 0
-  walkSpeed: 2.5
-  runSeed: 4
-  climbSpeed: 2
-  walkJumpSpeed: 5
-  runJumpSpeed: 4
-  addedFallAcceleration: 9.8
-  wallDetectionDistance: 0.02
-  groundMask:
-    serializedVersion: 2
-    m_Bits: 8
-  wallMask:
-    serializedVersion: 2
-    m_Bits: 8
-  ceilingMask:
-    serializedVersion: 2
-    m_Bits: 8
-  isIndoors: 0
-  outdoorCharacterLayer: OutdoorCharacter
-  indoorCharacterLayer: IndoorCharacter
-  outdoorPhysicalLayers:
-    serializedVersion: 2
-    m_Bits: 1288
-  indoorPhysicalLayers:
-    serializedVersion: 2
-    m_Bits: 2560
-  deadzone: 0.1
-  invertFlip: 1
-  leftDetectOffset: 0
-  rightDetectOffset: 0
-  topDetectOffset: 0
-  bottomDetectOffset: 0
-  sideDetectVerticalOffset: -0.1
-  verticalDetectSideOffset: -0.1
-  debugWallRays: 1
 --- !u!50 &7924335594981259064
 Rigidbody2D:
   serializedVersion: 4

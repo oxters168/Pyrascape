@@ -2,7 +2,7 @@
 using UnityHelpers;
 using Rewired;
 
-public class CharacterSpawner : MonoBehaviour
+public class HumanControl : MonoBehaviour
 {
     public int playerId;
     private Player player;
@@ -19,19 +19,25 @@ public class CharacterSpawner : MonoBehaviour
     [Space(10)]
     public LayerMask outdoorViewingLayers = ~0;
     public LayerMask indoorViewingLayers = ~0;
-    [Tooltip("How many tiles should be visible at once")]
-    public Vector2Int renderSize = new Vector2Int(16, 12);
+    // [Tooltip("How many tiles should be visible at once")]
+    // public Vector2Int renderSize = new Vector2Int(16, 12);
+    public RenderForMe WorldRender { get { if (_worldRender == null) _worldRender = GetComponentInChildren<RenderForMe>(); return _worldRender; } }
+    private RenderForMe _worldRender;
     
     [Space(10)]
-    public OrbitCameraController cameraPrefab;
-    public MovementController2D characterPrefab;
-    public Spectator spectatorPrefab;
+    // public OrbitCameraController cameraPrefab;
+    // public MovementController2D characterPrefab;
+    public Entity orbitCamera;
+    public Entity spectator;
+    // public Spectator spectatorPrefab;
     // public WorldGenerator terrainPrefab;
+    public MovementController2D Movement { get { if (_movement == null) _movement = GetComponentInChildren<MovementController2D>(); return _movement; } }
+    private MovementController2D _movement;
     private Spectator spawnedSpectator;
-    private MovementController2D spawnedCharacter;
+    // private MovementController2D spawnedCharacter;
     public OrbitCameraController spawnedCamera { get; private set; }
-    private WorldGenerator terrain;
-    private BackgroundLoop backgroundLoop;
+    // private WorldGenerator terrain;
+    // private BackgroundLoop backgroundLoop;
     public bool isIndoors;
     public bool isSpecIndoors;
     public bool isSpectating;
@@ -43,6 +49,7 @@ public class CharacterSpawner : MonoBehaviour
     private bool usedVehicle;
     private bool usedSpectate;
     private GameObject preSpecControlledObj;
+    private Vector2Int vehiclePrevRenderSize;
     //private bool preSpecIndoors;
     
     void Start()
@@ -65,12 +72,12 @@ public class CharacterSpawner : MonoBehaviour
 
         //Switch camera viewing layers and character layer
         spawnedCamera.GetComponent<Camera>().cullingMask = GetIsIndoors() ? indoorViewingLayers : outdoorViewingLayers;
-        spawnedCharacter.isIndoors = isIndoors;
+        Movement.isIndoors = isIndoors;
     }
     void OnDestroy()
     {
-        Despawn();
-        CharacterRegistry.RemoveCharacter(this);
+        if (CharacterRegistry.HasCharacter(this))
+            CharacterRegistry.RemoveCharacter(this);
     }
 
     public bool GetIsIndoors()
@@ -79,11 +86,11 @@ public class CharacterSpawner : MonoBehaviour
     }
     private void SetCameraColor()
     {
-        var currentBuilding = WorldGenerator.GetCurrentBuilding(terrain.buildings, Vector3Int.RoundToInt(controlledObject.transform.position));
+        var currentBuilding = WorldGenerator.GetCurrentBuilding(WorldGenerator._instance.buildings, Vector3Int.RoundToInt(controlledObject.transform.position));
         Color buildingBg = Color.black;
         if (currentBuilding != null)
             buildingBg = currentBuilding.backgroundColor;
-        Color backgroundColor = GetIsIndoors() ? buildingBg : terrain.currentBiome.backgroundColor;
+        Color backgroundColor = GetIsIndoors() ? buildingBg : WorldGenerator._instance.currentBiome.backgroundColor;
         spawnedCamera.GetComponentInChildren<Camera>().backgroundColor = backgroundColor;
     }
 
@@ -102,41 +109,27 @@ public class CharacterSpawner : MonoBehaviour
         }
     }
 
-    private void Despawn()
-    {
-        //terrain = FindObjectOfType<WorldGenerator>();
-        terrain.RemoveTarget(spawnedCharacter.transform);
-        //backgroundLoop = FindObjectOfType<BackgroundLoop>();
-        backgroundLoop.RemoveTarget(spawnedCharacter.transform);
-        terrain.RemoveTarget(spawnedSpectator.transform);
-        backgroundLoop.RemoveTarget(spawnedSpectator.transform);
-    }
     private void Spawn()
     {
         CharacterRegistry.AddCharacter(this);
 
-        spawnedCharacter = GameObject.Instantiate(characterPrefab) as MovementController2D;
-        spawnedCharacter.transform.position = transform.position;
-        spawnedCharacter.transform.SetParent(transform);
-        controlledObject = spawnedCharacter.gameObject;
+        // spawnedCharacter = GameObject.Instantiate(characterPrefab) as MovementController2D;
+        // Movement.transform.position = transform.position;
+        // Movement.transform.SetParent(transform);
+        controlledObject = Movement.gameObject;
 
-        spawnedSpectator = GameObject.Instantiate(spectatorPrefab) as Spectator;
+        // spawnedSpectator = GameObject.Instantiate(spectatorPrefab) as Spectator;
+        spawnedSpectator = MegaPool.Spawn(spectator) as Spectator;
         spawnedSpectator.transform.position = transform.position;
         spawnedSpectator.transform.SetParent(transform);
-        //controlledObject = spawnedSpectator.gameObject;
 
-        spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
-        spawnedCamera.target = spawnedCharacter.transform;
+        // spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
+        spawnedCamera = MegaPool.Spawn(orbitCamera) as OrbitCameraController;
+        spawnedCamera.target = Movement.transform;
         spawnedCamera.transform.SetParent(transform);
 
-        terrain = FindObjectOfType<WorldGenerator>();
-        backgroundLoop = FindObjectOfType<BackgroundLoop>();
-        terrain.AddOrSetTarget(spawnedCharacter.transform, renderSize);
-        backgroundLoop.AddTarget(spawnedCharacter.transform);
-        terrain.AddOrSetTarget(spawnedSpectator.transform, renderSize);
-        backgroundLoop.AddTarget(spawnedSpectator.transform);
-        // terrain = GameObject.Instantiate(terrainPrefab) as WorldGenerator;
-        // terrain.target = controlledObject.transform;
+        WorldRender.renderTerrain = true;
+        WorldRender.renderBackground = true;
     }
 
     private void EnterExitSpectate()
@@ -177,14 +170,11 @@ public class CharacterSpawner : MonoBehaviour
             {
                 if (!isSpectating)
                 {
-                    var doorDetector = spawnedCharacter.GetComponentInChildren<DoorDetector>();
+                    var doorDetector = Movement.GetComponentInChildren<DoorDetector>();
                     if (doorDetector != null && doorDetector.door != null && doorDetector.door.GetComponent<Door>().isOpen)
                     {
                         usedDoor = true;
                         isIndoors = !isIndoors;
-
-                        
-                        // terrain.isIndoors = !terrain.isIndoors;
                     }
                 }
                 else
@@ -193,10 +183,7 @@ public class CharacterSpawner : MonoBehaviour
                     isSpecIndoors = !isSpecIndoors;
                 }
 
-                if (GetIsIndoors())
-                    backgroundLoop.RemoveTarget(spawnedCharacter.transform);
-                else
-                    backgroundLoop.AddTarget(spawnedCharacter.transform);
+                WorldRender.renderBackground = GetIsIndoors();
             }
         }
         else
@@ -209,11 +196,11 @@ public class CharacterSpawner : MonoBehaviour
             if (!isSpectating && !usedVehicle && !usedDoor)
             {
                 // usedVehicle = true;
-                bool inVehicle = controlledObject != spawnedCharacter.gameObject;
+                bool inVehicle = controlledObject != Movement.gameObject;
                 GameObject nearbyVehicle = null;
                 if (!inVehicle) //If not currently in vehicle then check what vehicle is nearby
                 {
-                    var vehicleDetector = spawnedCharacter.GetComponentInChildren<VehicleDetector>();
+                    var vehicleDetector = Movement.GetComponentInChildren<VehicleDetector>();
                     if (vehicleDetector != null && vehicleDetector.vehicle != null)
                         nearbyVehicle = vehicleDetector.vehicle.gameObject;
                 }
@@ -221,28 +208,31 @@ public class CharacterSpawner : MonoBehaviour
                     
                 if (!isIndoors && !inVehicle && nearbyVehicle != null) //If not in vehicle and there is a vehicle nearby then enter
                 {
-                    var diggerVehicle = nearbyVehicle?.GetComponentInChildren<PodPhysics2D>();
+                    var diggerVehicle = nearbyVehicle?.GetComponentInChildren<Digger>();
                     if (!diggerVehicle || !diggerVehicle.isOccupied) //If the vehicle is not a digger or it is not occupied, if I add other vehicles later I should unify them
                     {
-                        if (diggerVehicle)
+                        bool success = diggerVehicle.Enter();
+                        if (success)
                         {
-                            diggerVehicle.isOccupied = true;
-                            terrain.AddOrSetTarget(nearbyVehicle.transform, renderSize);
-                        }
+                            usedVehicle = true;
+
+                            var vehicleSurroundingsRender = nearbyVehicle.GetComponent<RenderForMe>();
+                            vehiclePrevRenderSize = vehicleSurroundingsRender.renderSize;
+                            vehicleSurroundingsRender.renderSize = WorldRender.renderSize;
                             
-                        usedVehicle = true;
-                        spawnedCharacter.gameObject.SetActive(false);
-                        terrain.RemoveTarget(spawnedCharacter.transform); //Stop tracking character in terrain generation
-                        backgroundLoop.RemoveTarget(spawnedCharacter.transform);
-                        controlledObject = nearbyVehicle;
-                        spawnedCamera.target = nearbyVehicle.transform;
+                            Movement.gameObject.SetActive(false);
+                            WorldRender.renderTerrain = false;
+                            WorldRender.renderBackground = false;
+                            controlledObject = nearbyVehicle;
+                            spawnedCamera.target = nearbyVehicle.transform;
+                        }
                     }
                 }
                 else if (inVehicle) //If in vehicle then exit
                 {
                     usedVehicle = true;
                     var vehicleBounds = controlledObject.transform.GetTotalBounds(Space.World);
-                    var characterBounds = spawnedCharacter.transform.GetTotalBounds(Space.World, false, true);
+                    var characterBounds = Movement.transform.GetTotalBounds(Space.World, false, true);
 
                     //Get all possible exit positions
                     var sprite7Up = controlledObject.GetComponentInChildren<SpriteRenderer>();
@@ -278,25 +268,30 @@ public class CharacterSpawner : MonoBehaviour
                     if (aboveHit == false || bottomHit == false || behindHit == false || frontHit == false) //If no obstacles then exit
                     {
                         var vehiclePhysics = controlledObject.GetComponentInChildren<Rigidbody2D>();
-                        var characterPhysics = spawnedCharacter.GetComponentInChildren<Rigidbody2D>();
+                        var characterPhysics = Movement.GetComponentInChildren<Rigidbody2D>();
 
-                        var diggerVehicle = controlledObject.GetComponentInChildren<PodPhysics2D>();
+                        var diggerVehicle = controlledObject.GetComponentInChildren<Digger>();
                         if (diggerVehicle)
-                            diggerVehicle.isOccupied = false;
+                            diggerVehicle.Exit();
 
                         // spawnedCharacter.transform.position = aboveVehiclePosition;
-                        spawnedCharacter.transform.position = exitPosition;
-                        controlledObject = spawnedCharacter.gameObject;
-                        terrain.AddOrSetTarget(spawnedCharacter.transform, renderSize); //Track character again in terrain generation
-                        backgroundLoop.AddTarget(spawnedCharacter.transform);
-                        spawnedCharacter.gameObject.SetActive(true);
-                        spawnedCamera.target = spawnedCharacter.transform;
+                        WorldRender.renderTerrain = true;
+                        WorldRender.renderBackground = true;
+                        var vehicleSurroundingsRender = controlledObject.GetComponent<RenderForMe>();
+                        vehicleSurroundingsRender.renderSize = vehiclePrevRenderSize;
+
+                        Movement.transform.position = exitPosition;
+                        controlledObject = Movement.gameObject;
+                        // terrain.AddOrSetTarget(spawnedCharacter.transform, renderSize); //Track character again in terrain generation
+                        // backgroundLoop.AddTarget(spawnedCharacter.transform);
+                        Movement.gameObject.SetActive(true);
+                        spawnedCamera.target = Movement.transform;
 
                         if (characterPhysics != null && vehiclePhysics != null)
                             characterPhysics.velocity = vehiclePhysics.velocity + Vector2.up * exitVelocityUpwards;
                     }
                     else
-                        Debug.Log("Exit blocked");
+                        Debug.Log("Exit blocked"); //Seems to be affected by indoor/outdoor regardless of indoor state
                 }
             }
         }
