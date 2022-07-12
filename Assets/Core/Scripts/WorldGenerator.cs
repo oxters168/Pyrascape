@@ -7,7 +7,7 @@ using System.Collections.Generic;
 public class WorldGenerator : MonoBehaviour
 {
     public static WorldGenerator _instance;
-
+    
     public int surfaceHeight = -1;
     [Space(10)]
     public Tile noiseTile;
@@ -15,9 +15,9 @@ public class WorldGenerator : MonoBehaviour
     private bool prevDebugNoise;
 
     [Space(10)]
-    public DoorController doorPrefab;
+    public DockingDoor doorPrefab;
     // private ObjectPool<DoorController> doorsPool;
-    private List<DoorController> doors = new List<DoorController>();
+    private List<DockingDoor> doors = new List<DockingDoor>();
     // public Door trapDoorPrefab;
     // private ObjectPool<Door> trapDoorPool;
     // private List<Door> trapDoors = new List<Door>();
@@ -32,6 +32,7 @@ public class WorldGenerator : MonoBehaviour
 
     [Space(10)]
     private Dictionary<Transform, TargetData> targets = new Dictionary<Transform, TargetData>();
+    private List<TargetData> recentlyRemovedTargets = new List<TargetData>();
 
     [Space(10)]
     public OreInfo oreInfo;
@@ -41,6 +42,10 @@ public class WorldGenerator : MonoBehaviour
 
     private bool firstDraw = true;
     private static FastNoise noise;
+
+    private List<string> entityKeys = new List<string>();
+
+    // private int prevTargetsCount = 0;
 
     void Awake()
     {
@@ -73,21 +78,34 @@ public class WorldGenerator : MonoBehaviour
         GenerateTerrain(targets, false);
     }
 
-    public void AddOrSetTarget(Transform target, Vector2Int renderSize)
-    {
-        if (!targets.ContainsKey(target))
-            targets.Add(target, new TargetData(renderSize));
-        else
-            targets[target].renderSize = renderSize;
-    }
     public bool HasTarget(Transform target)
     {
         return targets.ContainsKey(target);
     }
+    public void AddOrSetTarget(Transform target, Vector2Int renderSize)
+    {
+        if (!targets.ContainsKey(target))
+        {
+            // Debug.Log($"Creating new key combo for {target}");
+            targets.Add(target, new TargetData(renderSize));
+        }
+        else
+        {
+            // Debug.Log($"Modifying render size of {target}");
+            targets[target].renderSize = renderSize;
+        }
+        
+        // GenerateTerrain(targets, false);
+    }
+    
     public void RemoveTarget(Transform target)
     {
         if (targets.ContainsKey(target))
+        {
+            recentlyRemovedTargets.Add(targets[target]);
             targets.Remove(target);
+            // GenerateTerrain(targets, false);
+        }
         else
             Debug.LogError("Cannot remove a target that is not in the world generator targets collection");
     }
@@ -115,23 +133,40 @@ public class WorldGenerator : MonoBehaviour
     public void GenerateTerrain(Dictionary<Transform, TargetData> allTargets, bool forceAll)
     {        
         bool bigChange = forceAll || firstDraw || debugNoise != prevDebugNoise;
-        bool smallChange = false;
+        bool smallChange = recentlyRemovedTargets.Count > 0;
+        // prevTargetsCount = targets.Count();
         IEnumerable<Vector3Int> allNewTiles = new Vector3Int[0];
         IEnumerable<Vector3Int> allOldTiles = new Vector3Int[0];
         foreach (var target in allTargets)
         {
+            bool untampered = target.Value.untampered;
+
             target.Value.prevChunkStart = target.Value.chunkStart;
-            target.Value.chunkStart = new Vector2Int(Mathf.FloorToInt(target.Key.position.x - (target.Value.renderSize.x / 2f)), Mathf.FloorToInt(target.Key.position.y - (target.Value.renderSize.y / 2f)));
+            // target.Value.chunkStart = new Vector2Int(Mathf.FloorToInt(target.Key.position.x - (target.Value.renderSize.x / 2f)), Mathf.FloorToInt(target.Key.position.y - (target.Value.renderSize.y / 2f)));
+            target.Value.chunkStart = GetChunkStart(target.Key.position, target.Value.renderSize);
             if (target.Value.chunkStart != target.Value.prevChunkStart || target.Value.renderSize != target.Value.prevRenderSize)
                 smallChange = true;
             target.Value.prevRenderSize = target.Value.renderSize;
             
             var currentChunk = new RectInt(target.Value.chunkStart, target.Value.renderSize);
             allNewTiles = allNewTiles.Union(GetChunkTilePositions(currentChunk));
-            var prevChunk = new RectInt(target.Value.prevChunkStart, target.Value.renderSize);
-            allOldTiles = allOldTiles.Union(GetChunkTilePositions(prevChunk));
+
+            RectInt prevChunk = new RectInt(Vector2Int.zero, Vector2Int.zero);
+            if (!untampered)
+            {
+                prevChunk = new RectInt(target.Value.prevChunkStart, target.Value.renderSize);
+                allOldTiles = allOldTiles.Union(GetChunkTilePositions(prevChunk));
+            }
+        }
+        for (int i = recentlyRemovedTargets.Count - 1; i >= 0; i--)
+        {
+            var target = recentlyRemovedTargets[i];
+            var stagnatedChunk = new RectInt(target.chunkStart, target.renderSize);
+            allOldTiles = allOldTiles.Union(GetChunkTilePositions(stagnatedChunk));
+            recentlyRemovedTargets.RemoveAt(i);
         }
 
+        var printEnumerable = new System.Func<IEnumerable<Vector3Int>, string>(tiles => (tiles.Count() > 0 ? tiles.Select(tile => tile.ToString()).Aggregate((first, second) => $"{first}, {second}") : ""));
         if (smallChange || bigChange)
         {
             Vector3Int[] tilesToBeDrawn = new Vector3Int[0];
@@ -139,6 +174,7 @@ public class WorldGenerator : MonoBehaviour
             {
                 tilesToBeDrawn = allNewTiles.Except(allOldTiles).ToArray(); //Get exclusive new tiles
                 var tilesToBeCleared = allOldTiles.Except(allNewTiles).ToArray(); //Get exclusive old tiles
+                // Debug.Log($"Clearing {printEnumerable(tilesToBeCleared)}");
                 ClearTiles(tilesToBeCleared); //Clear exclusive old tiles from grid
                 ClearOreMapOf(tilesToBeCleared);
             }
@@ -157,10 +193,15 @@ public class WorldGenerator : MonoBehaviour
             // RemoveObjectsOutsideOf(doors, doorsPool, currentChunk);
             // RemoveObjectsOutsideOf(trapDoors, trapDoorPool, currentChunk);
             //Debug.Log(tilesToBeDrawn == null);
-            DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid //When redrawing an area, doors may double spawn
+            // Debug.Log($"Drawing {printEnumerable(tilesToBeDrawn)}");
+            DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid
             firstDraw = false;
             prevDebugNoise = debugNoise;
         }
+    }
+    public static Vector2Int GetChunkStart(Vector2 position, Vector2Int renderSize)
+    {
+        return new Vector2Int(Mathf.FloorToInt(position.x - (renderSize.x / 2f)), Mathf.FloorToInt(position.y - (renderSize.y / 2f)));
     }
     public OreData GetOreData(Vector3Int tileIndex)
     {
@@ -215,6 +256,17 @@ public class WorldGenerator : MonoBehaviour
                 {
                     indoorBackgroundTiles[i] = currentBuilding.GetBackgroundTileAt(currentTilePos);
                     indoorPhysicalTiles[i] = currentBuilding.GetPhysicalTileAt(currentTilePos);
+                    var entity = currentBuilding.GetEntityAt(currentTilePos);
+                    var entityKey = WorldData.GetUniqueId((Vector2Int)currentTilePos, true);
+                    if (entity != null)
+                        // Debug.Log($"Checking if {entity.name} with key {entityKey} was already spawned");
+                    if (entity != null && !entityKeys.Contains(entityKey))
+                    {
+                        // Debug.Log($"Creating instance of {entity.name}");
+                        entityKeys.Add(entityKey); //Whenever something is spawned, can't be spawned again. Add despawner later
+                        var entityInstance = MegaPool.Spawn(entity);
+                        entityInstance.transform.position = GetCellCenterWorld(currentTilePos) + entity.spawnOffset;
+                    }
                 }
             }
             else
@@ -338,23 +390,30 @@ public class WorldGenerator : MonoBehaviour
         /// <summary>
         /// The chunk the target is currently in represented by the bottom left corner tile index
         /// </summary>
-        public Vector2Int chunkStart;
+        public Vector2Int chunkStart { get { return _chunkStart; } set { untampered = false; _chunkStart = value; } }
+        private Vector2Int _chunkStart;
         /// <summary>
         /// The chunk the target was in in the previous frame
         /// </summary>
-        public Vector2Int prevChunkStart;
+        public Vector2Int prevChunkStart { get { return _prevChunkStart; } set { untampered = false; _prevChunkStart = value; } }
+        private Vector2Int _prevChunkStart;
 
         /// <summary>
         /// How many tiles should be visible at once
         /// </summary>
-        public Vector2Int renderSize;
-        public Vector2Int prevRenderSize;
+        public Vector2Int renderSize { get { return _renderSize; } set { untampered = false; _renderSize = value; } }
+        private Vector2Int _renderSize;
+        public Vector2Int prevRenderSize { get { return _prevRenderSize; } set { untampered = false; _prevRenderSize = value; } }
+        private Vector2Int _prevRenderSize;
+
+        public bool untampered { get; private set; }
 
         private BackgroundLoop currentOutdoorBackground;
 
         public TargetData(Vector2Int renderSize)
         {
             this.renderSize = renderSize;
+            untampered = true;
         }
 
         // public void SetBackground(int bgIndex = -1)

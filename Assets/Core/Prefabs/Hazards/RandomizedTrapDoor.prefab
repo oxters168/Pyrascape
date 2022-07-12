@@ -12,9 +12,9 @@ GameObject:
   - component: {fileID: 2740216795809925897}
   - component: {fileID: 2740216795809925902}
   - component: {fileID: 2740216795809925899}
-  - component: {fileID: 2740216795809925898}
+  - component: {fileID: 9106506598457618467}
   m_Layer: 11
-  m_Name: Platform
+  m_Name: RandomizedTrapDoor
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -131,7 +131,7 @@ BoxCollider2D:
   serializedVersion: 2
   m_Size: {x: 1, y: 0.2}
   m_EdgeRadius: 0
---- !u!114 &2740216795809925898
+--- !u!114 &9106506598457618467
 MonoBehaviour:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
@@ -140,7 +140,7 @@ MonoBehaviour:
   m_GameObject: {fileID: 2740216795809925903}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: e1e253f4b009096949dbb9da9fa4cb57, type: 3}
+  m_Script: {fileID: 11500000, guid: 0e60574b68f6c5244995319caf68f899, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   isOpen: 0

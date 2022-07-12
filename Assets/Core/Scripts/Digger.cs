@@ -12,7 +12,7 @@ public class Digger : MonoBehaviour
     public RenderForMe WorldRender { get { if (_worldRender == null) _worldRender = GetComponent<RenderForMe>(); return _worldRender; } }
     private RenderForMe _worldRender;
 
-    private bool prevDiggerIsOccupied;
+    // private bool prevDiggerIsOccupied;
 
     private Vector3Int currentCell;
     private Bounds podBounds;
@@ -41,8 +41,8 @@ public class Digger : MonoBehaviour
     void Start()
     {
         GetComponentInChildren<PodPhysics2D>();
-        WorldRender.renderTerrain = true;
-        WorldRender.renderBackground = false;
+        // WorldRender.renderTerrain = true;
+        // WorldRender.renderBackground = false;
     }
     void Update()
     {
@@ -93,15 +93,18 @@ public class Digger : MonoBehaviour
 
     private void UpdateWorldRender()
     {
-        if (!isOccupied)
-            WorldRender.renderTerrain = true;
+        WorldRender.SetRenderBackground(isOccupied);
+        //Add render size based on camera when occupied
+        
+        // if (!isOccupied)
+        //     WorldRender.renderTerrain = true;
 
-        if (!isOccupied && prevDiggerIsOccupied)
-            WorldRender.renderBackground = false;
-        if (isOccupied && !prevDiggerIsOccupied)
-            WorldRender.renderBackground = true;
+        // if (!isOccupied && prevDiggerIsOccupied)
+        //     WorldRender.renderBackground = false;
+        // if (isOccupied && !prevDiggerIsOccupied)
+        //     WorldRender.renderBackground = true;
             
-        prevDiggerIsOccupied = isOccupied;
+        // prevDiggerIsOccupied = isOccupied;
     }
 
     private IEnumerator DigTile(Vector3Int tilePosition)

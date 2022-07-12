@@ -122,14 +122,15 @@ public class HumanControl : MonoBehaviour
         spawnedSpectator = MegaPool.Spawn(spectator) as Spectator;
         spawnedSpectator.transform.position = transform.position;
         spawnedSpectator.transform.SetParent(transform);
+        spawnedSpectator.gameObject.SetActive(false);
 
         // spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
         spawnedCamera = MegaPool.Spawn(orbitCamera) as OrbitCameraController;
         spawnedCamera.target = Movement.transform;
         spawnedCamera.transform.SetParent(transform);
 
-        WorldRender.renderTerrain = true;
-        WorldRender.renderBackground = true;
+        // WorldRender.renderTerrain = true;
+        // WorldRender.renderBackground = true;
     }
 
     private void EnterExitSpectate()
@@ -143,6 +144,7 @@ public class HumanControl : MonoBehaviour
 
                 if (isSpectating)
                 {
+                    spawnedSpectator.gameObject.SetActive(true);
                     spawnedSpectator.transform.position = controlledObject.transform.position;
                     preSpecControlledObj = controlledObject;
                     isSpecIndoors = isIndoors;
@@ -150,6 +152,7 @@ public class HumanControl : MonoBehaviour
                 }
                 else
                 {
+                    spawnedSpectator.gameObject.SetActive(false);
                     controlledObject = preSpecControlledObj;
                     controlledObject.transform.position = spawnedSpectator.transform.position;
                     //isIndoors = preSpecIndoors;
@@ -171,7 +174,7 @@ public class HumanControl : MonoBehaviour
                 if (!isSpectating)
                 {
                     var doorDetector = Movement.GetComponentInChildren<DoorDetector>();
-                    if (doorDetector != null && doorDetector.door != null && doorDetector.door.GetComponent<Door>().isOpen)
+                    if (doorDetector != null && doorDetector.door != null && doorDetector.door.GetComponentInParent<Door>().isOpen)
                     {
                         usedDoor = true;
                         isIndoors = !isIndoors;
@@ -183,7 +186,8 @@ public class HumanControl : MonoBehaviour
                     isSpecIndoors = !isSpecIndoors;
                 }
 
-                WorldRender.renderBackground = GetIsIndoors();
+                WorldRender.SetRenderBackground(GetIsIndoors());
+                // WorldRender.renderBackground = GetIsIndoors();
             }
         }
         else
@@ -208,24 +212,21 @@ public class HumanControl : MonoBehaviour
                     
                 if (!isIndoors && !inVehicle && nearbyVehicle != null) //If not in vehicle and there is a vehicle nearby then enter
                 {
-                    var diggerVehicle = nearbyVehicle?.GetComponentInChildren<Digger>();
-                    if (!diggerVehicle || !diggerVehicle.isOccupied) //If the vehicle is not a digger or it is not occupied, if I add other vehicles later I should unify them
+                    bool enteredVehicle = nearbyVehicle?.GetComponentInChildren<Digger>()?.Enter() ?? false;
+                    if (enteredVehicle) //If the vehicle is not a digger or it is not occupied, if I add other vehicles later I should unify them
                     {
-                        bool success = diggerVehicle.Enter();
-                        if (success)
-                        {
-                            usedVehicle = true;
+                        usedVehicle = true;
 
-                            var vehicleSurroundingsRender = nearbyVehicle.GetComponent<RenderForMe>();
-                            vehiclePrevRenderSize = vehicleSurroundingsRender.renderSize;
-                            vehicleSurroundingsRender.renderSize = WorldRender.renderSize;
-                            
-                            Movement.gameObject.SetActive(false);
-                            WorldRender.renderTerrain = false;
-                            WorldRender.renderBackground = false;
-                            controlledObject = nearbyVehicle;
-                            spawnedCamera.target = nearbyVehicle.transform;
-                        }
+                        // var vehicleSurroundingsRender = nearbyVehicle.GetComponent<RenderForMe>();
+                        // vehiclePrevRenderSize = vehicleSurroundingsRender.renderSize;
+                        // vehicleSurroundingsRender.renderSize = WorldRender.renderSize;
+                        // vehicleSurroundingsRender.renderBackground = true;
+                        
+                        Movement.gameObject.SetActive(false);
+                        // WorldRender.renderTerrain = false;
+                        // WorldRender.renderBackground = false;
+                        controlledObject = nearbyVehicle;
+                        spawnedCamera.target = nearbyVehicle.transform;
                     }
                 }
                 else if (inVehicle) //If in vehicle then exit
@@ -275,10 +276,11 @@ public class HumanControl : MonoBehaviour
                             diggerVehicle.Exit();
 
                         // spawnedCharacter.transform.position = aboveVehiclePosition;
-                        WorldRender.renderTerrain = true;
-                        WorldRender.renderBackground = true;
-                        var vehicleSurroundingsRender = controlledObject.GetComponent<RenderForMe>();
-                        vehicleSurroundingsRender.renderSize = vehiclePrevRenderSize;
+                        // WorldRender.renderTerrain = true;
+                        // WorldRender.renderBackground = true;
+                        // var vehicleSurroundingsRender = controlledObject.GetComponent<RenderForMe>();
+                        // vehicleSurroundingsRender.renderSize = vehiclePrevRenderSize;
+                        // vehicleSurroundingsRender.renderBackground = false;
 
                         Movement.transform.position = exitPosition;
                         controlledObject = Movement.gameObject;
