@@ -118,19 +118,27 @@ public class HumanControl : MonoBehaviour
         // Movement.transform.SetParent(transform);
         controlledObject = Movement.gameObject;
 
+        // spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
+        spawnedCamera = MegaPool.Spawn(orbitCamera) as OrbitCameraController;
+        spawnedCamera.target = Movement.transform;
+        spawnedCamera.transform.SetParent(transform);
+
         // spawnedSpectator = GameObject.Instantiate(spectatorPrefab) as Spectator;
         spawnedSpectator = MegaPool.Spawn(spectator) as Spectator;
         spawnedSpectator.transform.position = transform.position;
         spawnedSpectator.transform.SetParent(transform);
         spawnedSpectator.gameObject.SetActive(false);
 
-        // spawnedCamera = GameObject.Instantiate(cameraPrefab) as OrbitCameraController;
-        spawnedCamera = MegaPool.Spawn(orbitCamera) as OrbitCameraController;
-        spawnedCamera.target = Movement.transform;
-        spawnedCamera.transform.SetParent(transform);
+        StartCoroutine(RenderFromCamera()); //This is so the camera has time to move to its correct position first
 
         // WorldRender.renderTerrain = true;
         // WorldRender.renderBackground = true;
+    }
+    private System.Collections.IEnumerator RenderFromCamera()
+    {
+        yield return new WaitForEndOfFrame();
+        WorldRender.RenderingCamera = spawnedCamera.GetComponent<Camera>();
+        spawnedSpectator.WorldRender.RenderingCamera = spawnedCamera.GetComponent<Camera>();
     }
 
     private void EnterExitSpectate()
@@ -186,7 +194,7 @@ public class HumanControl : MonoBehaviour
                     isSpecIndoors = !isSpecIndoors;
                 }
 
-                WorldRender.SetRenderBackground(GetIsIndoors());
+                WorldRender.SetRenderBackground(!GetIsIndoors());
                 // WorldRender.renderBackground = GetIsIndoors();
             }
         }
@@ -212,7 +220,7 @@ public class HumanControl : MonoBehaviour
                     
                 if (!isIndoors && !inVehicle && nearbyVehicle != null) //If not in vehicle and there is a vehicle nearby then enter
                 {
-                    bool enteredVehicle = nearbyVehicle?.GetComponentInChildren<Digger>()?.Enter() ?? false;
+                    bool enteredVehicle = nearbyVehicle?.GetComponentInChildren<Digger>()?.Enter(this) ?? false;
                     if (enteredVehicle) //If the vehicle is not a digger or it is not occupied, if I add other vehicles later I should unify them
                     {
                         usedVehicle = true;

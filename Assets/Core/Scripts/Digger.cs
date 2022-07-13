@@ -18,6 +18,7 @@ public class Digger : MonoBehaviour
     private Bounds podBounds;
     public bool isDigging { get; private set; }
     public bool isOccupied { get; private set; }
+    public HumanControl occupant { get; private set; }
 
     public List<OreData> collectedOres = new List<OreData>();
 
@@ -37,6 +38,7 @@ public class Digger : MonoBehaviour
 
     private float horizontalDownTime;
     private float prevHorizontal;
+    private Vector2Int prevRenderSize;
 
     void Start()
     {
@@ -89,22 +91,6 @@ public class Digger : MonoBehaviour
                 }
             }
         }
-    }
-
-    private void UpdateWorldRender()
-    {
-        WorldRender.SetRenderBackground(isOccupied);
-        //Add render size based on camera when occupied
-        
-        // if (!isOccupied)
-        //     WorldRender.renderTerrain = true;
-
-        // if (!isOccupied && prevDiggerIsOccupied)
-        //     WorldRender.renderBackground = false;
-        // if (isOccupied && !prevDiggerIsOccupied)
-        //     WorldRender.renderBackground = true;
-            
-        // prevDiggerIsOccupied = isOccupied;
     }
 
     private IEnumerator DigTile(Vector3Int tilePosition)
@@ -173,11 +159,12 @@ public class Digger : MonoBehaviour
         isDigging = false;
     }
 
-    public bool Enter()
+    public bool Enter(HumanControl entee)
     {
         if (!isOccupied)
         {
-            isOccupied = true;
+            occupant = entee;
+            SetOccupied(true);
             return true;
         }
         else
@@ -188,12 +175,25 @@ public class Digger : MonoBehaviour
     {
         if (isOccupied)
         {
-            isOccupied = false;
+            SetOccupied(false);
+            occupant = null;
             return true;
         }
         else
             Debug.LogError("Could empty an already empty digger");
         return false;
+    }
+    private void SetOccupied(bool onOff)
+    {
+        if (onOff)
+            prevRenderSize = WorldRender.RenderSize;
+
+        isOccupied = onOff;
+        WorldRender.SetRenderBackground(onOff);
+        WorldRender.RenderingCamera = onOff ? occupant.spawnedCamera.GetComponent<Camera>() : null;
+
+        if (!onOff)
+            WorldRender.RenderSize = prevRenderSize;
     }
     private Vector3Int WorldToCell(Vector3 position)
     {

@@ -135,34 +135,35 @@ public class WorldGenerator : MonoBehaviour
         bool bigChange = forceAll || firstDraw || debugNoise != prevDebugNoise;
         bool smallChange = recentlyRemovedTargets.Count > 0;
         // prevTargetsCount = targets.Count();
-        IEnumerable<Vector3Int> allNewTiles = new Vector3Int[0];
-        IEnumerable<Vector3Int> allOldTiles = new Vector3Int[0];
+        IEnumerable<Vector3Int> currentVisibleTiles = new Vector3Int[0];
+        IEnumerable<Vector3Int> prevVisibleTiles = new Vector3Int[0];
         foreach (var target in allTargets)
         {
             bool untampered = target.Value.untampered;
 
-            target.Value.prevChunkStart = target.Value.chunkStart;
             // target.Value.chunkStart = new Vector2Int(Mathf.FloorToInt(target.Key.position.x - (target.Value.renderSize.x / 2f)), Mathf.FloorToInt(target.Key.position.y - (target.Value.renderSize.y / 2f)));
-            target.Value.chunkStart = GetChunkStart(target.Key.position, target.Value.renderSize);
+            target.Value.chunkStart = GetChunkStart(target.Key.GetTotalBounds(Space.World).center, target.Value.renderSize);
             if (target.Value.chunkStart != target.Value.prevChunkStart || target.Value.renderSize != target.Value.prevRenderSize)
                 smallChange = true;
-            target.Value.prevRenderSize = target.Value.renderSize;
             
             var currentChunk = new RectInt(target.Value.chunkStart, target.Value.renderSize);
-            allNewTiles = allNewTiles.Union(GetChunkTilePositions(currentChunk));
+            currentVisibleTiles = currentVisibleTiles.Union(GetChunkTilePositions(currentChunk));
 
             RectInt prevChunk = new RectInt(Vector2Int.zero, Vector2Int.zero);
             if (!untampered)
             {
-                prevChunk = new RectInt(target.Value.prevChunkStart, target.Value.renderSize);
-                allOldTiles = allOldTiles.Union(GetChunkTilePositions(prevChunk));
+                prevChunk = new RectInt(target.Value.prevChunkStart, target.Value.prevRenderSize);
+                prevVisibleTiles = prevVisibleTiles.Union(GetChunkTilePositions(prevChunk));
             }
+
+            target.Value.prevChunkStart = target.Value.chunkStart;
+            target.Value.prevRenderSize = target.Value.renderSize;
         }
         for (int i = recentlyRemovedTargets.Count - 1; i >= 0; i--)
         {
             var target = recentlyRemovedTargets[i];
             var stagnatedChunk = new RectInt(target.chunkStart, target.renderSize);
-            allOldTiles = allOldTiles.Union(GetChunkTilePositions(stagnatedChunk));
+            prevVisibleTiles = prevVisibleTiles.Union(GetChunkTilePositions(stagnatedChunk));
             recentlyRemovedTargets.RemoveAt(i);
         }
 
@@ -172,8 +173,8 @@ public class WorldGenerator : MonoBehaviour
             Vector3Int[] tilesToBeDrawn = new Vector3Int[0];
             if (!bigChange)
             {
-                tilesToBeDrawn = allNewTiles.Except(allOldTiles).ToArray(); //Get exclusive new tiles
-                var tilesToBeCleared = allOldTiles.Except(allNewTiles).ToArray(); //Get exclusive old tiles
+                tilesToBeDrawn = currentVisibleTiles.Except(prevVisibleTiles).ToArray(); //Get exclusive new tiles
+                var tilesToBeCleared = prevVisibleTiles.Except(currentVisibleTiles).ToArray(); //Get exclusive old tiles
                 // Debug.Log($"Clearing {printEnumerable(tilesToBeCleared)}");
                 ClearTiles(tilesToBeCleared); //Clear exclusive old tiles from grid
                 ClearOreMapOf(tilesToBeCleared);
@@ -186,7 +187,7 @@ public class WorldGenerator : MonoBehaviour
                 outdoorForeground.ClearAllTiles();
                 outdoorPhysical.ClearAllTiles();
                 outdoorBackground.ClearAllTiles();
-                tilesToBeDrawn = allNewTiles.ToArray();
+                tilesToBeDrawn = currentVisibleTiles.ToArray();
                 oreMap.Clear();
             }
 
@@ -201,6 +202,7 @@ public class WorldGenerator : MonoBehaviour
     }
     public static Vector2Int GetChunkStart(Vector2 position, Vector2Int renderSize)
     {
+        position += Vector2.one * 0.5f; //Offset to be more properly centered
         return new Vector2Int(Mathf.FloorToInt(position.x - (renderSize.x / 2f)), Mathf.FloorToInt(position.y - (renderSize.y / 2f)));
     }
     public OreData GetOreData(Vector3Int tileIndex)

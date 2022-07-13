@@ -1,4 +1,5 @@
 using UnityEngine;
+using UnityHelpers;
 
 public class RenderForMe : MonoBehaviour
 {
@@ -7,8 +8,12 @@ public class RenderForMe : MonoBehaviour
     public BackgroundLoop TheBackgroundLoop { get { if (_backgroundLoop == null) _backgroundLoop = FindObjectOfType<BackgroundLoop>(); return _backgroundLoop; } }
     private BackgroundLoop _backgroundLoop;
 
-    [Tooltip("How many tiles should the world generator make visible around you at once")]
-    public Vector2Int renderSize = new Vector2Int(4, 4);
+    public Camera RenderingCamera { get { return _renderingCamera; } set { _renderingCamera = value; ApplyCamera(); } }
+    [SerializeField, Tooltip("Will automatically set the render size to fit the camera's view")]
+    private Camera _renderingCamera;
+    public Vector2Int RenderSize { get { return _renderSize; } set { _renderSize = value; ApplySelf(); } }
+    [SerializeField, Tooltip("How many tiles should the world generator make visible around you at once")]
+    private Vector2Int _renderSize = new Vector2Int(3, 3);
     private Vector2Int prevRenderSize = Vector2Int.zero;
 
     [Space(10), SerializeField, Tooltip("If set to on will tell the world generator to generate around you")]
@@ -18,12 +23,18 @@ public class RenderForMe : MonoBehaviour
 
     void OnEnable()
     {
+        ApplyCamera();
         ApplySelf();
     }
-    void Update()
+    void OnValidate()
     {
+        ApplyCamera();
         ApplySelf();
     }
+    // void Update()
+    // {
+    //     ApplySelf();
+    // }
     void OnDisable()
     {
         ApplySelf();
@@ -47,15 +58,31 @@ public class RenderForMe : MonoBehaviour
         ApplySelf();
     }
 
+    private void ApplyCamera()
+    {
+        if (RenderingCamera != null)
+            RenderSize = CalculateRenderSize(RenderingCamera);
+    }
+    public static Vector2Int CalculateRenderSize(Camera camera)
+    {
+        var renderSize = Vector2Int.zero;
+        if (camera != null)
+        {
+            var size = camera.PerspectiveFrustum(Mathf.Abs(camera.transform.position.z));
+            renderSize = size.CeilToInt() + Vector2Int.one * 2; //Adding two to pad the edges
+        }
+        return renderSize;
+    }
+
     private void ApplySelf()
     {
         if (Terrain != null)
         {
-            if (gameObject.activeInHierarchy && renderTerrain && (!Terrain.HasTarget(transform) || renderSize != prevRenderSize))
+            if (gameObject.activeInHierarchy && renderTerrain && (!Terrain.HasTarget(transform) || RenderSize != prevRenderSize))
             {
                 // Debug.Log($"Adding or setting {transform.name} in terrain to {renderSize}");
-                Terrain.AddOrSetTarget(transform, renderSize);
-                prevRenderSize = renderSize;
+                Terrain.AddOrSetTarget(transform, RenderSize);
+                prevRenderSize = RenderSize;
             }
             else if ((!gameObject.activeInHierarchy || !renderTerrain) && Terrain.HasTarget(transform))
             {

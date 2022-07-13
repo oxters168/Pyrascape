@@ -14,6 +14,9 @@ public class Spectator : MonoBehaviour, IValueManager
 
     // private WorldGenerator terrain;
     // private BackgroundLoop backgroundLoop;
+    public RenderForMe WorldRender { get { if (_worldRender == null) _worldRender = GetComponentInChildren<RenderForMe>(); return _worldRender; } }
+    private RenderForMe _worldRender;
+    
     [Tooltip("In m/s")]
     public float speed = 10f;
     public ValuesVault controlValues;
