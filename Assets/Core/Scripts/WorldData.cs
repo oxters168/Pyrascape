@@ -27,6 +27,10 @@ public class WorldData
     {
         return IsDug(new Vector2Int(tilePosition.x, tilePosition.y), indoor);
     }
+    public static string GetUniqueId(Vector2Int position, bool isIndoors)
+    {
+        return $"{position.x}:{position.y}:{isIndoors}";
+    }
 
     // public static Vector2Int GetChunkFromTile(Vector2Int tilePosition)
     // {

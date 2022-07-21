@@ -3,12 +3,12 @@ using System.Collections.Generic;
 
 public static class CharacterRegistry
 {
-    private static List<CharacterSpawner> currentSpawnedCharacters = new List<CharacterSpawner>();
+    private static List<HumanControl> currentSpawnedCharacters = new List<HumanControl>();
 
     /// <summary>
     /// This function is called by CharacterSpawner in the Start function to add itself to the registry
     /// </summary>
-    public static void AddCharacter(CharacterSpawner character)
+    public static void AddCharacter(HumanControl character)
     {
         if (character == null)
             Debug.LogError("Cannot add null character to registry");
@@ -20,7 +20,7 @@ public static class CharacterRegistry
     /// <summary>
     /// This function is called by CharacterSpawner in the OnDestroy function to remove itself from the registry
     /// </summary>
-    public static void RemoveCharacter(CharacterSpawner character)
+    public static void RemoveCharacter(HumanControl character)
     {
         if (character == null)
             Debug.LogError("Cannot remove null character from registry");
@@ -29,8 +29,12 @@ public static class CharacterRegistry
         else
             Debug.LogError("Could not remove non-existing character from registry");
     }
+    public static bool HasCharacter(HumanControl character)
+    {
+        return currentSpawnedCharacters.Contains(character);
+    }
 
-    public static CharacterSpawner[] GetCurrentCharacters()
+    public static HumanControl[] GetCurrentCharacters()
     {
         return currentSpawnedCharacters.ToArray();
     }

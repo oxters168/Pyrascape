@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 public class WorldGenerator : MonoBehaviour
 {
+    public static WorldGenerator _instance;
+    
     public int surfaceHeight = -1;
     [Space(10)]
     public Tile noiseTile;
@@ -13,19 +15,14 @@ public class WorldGenerator : MonoBehaviour
     private bool prevDebugNoise;
 
     [Space(10)]
-    public DoorController doorPrefab;
-    private ObjectPool<DoorController> doorsPool;
-    public int buildingMaxWidth = 8;
-    public int buildingMaxHeight = 8;
-    public int buildingCushionX = 8;
-    public int buildingCushionY = 8;
-    private List<DoorController> doors = new List<DoorController>();
-    public Door trapDoorPrefab;
-    private ObjectPool<Door> trapDoorPool;
-    private List<Door> trapDoors = new List<Door>();
+    public DockingDoor doorPrefab;
+    // private ObjectPool<DoorController> doorsPool;
+    private List<DockingDoor> doors = new List<DockingDoor>();
+    // public Door trapDoorPrefab;
+    // private ObjectPool<Door> trapDoorPool;
+    // private List<Door> trapDoors = new List<Door>();
 
     [Space(10)]
-    // public bool isIndoors;
     public Tilemap indoorForeground;
     public Tilemap indoorPhysical;
     public Tilemap indoorBackground;
@@ -34,30 +31,35 @@ public class WorldGenerator : MonoBehaviour
     public Tilemap outdoorBackground;
 
     [Space(10)]
-    // public Transform target;
     private Dictionary<Transform, TargetData> targets = new Dictionary<Transform, TargetData>();
+    private List<TargetData> recentlyRemovedTargets = new List<TargetData>();
 
     [Space(10)]
-    // public Ore orePrefab;
-    public NoiseInfo oreNoise;
-    public OreScriptableObject oreInfo;
+    public OreInfo oreInfo;
     public BiomeInfo currentBiome;
-    public BuildingScriptableObject buildingsInfo;
-    public BuildingInfo currentBuilding;
-    private BackgroundLoop currentOutdoorBackground;
-    private Dictionary<Vector3Int, OreData> oreMap = new Dictionary<Vector3Int, OreData>();
+    public BuildingInfo[] buildings;
+    private Dictionary<Vector3Int, OreData> oreMap = new Dictionary<Vector3Int, OreData>(); //Necessary to know what is dug
 
     private bool firstDraw = true;
-    private FastNoise noise;
+    private static FastNoise noise;
 
+    private List<string> entityKeys = new List<string>();
+
+    // private int prevTargetsCount = 0;
+
+    void Awake()
+    {
+        _instance = this;
+    }
     void Start()
     {
+        Application.targetFrameRate = 60;
         noise = new FastNoise(WorldData.seed);
         Transform doorsParent = new GameObject("Doors").transform;
         // Transform oresParent = new GameObject("Ores").transform;
-        doorsPool = new ObjectPool<DoorController>(doorPrefab, 5, false, true, doorsParent);
+        // doorsPool = new ObjectPool<DoorController>(doorPrefab, 5, false, true, doorsParent);
         // oresPool = new ObjectPool<Ore>(orePrefab, 5, false, true, oresParent);
-        trapDoorPool = new ObjectPool<Door>(trapDoorPrefab, 5, false, true, doorsParent);
+        // trapDoorPool = new ObjectPool<Door>(trapDoorPrefab, 5, false, true, doorsParent);
     }
     void Update()
     {
@@ -76,17 +78,34 @@ public class WorldGenerator : MonoBehaviour
         GenerateTerrain(targets, false);
     }
 
+    public bool HasTarget(Transform target)
+    {
+        return targets.ContainsKey(target);
+    }
     public void AddOrSetTarget(Transform target, Vector2Int renderSize)
     {
         if (!targets.ContainsKey(target))
+        {
+            // Debug.Log($"Creating new key combo for {target}");
             targets.Add(target, new TargetData(renderSize));
+        }
         else
+        {
+            // Debug.Log($"Modifying render size of {target}");
             targets[target].renderSize = renderSize;
+        }
+        
+        // GenerateTerrain(targets, false);
     }
+    
     public void RemoveTarget(Transform target)
     {
         if (targets.ContainsKey(target))
+        {
+            recentlyRemovedTargets.Add(targets[target]);
             targets.Remove(target);
+            // GenerateTerrain(targets, false);
+        }
         else
             Debug.LogError("Cannot remove a target that is not in the world generator targets collection");
     }
@@ -108,36 +127,55 @@ public class WorldGenerator : MonoBehaviour
     }
     public Vector3 GetCellCenterWorld(Vector3Int tilePosition)
     {
-        return outdoorPhysical.GetCellCenterWorld(tilePosition);
+        return outdoorPhysical.GetCellCenterWorld(tilePosition) + Vector3.down * 0.5f;
     }
 
     public void GenerateTerrain(Dictionary<Transform, TargetData> allTargets, bool forceAll)
     {        
         bool bigChange = forceAll || firstDraw || debugNoise != prevDebugNoise;
-        bool smallChange = false;
-        IEnumerable<Vector3Int> allNewTiles = new Vector3Int[0];
-        IEnumerable<Vector3Int> allOldTiles = new Vector3Int[0];
+        bool smallChange = recentlyRemovedTargets.Count > 0;
+        // prevTargetsCount = targets.Count();
+        IEnumerable<Vector3Int> currentVisibleTiles = new Vector3Int[0];
+        IEnumerable<Vector3Int> prevVisibleTiles = new Vector3Int[0];
         foreach (var target in allTargets)
         {
-            target.Value.prevChunkStart = target.Value.chunkStart;
-            target.Value.chunkStart = new Vector2Int(Mathf.FloorToInt(target.Key.position.x - (target.Value.renderSize.x / 2f)), Mathf.FloorToInt(target.Key.position.y - (target.Value.renderSize.y / 2f)));
+            bool untampered = target.Value.untampered;
+
+            // target.Value.chunkStart = new Vector2Int(Mathf.FloorToInt(target.Key.position.x - (target.Value.renderSize.x / 2f)), Mathf.FloorToInt(target.Key.position.y - (target.Value.renderSize.y / 2f)));
+            target.Value.chunkStart = GetChunkStart(target.Key.GetTotalBounds(Space.World).center, target.Value.renderSize);
             if (target.Value.chunkStart != target.Value.prevChunkStart || target.Value.renderSize != target.Value.prevRenderSize)
                 smallChange = true;
-            target.Value.prevRenderSize = target.Value.renderSize;
             
             var currentChunk = new RectInt(target.Value.chunkStart, target.Value.renderSize);
-            allNewTiles = allNewTiles.Union(GetChunkTilePositions(currentChunk));
-            var prevChunk = new RectInt(target.Value.prevChunkStart, target.Value.renderSize);
-            allOldTiles = allOldTiles.Union(GetChunkTilePositions(prevChunk));
+            currentVisibleTiles = currentVisibleTiles.Union(GetChunkTilePositions(currentChunk));
+
+            RectInt prevChunk = new RectInt(Vector2Int.zero, Vector2Int.zero);
+            if (!untampered)
+            {
+                prevChunk = new RectInt(target.Value.prevChunkStart, target.Value.prevRenderSize);
+                prevVisibleTiles = prevVisibleTiles.Union(GetChunkTilePositions(prevChunk));
+            }
+
+            target.Value.prevChunkStart = target.Value.chunkStart;
+            target.Value.prevRenderSize = target.Value.renderSize;
+        }
+        for (int i = recentlyRemovedTargets.Count - 1; i >= 0; i--)
+        {
+            var target = recentlyRemovedTargets[i];
+            var stagnatedChunk = new RectInt(target.chunkStart, target.renderSize);
+            prevVisibleTiles = prevVisibleTiles.Union(GetChunkTilePositions(stagnatedChunk));
+            recentlyRemovedTargets.RemoveAt(i);
         }
 
+        var printEnumerable = new System.Func<IEnumerable<Vector3Int>, string>(tiles => (tiles.Count() > 0 ? tiles.Select(tile => tile.ToString()).Aggregate((first, second) => $"{first}, {second}") : ""));
         if (smallChange || bigChange)
         {
             Vector3Int[] tilesToBeDrawn = new Vector3Int[0];
             if (!bigChange)
             {
-                tilesToBeDrawn = allNewTiles.Except(allOldTiles).ToArray(); //Get exclusive new tiles
-                var tilesToBeCleared = allOldTiles.Except(allNewTiles).ToArray(); //Get exclusive old tiles
+                tilesToBeDrawn = currentVisibleTiles.Except(prevVisibleTiles).ToArray(); //Get exclusive new tiles
+                var tilesToBeCleared = prevVisibleTiles.Except(currentVisibleTiles).ToArray(); //Get exclusive old tiles
+                // Debug.Log($"Clearing {printEnumerable(tilesToBeCleared)}");
                 ClearTiles(tilesToBeCleared); //Clear exclusive old tiles from grid
                 ClearOreMapOf(tilesToBeCleared);
             }
@@ -149,16 +187,23 @@ public class WorldGenerator : MonoBehaviour
                 outdoorForeground.ClearAllTiles();
                 outdoorPhysical.ClearAllTiles();
                 outdoorBackground.ClearAllTiles();
-                tilesToBeDrawn = allNewTiles.ToArray();
+                tilesToBeDrawn = currentVisibleTiles.ToArray();
                 oreMap.Clear();
             }
 
             // RemoveObjectsOutsideOf(doors, doorsPool, currentChunk);
             // RemoveObjectsOutsideOf(trapDoors, trapDoorPool, currentChunk);
-            DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid //When redrawing an area, doors may double spawn
+            //Debug.Log(tilesToBeDrawn == null);
+            // Debug.Log($"Drawing {printEnumerable(tilesToBeDrawn)}");
+            DrawTiles(tilesToBeDrawn); //Add exclusive new tiles to grid
             firstDraw = false;
             prevDebugNoise = debugNoise;
         }
+    }
+    public static Vector2Int GetChunkStart(Vector2 position, Vector2Int renderSize)
+    {
+        position += Vector2.one * 0.5f; //Offset to be more properly centered
+        return new Vector2Int(Mathf.FloorToInt(position.x - (renderSize.x / 2f)), Mathf.FloorToInt(position.y - (renderSize.y / 2f)));
     }
     public OreData GetOreData(Vector3Int tileIndex)
     {
@@ -194,125 +239,35 @@ public class WorldGenerator : MonoBehaviour
             //Generate terrain
             if (!debugNoise)
             {
-                //Ornament tiles
-                if (currentTilePos.y == 0 && !WorldData.IsDug(currentTilePos + Vector3Int.down, false))
-                    outdoorForegroundTiles[i] = currentBiome.ornamentalTile;
+                outdoorForegroundTiles[i] = currentBiome.GetOrnamentTileAt(currentTilePos);
+                outdoorBackgroundTiles[i] = currentBiome.GetBackgroundTileAt(currentTilePos);
+                outdoorPhysicalTiles[i] = currentBiome.GetPhysicalTileAt(currentTilePos);
 
-                //Background and physical tiles
-                if (currentTilePos.y <= surfaceHeight)
+                var currentOre = oreInfo.GetOreAt(currentTilePos, outdoorPhysicalTiles[i] != null);
+                if (currentOre != null)
                 {
-                    outdoorBackgroundTiles[i] = currentBiome.backgroundTile; //Background tiles
+                    outdoorForegroundTiles[i] = currentOre.ore;
+                    oreMap[currentTilePos] = currentOre.Clone();
+                }
 
-                    Vector3Int leftTilePos = currentTilePos + Vector3Int.left;
-                    Vector3Int upperTilePos = currentTilePos + Vector3Int.up;
-                    Vector3Int rightTilePos = currentTilePos + Vector3Int.right;
-                    Vector3Int lowerTilePos = currentTilePos + Vector3Int.down;
-                    bool hasLeftTile = !WorldData.IsDug(leftTilePos, false);
-                    bool hasTopTile = currentTilePos.y < surfaceHeight && !WorldData.IsDug(upperTilePos, false);
-                    bool hasRightTile = !WorldData.IsDug(rightTilePos, false);
-                    bool hasBotTile = !WorldData.IsDug(lowerTilePos, false) && NoiseCheck(lowerTilePos, currentBiome.noise);
-                    if (currentTilePos.y < surfaceHeight)
+                //Add door to building
+                // if (currentTilePos.x == buildingCorner.x + 1 && currentTilePos.y == buildingCorner.y + 1)
+                //     doors.Add(doorsPool.Get(door => { door.world = this; door.transform.position = outdoorPhysical.CellToWorld(currentTilePos) + Vector3.right * 0.5f; }));
+                var currentBuilding = GetCurrentBuilding(buildings, currentTilePos);
+                if (currentBuilding != null)
+                {
+                    indoorBackgroundTiles[i] = currentBuilding.GetBackgroundTileAt(currentTilePos);
+                    indoorPhysicalTiles[i] = currentBuilding.GetPhysicalTileAt(currentTilePos);
+                    var entity = currentBuilding.GetEntityAt(currentTilePos);
+                    var entityKey = WorldData.GetUniqueId((Vector2Int)currentTilePos, true);
+                    if (entity != null)
+                        // Debug.Log($"Checking if {entity.name} with key {entityKey} was already spawned");
+                    if (entity != null && !entityKeys.Contains(entityKey))
                     {
-                        hasLeftTile &= NoiseCheck(leftTilePos, currentBiome.noise);
-                        hasRightTile &= NoiseCheck(rightTilePos, currentBiome.noise);
-                    }
-                    if (currentTilePos.y < surfaceHeight - 1)
-                        hasTopTile &= NoiseCheck(upperTilePos, currentBiome.noise);
-                    int borderIndex = (hasLeftTile ? 1 : 0) + (hasTopTile ? 2 : 0) + (hasRightTile ? 4 : 0) + (hasBotTile ? 8 : 0);
-
-                    if (currentTilePos.y == surfaceHeight && !WorldData.IsDug(currentTilePos, false))
-                        outdoorPhysicalTiles[i] = currentBiome.surfaceTile[borderIndex];
-
-                    if (currentTilePos.y < surfaceHeight && NoiseCheck(currentTilePos, currentBiome.noise) && !WorldData.IsDug(currentTilePos, false))
-                        outdoorPhysicalTiles[i] = currentBiome.undergroundTile[borderIndex];
-
-
-
-                    //Place ore?
-                    if (currentTilePos.y < surfaceHeight && outdoorPhysicalTiles[i] != null) //If we are currently underneath the surface and there currently exists
-                    {
-                        for (int j = oreInfo.ores.Length - 1; j >= 0; j--)
-                        {
-                            var currentOre = oreInfo.ores[j];
-                            var currentDepth = Mathf.Abs(currentTilePos.y - (surfaceHeight - 1)); //(surfaceHeight - 1) because we don't want to consider the surface
-                            if (currentDepth >= currentOre.minDepth && currentDepth <= currentOre.maxDepth) //If we are in the correct depth
-                            {
-                                float depthPercent = ((float)(currentDepth - currentOre.minDepth)) / (currentOre.maxDepth - currentOre.minDepth); //Get the t value to evaluate with based on depth
-                                float currentDepthChance = (currentOre.percentSpread.Evaluate(depthPercent) * (currentOre.maxPercentChance - currentOre.minPercentChance)) + currentOre.minPercentChance; //Evaluate to retrieve the chance of spawning
-                                if ((1 - currentDepthChance) < GetNoiseValueOf(currentTilePos, oreNoise))
-                                {
-                                    // ores.Add(oresPool.Get(ore => { ore.world = this; ore.oreData = currentOre.Clone(); ore.transform.position = outdoorPhysical.CellToWorld(currentTilePos) + (Vector3.right + Vector3.up) * 0.5f; }));
-                                    outdoorForegroundTiles[i] = currentOre.ore;
-                                    oreMap[currentTilePos] = currentOre.Clone();
-                                    break;
-                                }
-                            }
-                        }
-                    }
-
-                    if (currentTilePos.y < surfaceHeight - 1)
-                    {
-
-                        //Calculate building's start corner
-                        Vector3Int buildingCorner = new Vector3Int(Mathf.FloorToInt(((float)currentTilePos.x) / (buildingMaxWidth + buildingCushionX)) * (buildingMaxWidth + buildingCushionX), Mathf.FloorToInt(((float)currentTilePos.y) / (buildingMaxHeight + buildingCushionY)) * (buildingMaxHeight + buildingCushionY), 0);
-                        
-                        //Add door to building
-                        if (currentTilePos.x == buildingCorner.x + 1 && currentTilePos.y == buildingCorner.y + 1)
-                            doors.Add(doorsPool.Get(door => { door.world = this; door.transform.position = outdoorPhysical.CellToWorld(currentTilePos) + Vector3.right * 0.5f; }));
-                        
-                        //Populate building
-                        if (currentTilePos.x >= buildingCorner.x && currentTilePos.x < (buildingCorner.x + buildingMaxWidth) && currentTilePos.y >= buildingCorner.y && currentTilePos.y < (buildingCorner.y + buildingMaxHeight))
-                        {
-                            //Set background tiles through entire building
-                            indoorBackgroundTiles[i] = currentBuilding.backgroundTile;
-
-                            hasLeftTile = !WorldData.IsDug(leftTilePos, true) && NoiseCheck(leftTilePos, currentBuilding.noise);
-                            hasTopTile = !WorldData.IsDug(upperTilePos, true) && NoiseCheck(upperTilePos, currentBuilding.noise);
-                            hasRightTile = !WorldData.IsDug(rightTilePos, true) && NoiseCheck(rightTilePos, currentBuilding.noise);
-                            hasBotTile = !WorldData.IsDug(lowerTilePos, true) && NoiseCheck(lowerTilePos, currentBuilding.noise);
-
-                            float buildingTilePerlin = GetNoiseValueOf(currentTilePos, currentBuilding.noise);
-
-                            //Set walls of building
-                            if (currentTilePos.x == buildingCorner.x && currentTilePos.y == buildingCorner.y) //Bottom left corner
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[6];
-                            else if (currentTilePos.x == buildingCorner.x && currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1)) //Top left corner
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[12];
-                            else if (currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1) && currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1)) //Top right corner
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[9];
-                            else if (currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1) && currentTilePos.y == buildingCorner.y) //Bottom right corner
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[3];
-                            else if (currentTilePos.y == buildingCorner.y) //Bottom wall
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[5]; //Don't add any border since first tile is always empty
-                            else if (currentTilePos.y == (buildingCorner.y + buildingMaxHeight - 1)) //Top wall
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[5 + (hasBotTile ? 8 : 0)];
-                            else if (currentTilePos.x == buildingCorner.x) //Left wall
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[10 + (hasRightTile ? 4 : 0)];
-                            else if (currentTilePos.x == (buildingCorner.x + buildingMaxWidth - 1)) //Right wall
-                                indoorPhysicalTiles[i] = currentBuilding.wallTile[10 + (hasLeftTile ? 1 : 0)];
-                            else if (currentTilePos.y > buildingCorner.y + 1 && NoiseCheck(buildingTilePerlin, currentBuilding.noise) && !WorldData.IsDug(currentTilePos, true)) //Inner walls
-                            {
-                                if (currentTilePos.x == buildingCorner.x + 1) //Near left edge, so make sure has left border
-                                    hasLeftTile = true;
-                                if (currentTilePos.x == buildingCorner.x + buildingMaxWidth - 2) //Near right edge, so make sure has right border
-                                    hasRightTile = true;
-                                if (currentTilePos.y == buildingCorner.y + 2) //Near bottom edge, so make sure does not have bottom border since first tile is always empty
-                                    hasBotTile = false;
-                                if (currentTilePos.y == buildingCorner.y + buildingMaxHeight - 2) //Near top edge, so make sure has top border
-                                    hasTopTile = true;
-
-                                if (!hasBotTile && !hasTopTile && buildingTilePerlin >= currentBuilding.noise.threshold * 1.1f)
-                                {
-                                    // WorldData.SetDug(currentTilePos, true);
-                                    trapDoors.Add(trapDoorPool.Get(trapDoor => { trapDoor.transform.position = outdoorPhysical.CellToWorld(currentTilePos); }));
-                                }
-                                else
-                                {
-                                    borderIndex = (hasLeftTile ? 1 : 0) + (hasTopTile ? 2 : 0) + (hasRightTile ? 4 : 0) + (hasBotTile ? 8 : 0);
-                                    indoorPhysicalTiles[i] = currentBuilding.wallTile[borderIndex];
-                                }
-                            }
-                        }
+                        // Debug.Log($"Creating instance of {entity.name}");
+                        entityKeys.Add(entityKey); //Whenever something is spawned, can't be spawned again. Add despawner later
+                        var entityInstance = MegaPool.Spawn(entity);
+                        entityInstance.transform.position = GetCellCenterWorld(currentTilePos) + entity.spawnOffset;
                     }
                 }
             }
@@ -324,11 +279,16 @@ public class WorldGenerator : MonoBehaviour
                 outdoorPhysical.SetColor(currentTilePos, new Color(perlin, perlin, perlin, 1));
                 outdoorPhysical.RefreshTile(currentTilePos);
 
-                perlin = GetNoiseValueOf(currentTilePos, currentBuilding.noise);
-                indoorPhysical.SetTile(currentTilePos, noiseTile);
-                indoorPhysical.SetTileFlags(currentTilePos, TileFlags.None);
-                indoorPhysical.SetColor(currentTilePos, new Color(perlin, perlin, perlin, 1));
-                indoorPhysical.RefreshTile(currentTilePos);
+                var currentBuilding = GetCurrentBuilding(buildings, currentTilePos);
+                if (currentBuilding != null)
+                {
+                    perlin = GetNoiseValueOf(currentTilePos, currentBuilding.noise);
+                    indoorPhysical.SetTile(currentTilePos, noiseTile);
+                    indoorPhysical.SetTileFlags(currentTilePos, TileFlags.None);
+                    indoorPhysical.SetColor(currentTilePos, new Color(perlin, perlin, perlin, 1));
+                    indoorPhysical.RefreshTile(currentTilePos);
+                }
+                break;
             }
         }
         
@@ -342,6 +302,26 @@ public class WorldGenerator : MonoBehaviour
             outdoorBackground.SetTiles(tilesToBeDrawn, outdoorBackgroundTiles);
         }
     }
+
+    public static BuildingInfo GetCurrentBuilding(BuildingInfo[] buildings, Vector3Int currentTilePos)
+    {
+        BuildingInfo building = null;
+        for (int i = 0; i < buildings.Length; i++)
+        {
+            if (IsInsideBuilding(buildings[i], currentTilePos))
+            {
+                building = buildings[i];
+                break;
+            }
+        }
+        return building;
+    }
+    private static bool IsInsideBuilding(BuildingInfo building, Vector3Int currentTilePos)
+    {
+        //Will later have psuedo randomized x position here
+        return currentTilePos.x >= building.corner.x && currentTilePos.x < (building.corner.x + building.size.x) && currentTilePos.y >= building.corner.y && currentTilePos.y < (building.corner.y + building.size.y);
+    }
+    
 
     private static IEnumerable<Vector3Int> GetChunkTilePositions(RectInt chunk)
     {
@@ -383,7 +363,7 @@ public class WorldGenerator : MonoBehaviour
         outdoorPhysical.SetTiles(tilesToBeCleared, nullTiles);
         outdoorBackground.SetTiles(tilesToBeCleared, nullTiles);
     }
-    private float GetNoiseValueOf(Vector3Int tilePosition, NoiseInfo noiseInfo)
+    public static float GetNoiseValueOf(Vector3Int tilePosition, NoiseInfo noiseInfo)
     {
         float rawNoise = 1;
         if (noise != null)
@@ -396,12 +376,12 @@ public class WorldGenerator : MonoBehaviour
         }
         return rawNoise;
     }
-    private bool NoiseCheck(Vector3Int tilePosition, NoiseInfo noiseInfo)
+    public static bool NoiseCheck(Vector3Int tilePosition, NoiseInfo noiseInfo)
     {
         float perlin = GetNoiseValueOf(tilePosition, noiseInfo);
         return NoiseCheck(perlin, noiseInfo);
     }
-    private bool NoiseCheck(float perlinValue, NoiseInfo noiseInfo)
+    public static bool NoiseCheck(float perlinValue, NoiseInfo noiseInfo)
     {
         return noiseInfo.invert && perlinValue <= noiseInfo.threshold || !noiseInfo.invert && perlinValue >= noiseInfo.threshold;
     }
@@ -412,23 +392,30 @@ public class WorldGenerator : MonoBehaviour
         /// <summary>
         /// The chunk the target is currently in represented by the bottom left corner tile index
         /// </summary>
-        public Vector2Int chunkStart;
+        public Vector2Int chunkStart { get { return _chunkStart; } set { untampered = false; _chunkStart = value; } }
+        private Vector2Int _chunkStart;
         /// <summary>
         /// The chunk the target was in in the previous frame
         /// </summary>
-        public Vector2Int prevChunkStart;
+        public Vector2Int prevChunkStart { get { return _prevChunkStart; } set { untampered = false; _prevChunkStart = value; } }
+        private Vector2Int _prevChunkStart;
 
         /// <summary>
         /// How many tiles should be visible at once
         /// </summary>
-        public Vector2Int renderSize;
-        public Vector2Int prevRenderSize;
+        public Vector2Int renderSize { get { return _renderSize; } set { untampered = false; _renderSize = value; } }
+        private Vector2Int _renderSize;
+        public Vector2Int prevRenderSize { get { return _prevRenderSize; } set { untampered = false; _prevRenderSize = value; } }
+        private Vector2Int _prevRenderSize;
+
+        public bool untampered { get; private set; }
 
         private BackgroundLoop currentOutdoorBackground;
 
         public TargetData(Vector2Int renderSize)
         {
             this.renderSize = renderSize;
+            untampered = true;
         }
 
         // public void SetBackground(int bgIndex = -1)

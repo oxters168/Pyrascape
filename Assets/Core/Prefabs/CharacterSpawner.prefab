@@ -59,5 +59,7 @@ MonoBehaviour:
     type: 3}
   characterPrefab: {fileID: 7924335594981259068, guid: 2d6ab429bf89f92a5a5847772c0e6d8e,
     type: 3}
+  spectatorPrefab: {fileID: 3500144896119435805, guid: 035db9296c91bd244a5b3fdd338c38fd,
+    type: 3}
   isIndoors: 0
   exitVelocityUpwards: 0
