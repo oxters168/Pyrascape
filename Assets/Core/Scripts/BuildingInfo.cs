@@ -11,8 +11,10 @@ public class BuildingInfo : ScriptableObject
     [Tooltip("The building's door relative to the corner position")]
     public Vector2Int doorPos;
     public Entity door;
+    public Entity trapDoor;
     [Tooltip("How the building's tiles should be placed")]
     public NoiseInfo noise;
+    public NoiseInfo entityNoise;
     [Tooltip("When the player is in this building, what should the camera's solid color be set to")]
     public Color backgroundColor;
     [Tooltip("The tiles that make up the walls of the building, they must be placed in a specific order")]
@@ -29,36 +31,31 @@ public class BuildingInfo : ScriptableObject
     {
         TileBase physicalTile = null;
 
-        Vector3Int leftTilePos = currentTilePos + Vector3Int.left;
-        Vector3Int upperTilePos = currentTilePos + Vector3Int.up;
-        Vector3Int rightTilePos = currentTilePos + Vector3Int.right;
-        Vector3Int lowerTilePos = currentTilePos + Vector3Int.down;
+        bool hasLeftTile = HasTileAt(currentTilePos, Vector3Int.left);
+        bool hasTopTile = HasTileAt(currentTilePos, Vector3Int.up);
+        bool hasRightTile = HasTileAt(currentTilePos, Vector3Int.right);
+        bool hasBotTile = HasTileAt(currentTilePos, Vector3Int.down);
 
-        bool hasLeftTile = !WorldData.IsDug(leftTilePos, true) && WorldGenerator.NoiseCheck(leftTilePos, noise);
-        bool hasTopTile = !WorldData.IsDug(upperTilePos, true) && WorldGenerator.NoiseCheck(upperTilePos, noise);
-        bool hasRightTile = !WorldData.IsDug(rightTilePos, true) && WorldGenerator.NoiseCheck(rightTilePos, noise);
-        bool hasBotTile = !WorldData.IsDug(lowerTilePos, true) && WorldGenerator.NoiseCheck(lowerTilePos, noise);
-
-        float buildingTilePerlin = WorldGenerator.GetNoiseValueOf(currentTilePos, noise);
+        // float buildingTilePerlin = WorldGenerator.GetNoiseValueOf(currentTilePos, noise);
 
         //Set walls of building
-        if (currentTilePos.x == corner.x && currentTilePos.y == corner.y) //Bottom left corner
+        if (IsBottomLeftCorner(currentTilePos))
             physicalTile = wallTile[6];
-        else if (currentTilePos.x == corner.x && currentTilePos.y == (corner.y + size.y - 1)) //Top left corner
+        else if (IsTopLeftCorner(currentTilePos)) //Top left corner
             physicalTile = wallTile[12];
-        else if (currentTilePos.x == (corner.x + size.x - 1) && currentTilePos.y == (corner.y + size.y - 1)) //Top right corner
+        else if (IsTopRightCorner(currentTilePos)) //Top right corner
             physicalTile = wallTile[9];
-        else if (currentTilePos.x == (corner.x + size.x - 1) && currentTilePos.y == corner.y) //Bottom right corner
+        else if (IsBottomRightCorner(currentTilePos)) //Bottom right corner
             physicalTile = wallTile[3];
-        else if (currentTilePos.y == corner.y) //Bottom wall
+        else if (IsBottomWall(currentTilePos)) //Bottom wall
             physicalTile = wallTile[5]; //Don't add any border since first tile is always empty
-        else if (currentTilePos.y == (corner.y + size.y - 1)) //Top wall
+        else if (IsTopWall(currentTilePos)) //Top wall
             physicalTile = wallTile[5 + (hasBotTile ? 8 : 0)];
-        else if (currentTilePos.x == corner.x) //Left wall
+        else if (IsLeftWall(currentTilePos)) //Left wall
             physicalTile = wallTile[10 + (hasRightTile ? 4 : 0)];
-        else if (currentTilePos.x == (corner.x + size.x - 1)) //Right wall
+        else if (IsRightWall(currentTilePos)) //Right wall
             physicalTile = wallTile[10 + (hasLeftTile ? 1 : 0)];
-        else if (currentTilePos.y > corner.y + 1 && WorldGenerator.NoiseCheck(buildingTilePerlin, noise) && !WorldData.IsDug(currentTilePos, true)) //Inner walls
+        else if (currentTilePos.y > corner.y + 1 && HasTileAt(currentTilePos)) //Inner walls
         {
             if (currentTilePos.x == corner.x + 1) //Near left edge, so make sure has left border
                 hasLeftTile = true;
@@ -85,8 +82,60 @@ public class BuildingInfo : ScriptableObject
     }
     public Entity GetEntityAt(Vector3Int currentTilePos)
     {
+        bool hasEntity = WorldGenerator.NoiseCheck(currentTilePos, entityNoise);
         if (currentTilePos == (Vector3Int)(corner + doorPos))
             return door;
+        else if (hasEntity && !HasTileAt(currentTilePos) && !HasTileAt(currentTilePos, Vector3Int.down) && !HasTileAt(currentTilePos, Vector3Int.up))
+            return trapDoor;
         return null;
+    }
+    public bool HasTileAt(Vector3Int currentTilePos, Vector3Int offset)
+    {
+        return HasTileAt(currentTilePos + offset);
+    }
+    public bool HasTileAt(Vector3Int currentTilePos)
+    {
+        return IsInnerWall(currentTilePos) || IsOuterWall(currentTilePos);
+    }
+    public bool IsInnerWall(Vector3Int currentTilePos)
+    {
+        return !WorldData.IsDug(currentTilePos, true) && WorldGenerator.NoiseCheck(currentTilePos, noise);
+    }
+    
+    public bool IsBottomLeftCorner(Vector3Int currentTilePos)
+    {
+        return currentTilePos.x == corner.x && currentTilePos.y == corner.y;
+    }
+    public bool IsTopLeftCorner(Vector3Int currentTilePos)
+    {
+        return currentTilePos.x == corner.x && currentTilePos.y == (corner.y + size.y - 1);
+    }
+    public bool IsTopRightCorner(Vector3Int currentTilePos)
+    {
+        return currentTilePos.x == (corner.x + size.x - 1) && currentTilePos.y == (corner.y + size.y - 1);
+    }
+    public bool IsBottomRightCorner(Vector3Int currentTilePos)
+    {
+        return currentTilePos.x == (corner.x + size.x - 1) && currentTilePos.y == corner.y;
+    }
+    public bool IsBottomWall(Vector3Int currentTilePos)
+    {
+        return currentTilePos.y == corner.y;
+    }
+    public bool IsTopWall(Vector3Int currentTilePos)
+    {
+        return currentTilePos.y == (corner.y + size.y - 1);
+    }
+    public bool IsLeftWall(Vector3Int currentTilePos)
+    {
+        return currentTilePos.x == corner.x;
+    }
+    public bool IsRightWall(Vector3Int currentTilePos)
+    {
+        return currentTilePos.x == (corner.x + size.x - 1);
+    }
+    public bool IsOuterWall(Vector3Int currentTilePos)
+    {
+        return IsBottomWall(currentTilePos) || IsTopWall(currentTilePos) || IsLeftWall(currentTilePos) || IsRightWall(currentTilePos) || IsBottomLeftCorner(currentTilePos) || IsBottomRightCorner(currentTilePos) || IsTopLeftCorner(currentTilePos) || IsBottomRightCorner(currentTilePos);
     }
 }

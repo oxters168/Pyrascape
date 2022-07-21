@@ -127,7 +127,7 @@ public class WorldGenerator : MonoBehaviour
     }
     public Vector3 GetCellCenterWorld(Vector3Int tilePosition)
     {
-        return outdoorPhysical.GetCellCenterWorld(tilePosition);
+        return outdoorPhysical.GetCellCenterWorld(tilePosition) + Vector3.down * 0.5f;
     }
 
     public void GenerateTerrain(Dictionary<Transform, TargetData> allTargets, bool forceAll)

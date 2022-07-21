@@ -276,8 +276,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   isOpen: 0
-  randomlyOpenClose: 0
-  interval: 3
 --- !u!1 &7886924977332102832
 GameObject:
   m_ObjectHideFlags: 0

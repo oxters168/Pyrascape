@@ -21,6 +21,9 @@ public class RenderForMe : MonoBehaviour
     [SerializeField, Tooltip("If set to true will tell background loop to follow you")]
     private bool renderBackground = true;
 
+    private float prevPixelWidth;
+    private float prevPixelHeight;
+
     void OnEnable()
     {
         ApplyCamera();
@@ -31,10 +34,16 @@ public class RenderForMe : MonoBehaviour
         ApplyCamera();
         ApplySelf();
     }
-    // void Update()
-    // {
-    //     ApplySelf();
-    // }
+    void Update()
+    {
+        if (RenderingCamera != null && (RenderingCamera.GetComponent<Camera>().pixelWidth != prevPixelWidth || RenderingCamera.GetComponent<Camera>().pixelHeight != prevPixelHeight))
+        {
+            prevPixelWidth = RenderingCamera.GetComponent<Camera>().pixelWidth;
+            prevPixelHeight = RenderingCamera.GetComponent<Camera>().pixelHeight;
+            ApplyCamera();
+            ApplySelf();
+        }
+    }
     void OnDisable()
     {
         ApplySelf();
